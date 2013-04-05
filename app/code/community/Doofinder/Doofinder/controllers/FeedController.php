@@ -5,7 +5,7 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
   const CATEGORY_SEPARATOR = '/';
   const CATEGORY_TREE_SEPARATOR = '>';
 
-  protected static $csvHeader = array('id', 'title', 'link', 'description', 'price', 'sale_price', 'image_link', 'categories', 'availability', 'brand', 'gtin', 'mpn');
+  protected static $csvHeader = array('id', 'title', 'link', 'description', 'price', 'sale_price', 'image_link', 'categories', 'availability', 'brand', 'gtin', 'mpn', 'extra_title');
 
   public function indexAction()
   {
@@ -57,16 +57,26 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
 
     foreach ($collection as $product)
     {
+      // ID
       echo $product->getId().self::TXT_SEPARATOR;
-      echo self::cleanString($product->getName()).self::TXT_SEPARATOR;
+
+      // TITLE
+      $product_title = self::cleanString($product->getName());
+      echo $product_title.self::TXT_SEPARATOR;
+
+      // LINK
       echo $product->getUrlInStore().self::TXT_SEPARATOR;
+
+      // DESCRIPTION
       echo self::cleanString($product->getDescription()).self::TXT_SEPARATOR;
 
       $actualPrice = $tax->getPrice($product, $product->getPrice(), true);
       $specialPrice = $tax->getPrice($product, $product->getFinalPrice(), true);
 
+      // PRICE
       echo number_format(self::cleanString($actualPrice), 2, '.', '').self::TXT_SEPARATOR;
 
+      // SALE PRICE
       if ($actualPrice > $specialPrice)
       {
         echo number_format(self::cleanString($specialPrice), 2, '.', '').self::TXT_SEPARATOR;
@@ -76,7 +86,10 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
         echo "".self::TXT_SEPARATOR;
       }
 
+      // IMAGE LINK
       echo $product->getSmallImageUrl().self::TXT_SEPARATOR;
+
+      // PRODUCT CATEGORIES
 
       $categories = "";
       $categoryIds = $product->getCategoryIds();
@@ -106,10 +119,20 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
 
       echo $categories.self::TXT_SEPARATOR;
 
+      // AVAILABILITY
       echo ($product->isInStock() ? 'in stock' : 'out of stock').self::TXT_SEPARATOR;
+
+      // BRAND
       echo self::cleanString($product->getAttributeText('manufacturer')).self::TXT_SEPARATOR;
+
+      // GTIN
       echo self::cleanString($product->getSku()).self::TXT_SEPARATOR;
-      echo self::cleanString($product->getModel());
+
+      // MPN
+      echo self::cleanString($product->getModel()).self::TXT_SEPARATOR;
+
+      // EXTRA TITLE
+      echo self::purgeString($product_title);
 
       echo PHP_EOL;
       flush(); ob_flush();
@@ -123,5 +146,18 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
     $text = strip_tags(html_entity_decode($text, ENT_QUOTES, 'UTF-8'));
     $text = str_replace(array(chr(9), chr(10)), " ", $text);
     return trim(preg_replace('/[\t\s]+|[|\r\n]/', " ", $text));
+  }
+
+  /**
+   * Cleans a string in an extreme way to deal with conflictive strings like
+   * titles that contains references that can be searched with or without
+   * certain characters.
+   *
+   * TODO: Make it configurable from the admin.
+   */
+  protected static function purgeString($text)
+  {
+    $forbidden = array('-');
+    return str_replace($forbidden, "", $text);
   }
 }
