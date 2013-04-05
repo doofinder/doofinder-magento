@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <modules>
+        <Doofinder_Doofinder>
+            <version>1.0.1</version>
+        </Doofinder_Doofinder>
+    </modules>
+
+    <frontend>
+        <routers>
+            <doofinder>
+                <use>standard</use>
+                <args>
+                    <module>Doofinder_Doofinder</module>
+                    <frontName>doofinder</frontName>
+                </args>
+            </doofinder>
+        </routers>
+    </frontend>
+</config>
