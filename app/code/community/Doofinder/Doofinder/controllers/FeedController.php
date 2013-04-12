@@ -5,7 +5,7 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
   const CATEGORY_SEPARATOR = '/';
   const CATEGORY_TREE_SEPARATOR = '>';
 
-  protected static $csvHeader = array('id', 'title', 'link', 'description', 'price', 'sale_price', 'image_link', 'categories', 'availability', 'brand', 'gtin', 'mpn', 'extra_title');
+  protected static $csvHeader = array('id', 'title', 'link', 'description', 'price', 'sale_price', 'image_link', 'categories', 'availability', 'brand', 'gtin', 'mpn', 'extra_title_1', 'extra_title_2');
 
   // (/default)?/doofinder/feed/version
   public function versionAction()

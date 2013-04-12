@@ -1,5 +1,5 @@
 <_>
-   <form_key>lDzEzJR6sdEcfd1S</form_key>
+   <form_key>q69jwd9rHOjO535E</form_key>
    <name>Doofinder_Doofinder</name>
    <channel>community</channel>
    <version_ids>
@@ -17,9 +17,9 @@ The Doofinder service is not free but it has a 30 day trial period. You can crea
 http://www.doofinder.com</description>
    <license>Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported</license>
    <license_uri>http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode</license_uri>
-   <version>1.0.3</version>
+   <version>1.0.4</version>
    <stability>stable</stability>
-   <notes>Added http://www.example.com(/shopid)?/doofinder/feed/version action and better product filtering.</notes>
+   <notes>Fixed bug in header.</notes>
    <authors>
       <name>
          <name>Enrique Martínez Pagés</name>
@@ -51,7 +51,7 @@ http://www.doofinder.com</description>
             <max/>
          </max>
          <files>
-            <files>            </files>
+            <files>              </files>
          </files>
       </package>
       <extension>
@@ -93,8 +93,4 @@ http://www.doofinder.com</description>
          <ignore/>
       </ignore>
    </contents>
-   <page>1</page>
-   <limit>200</limit>
-   <folder/>
-   <package/>
 </_>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
     <name>Doofinder_Doofinder</name>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <stability>stable</stability>
     <license uri="http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported</license>
     <channel>community</channel>
@@ -16,11 +16,11 @@ The data feed publish only public information of your products.&#xD;
 The Doofinder service is not free but it has a 30 day trial period. You can create an account visiting the Doofinder site at:&#xD;
 &#xD;
 http://www.doofinder.com</description>
-    <notes>Added http://www.example.com(/shopid)?/doofinder/feed/version action and better product filtering.</notes>
+    <notes>Fixed bug in header.</notes>
     <authors><author><name>Enrique Mart&#xED;nez Pag&#xE9;s</name><user>doofinder</user><email>enrique@doofinder.com</email></author><author><name>Carlos Escribano Rey</name><user>markhaus</user><email>carlos@markhaus.com</email></author></authors>
     <date>2013-04-12</date>
-    <time>10:43:44</time>
-    <contents><target name="magecommunity"><dir name="Doofinder"><dir name="Doofinder"><dir name="controllers"><file name="FeedController.php" hash="56178c3bd2c83938a33d9376b3eade8c"/></dir><dir name="etc"><file name="config.xml" hash="29b97bbd9dc2192e8f90cb7ca7e4bea1"/></dir></dir></dir></target><target name="mageetc"><dir name="modules"><file name="Doofinder_Doofinder.xml" hash="1eb374b3961b943390eea62796491877"/></dir></target></contents>
+    <time>12:08:55</time>
+    <contents><target name="magecommunity"><dir name="Doofinder"><dir name="Doofinder"><dir name="controllers"><file name="FeedController.php" hash="83686bb31a2407fc8129df41ef0bd163"/></dir><dir name="etc"><file name="config.xml" hash="bcceeb4e004684e113c6310cfa9fec01"/></dir></dir></dir></target><target name="mageetc"><dir name="modules"><file name="Doofinder_Doofinder.xml" hash="1eb374b3961b943390eea62796491877"/></dir></target></contents>
     <compatible/>
     <dependencies><required><php><min>5.2.13</min><max>6.0.0</max></php></required></dependencies>
 </package>
