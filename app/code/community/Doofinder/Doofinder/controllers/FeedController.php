@@ -7,6 +7,23 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
 
   protected static $csvHeader = array('id', 'title', 'link', 'description', 'price', 'sale_price', 'image_link', 'categories', 'availability', 'brand', 'gtin', 'mpn', 'extra_title');
 
+  // (/default)?/doofinder/feed/version
+  public function versionAction()
+  {
+    $request = $this->getRequest();
+    $app = Mage::app();
+    $app->loadAreaPart(Mage_Core_Model_App_Area::AREA_FRONTEND, Mage_Core_Model_App_Area::PART_EVENTS);
+
+    $this->getResponse()
+      ->clearHeaders()
+      ->setHeader('Content-Type','text/plain; charset=UTF-8')
+      ->sendHeaders();
+
+    die(Mage::getConfig()->getNode()->modules->Doofinder_Doofinder->version);
+  }
+
+  // (/default)?/doofinder/feed/
+  // (/default)?/doofinder/feed/index
   public function indexAction()
   {
     $request = $this->getRequest();
@@ -37,16 +54,11 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
     // Get products
 
     $collection = Mage::getModel('catalog/product')
-      ->setStoreId($store->getStoreId())
       ->getCollection()
       ->addAttributeToSelect('*')
+      ->addAttributeToFilter('visibility', array('neq' => Mage_Catalog_Model_Product_Visibility::VISIBILITY_NOT_VISIBLE))
+      ->addAttributeToFilter('status', array('eq' => Mage_Catalog_Model_Product_Status::STATUS_ENABLED))
       ->addStoreFilter($store->getStoreId());
-
-    Mage::getSingleton('catalog/product_status')
-      ->addVisibleFilterToCollection($collection);
-
-    Mage::getSingleton('catalog/product_visibility')
-      ->addVisibleInCatalogFilterToCollection($collection);
 
     // Output
 
@@ -120,7 +132,7 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
       echo $categories.self::TXT_SEPARATOR;
 
       // AVAILABILITY
-      echo ($product->isInStock() ? 'in stock' : 'out of stock').self::TXT_SEPARATOR;
+      echo ($product->isAvailable() ? 'in stock' : 'out of stock').self::TXT_SEPARATOR;
 
       // BRAND
       echo self::cleanString($product->getAttributeText('manufacturer')).self::TXT_SEPARATOR;
@@ -131,8 +143,11 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
       // MPN
       echo self::cleanString($product->getModel()).self::TXT_SEPARATOR;
 
-      // EXTRA TITLE
-      echo self::purgeString($product_title);
+      // EXTRA TITLE 1: TN-2220 => TN2220
+      echo self::cleanReferences($product_title).self::TXT_SEPARATOR;
+
+      // EXTRA TITLE 2: TN2220 => TN 2220
+      echo self::splitReferences($product_title);
 
       echo PHP_EOL;
       flush(); ob_flush();
@@ -155,9 +170,14 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
    *
    * TODO: Make it configurable from the admin.
    */
-  protected static function purgeString($text)
+  protected static function cleanReferences($text)
   {
     $forbidden = array('-');
     return str_replace($forbidden, "", $text);
+  }
+
+  protected static function splitReferences($text)
+  {
+    return preg_replace("/([^\d\s])([\d])/", "$1 $2", $text);
   }
 }
