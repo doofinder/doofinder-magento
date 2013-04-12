@@ -1,0 +1,100 @@
+<_>
+   <form_key>lDzEzJR6sdEcfd1S</form_key>
+   <name>Doofinder_Doofinder</name>
+   <channel>community</channel>
+   <version_ids>
+      <version_ids>2</version_ids>
+   </version_ids>
+   <summary>This extension allows to generate the data feed file required to use the Doofinder search service.</summary>
+   <description>Doofinder is an on-site search service that provides fast and accurate results based on your website content.
+
+This free extension allows you to populate the data feed file required to use the Doofinder search service for each store view in a URL.
+
+The data feed publish only public information of your products.
+
+The Doofinder service is not free but it has a 30 day trial period. You can create an account visiting the Doofinder site at:
+
+http://www.doofinder.com</description>
+   <license>Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported</license>
+   <license_uri>http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode</license_uri>
+   <version>1.0.3</version>
+   <stability>stable</stability>
+   <notes>Added http://www.example.com(/shopid)?/doofinder/feed/version action and better product filtering.</notes>
+   <authors>
+      <name>
+         <name>Enrique Martínez Pagés</name>
+         <name>Carlos Escribano Rey</name>
+      </name>
+      <user>
+         <user>doofinder</user>
+         <user>markhaus</user>
+      </user>
+      <email>
+         <email>enrique@doofinder.com</email>
+         <email>carlos@markhaus.com</email>
+      </email>
+   </authors>
+   <depends_php_min>5.2.13</depends_php_min>
+   <depends_php_max>6.0.0</depends_php_max>
+   <depends>
+      <package>
+         <name>
+            <name/>
+         </name>
+         <channel>
+            <channel/>
+         </channel>
+         <min>
+            <min/>
+         </min>
+         <max>
+            <max/>
+         </max>
+         <files>
+            <files>            </files>
+         </files>
+      </package>
+      <extension>
+         <name>
+            <name>Core</name>
+         </name>
+         <min>
+            <min/>
+         </min>
+         <max>
+            <max/>
+         </max>
+      </extension>
+   </depends>
+   <contents>
+      <target>
+         <target>magelocal</target>
+         <target>magecommunity</target>
+         <target>mageetc</target>
+      </target>
+      <path>
+         <path/>
+         <path>Doofinder/Doofinder</path>
+         <path>modules/Doofinder_Doofinder.xml</path>
+      </path>
+      <type>
+         <type>file</type>
+         <type>dir</type>
+         <type>file</type>
+      </type>
+      <include>
+         <include/>
+         <include/>
+         <include/>
+      </include>
+      <ignore>
+         <ignore/>
+         <ignore/>
+         <ignore/>
+      </ignore>
+   </contents>
+   <page>1</page>
+   <limit>200</limit>
+   <folder/>
+   <package/>
+</_>
