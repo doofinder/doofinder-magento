@@ -86,17 +86,16 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
       $specialPrice = $tax->getPrice($product, $product->getFinalPrice(), true);
 
       // PRICE
-      echo number_format(self::cleanString($actualPrice), 2, '.', '').self::TXT_SEPARATOR;
+      if ($actualPrice > 0.0)
+        echo number_format(self::cleanString($actualPrice), 2, '.', '').self::TXT_SEPARATOR;
+      else
+        echo "".self::TXT_SEPARATOR;
 
       // SALE PRICE
-      if ($actualPrice > $specialPrice)
-      {
+      if ($actualPrice > 0.0 && $actualPrice > $specialPrice)
         echo number_format(self::cleanString($specialPrice), 2, '.', '').self::TXT_SEPARATOR;
-      }
       else
-      {
         echo "".self::TXT_SEPARATOR;
-      }
 
       // IMAGE LINK
       echo $product->getSmallImageUrl().self::TXT_SEPARATOR;
