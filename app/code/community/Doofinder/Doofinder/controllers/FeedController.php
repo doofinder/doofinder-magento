@@ -95,7 +95,7 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
 
     for ($i = 1; $i < $nbcategories; $i++)
     {
-      if (strpos($categories[$i], $categories[$i - 1]) == 0)
+      if (strpos($categories[$i], $categories[$i - 1]) === 0)
         continue;
       $result[] = $categories[$i - 1];
     }
