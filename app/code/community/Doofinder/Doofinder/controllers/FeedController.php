@@ -56,15 +56,19 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
       ->sendHeaders();
 
     $oConfig = Mage::getConfig()->getNode();
-
     $feeds = array();
 
     foreach ($app->getStores() as $store)
     {
       $code = $store->getCode();
+      if (!$this->_initStore($code))
+        continue;
+
       $feeds[] = array(
+        'id' => $this->_iCurrentStoreId,
         'code' => $code,
-        'url' => $store->getUrl('doofinder/feed')
+        'url' => $store->getUrl('doofinder/feed'),
+        'length' => $this->_countProducts()
       );
     }
 
@@ -74,7 +78,7 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
         "version" => Mage::getVersion()
       ),
       "module" => array(
-        "version" => $oConfig->modules->Doofinder_Doofinder->version,
+        "version" => $oConfig->modules->Doofinder_Doofinder->version->asArray(),
         "feeds" => $feeds
       )
     );
@@ -261,7 +265,7 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
   /**
    * Get the store code from $_GET and init the store in the object instance.
    */
-  private function _initStore()
+  private function _initStore($storeCode = null)
   {
     $app = Mage::app();
     $app->loadAreaPart(
@@ -269,7 +273,7 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
       Mage_Core_Model_App_Area::PART_EVENTS);
 
     if (! ($store = $this->getRequest()->getParam('___store', null)))
-      $store = $this->getRequest()->getParam('store', null);
+      $store = $this->getRequest()->getParam('store', $storeCode);
 
     $store = $app->getSafeStore($store);
 
