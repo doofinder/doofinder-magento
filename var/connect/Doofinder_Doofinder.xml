@@ -17,7 +17,7 @@ The Doofinder service is not free but it has a 30 day trial period. You can crea
 http://www.doofinder.com</description>
    <license>Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported</license>
    <license_uri>http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode</license_uri>
-   <version>1.0.6.1</version>
+   <version>1.0.6.2</version>
    <stability>stable</stability>
    <notes>Improved config info.</notes>
    <authors>
@@ -51,7 +51,7 @@ http://www.doofinder.com</description>
             <max/>
          </max>
          <files>
-            <files>                  </files>
+            <files>                   </files>
          </files>
       </package>
       <extension>

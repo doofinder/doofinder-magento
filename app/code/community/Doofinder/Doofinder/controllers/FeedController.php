@@ -67,7 +67,7 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
       $feeds[] = array(
         'id' => $this->_iCurrentStoreId,
         'code' => $code,
-        'url' => $store->getUrl('doofinder/feed'),
+        'url' => $store->getUrl('doofinder/feed', array('_store_to_url' => true)),
         'length' => $this->_countProducts()
       );
     }
