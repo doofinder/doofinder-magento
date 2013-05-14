@@ -297,7 +297,7 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
    *                            a limited number of results starting from the
    *                            value of the "offset" parameter (defaults to 0).
    * @param integer $_GET offset Optional. Used only with "limit".
-   * @param integer $_GET chunksize Size of the results block got from database
+   * @param integer $_GET chunk_size Size of the results block got from database
    *                                on each query.
    * @param string $_GET store Optional. Defaults to the default store. Code of
    *                           the store we want to get the data from.
@@ -307,7 +307,7 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
    *
    * (/<store>)?/doofinder/feed/index
    * (/<store>)?/doofinder/feed/
-   * (/<store>)?/doofinder/feed?chunksize=1000
+   * (/<store>)?/doofinder/feed?chunk_size=1000
    * (/<store>)?/doofinder/feed?offset=0&limit=10
    * (/<store>)?/doofinder/feed?limit=10
    * /doofinder/feed?___store=english
@@ -341,15 +341,18 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
     // Send products
 
     $iLimit = intval($this->getRequest()->getParam('limit', 0));
-    $iChunk = intval($this->getRequest()->getParam('chunksize', 1000));
+    $iChunk = intval($this->getRequest()->getParam('chunk_size', 1000));
     $iOffset0 = intval($this->getRequest()->getParam('offset', 0));
 
     // (/default)?/doofinder/feed?offset=0&limit=10
     // (/default)?/doofinder/feed?limit=10
     if ($iLimit)
     {
-      echo implode(self::TXT_SEPARATOR, self::$csvHeader).PHP_EOL;
-      flush(); ob_flush();
+      if ($iOffset0 === 0)
+      {
+        echo implode(self::TXT_SEPARATOR, self::$csvHeader).PHP_EOL;
+        flush(); ob_flush();
+      }
 
       $collection = $this->_getProductCollection($iOffset0, $iLimit);
       Mage::getSingleton('core/resource_iterator')->walk(
@@ -357,7 +360,7 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
         array(array($this, '_addProductToFeed'))
       );
     }
-    // (/default)?/doofinder/feed?chunksize=1000
+    // (/default)?/doofinder/feed?chunk_size=1000
     // (/default)?/doofinder/feed
     else
     {
