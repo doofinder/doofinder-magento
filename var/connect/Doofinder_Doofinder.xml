@@ -1,5 +1,5 @@
 <_>
-   <form_key>hh4rBgdRcE0Q6eXD</form_key>
+   <form_key>JuxN8Jrs3WMETbjD</form_key>
    <name>Doofinder_Doofinder</name>
    <channel>community</channel>
    <version_ids>
@@ -17,9 +17,9 @@ The Doofinder service is not free but it has a 30 day trial period. You can crea
 http://www.doofinder.com</description>
    <license>Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported</license>
    <license_uri>http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode</license_uri>
-   <version>1.0.6.3</version>
+   <version>1.0.6.4</version>
    <stability>stable</stability>
-   <notes>Improved interface with doofinder.</notes>
+   <notes>Fixed minimum PHP version based on the official testing script.</notes>
    <authors>
       <name>
          <name>Enrique Martínez Pagés</name>
@@ -34,7 +34,7 @@ http://www.doofinder.com</description>
          <email>carlos@markhaus.com</email>
       </email>
    </authors>
-   <depends_php_min>5.2.13</depends_php_min>
+   <depends_php_min>5.2.0</depends_php_min>
    <depends_php_max>6.0.0</depends_php_max>
    <depends>
       <package>
@@ -51,7 +51,7 @@ http://www.doofinder.com</description>
             <max/>
          </max>
          <files>
-            <files>                    </files>
+            <files>                       </files>
          </files>
       </package>
       <extension>
