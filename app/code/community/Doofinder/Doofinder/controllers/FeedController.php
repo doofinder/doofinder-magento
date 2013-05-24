@@ -247,8 +247,10 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
     echo ($product->isAvailable() ? 'in stock' : 'out of stock').self::TXT_SEPARATOR;
 
     // BRAND
+    $brand = "";
     try {
-      $brand = self::cleanString($product->getAttributeText('manufacturer'));
+      if ($product->getManufacturer())
+        $brand = self::cleanString($product->getAttributeText('manufacturer'));
     } catch (Exception $e) {
       $brand = "";
     }
