@@ -148,6 +148,9 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
 
         foreach ($parents as $parentCategory)
         {
+          if (!strlen($parentCategory->getName()))
+            continue;
+
           $tree .= $parentCategory->getName();
           if (++$j < $nbparents)
             $tree .= self::CATEGORY_TREE_SEPARATOR;
@@ -244,7 +247,12 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
     echo ($product->isAvailable() ? 'in stock' : 'out of stock').self::TXT_SEPARATOR;
 
     // BRAND
-    echo self::cleanString($product->getAttributeText('manufacturer')).self::TXT_SEPARATOR;
+    try {
+      $brand = self::cleanString($product->getAttributeText('manufacturer'));
+    } catch (Exception $e) {
+      $brand = "";
+    }
+    echo $brand.self::TXT_SEPARATOR;
 
     // GTIN
     echo self::cleanString($product->getSku()).self::TXT_SEPARATOR;
