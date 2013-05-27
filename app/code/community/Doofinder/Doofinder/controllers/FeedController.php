@@ -129,6 +129,8 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
     if ($this->_aCategories === null)
       $this->_aCategories = array();
 
+    $rootCategoryId = $this->_oCurrentStore->getRootCategoryId();
+
     $categories = array();
 
     $categoryIds = $oProduct->getAvailableInCategories();
@@ -140,21 +142,20 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
     {
       if (!isset($this->_aCategories[$catId]))
       {
+        $tree = array();
         $category = Mage::getModel('catalog/category')->load($catId);
-        $tree = "";
-        $parents = $category->getParentCategories();
-        $nbparents = count($parents);
-        $j = 0;
 
-        foreach ($parents as $parentCategory)
+        if (strlen($category->getName()) && $category->getId() != $rootCategoryId)
+          $tree[] = $category->getName();
+
+        while ($category->getParentId())
         {
-          if (!strlen($parentCategory->getName()))
-            continue;
-
-          $tree .= $parentCategory->getName();
-          if (++$j < $nbparents)
-            $tree .= self::CATEGORY_TREE_SEPARATOR;
+          $category = Mage::getModel('catalog/category')->load($category->getParentId());
+          if (strlen($category->getName()) && $category->getId() != $rootCategoryId)
+            $tree[] = $category->getName();
         }
+
+        $tree = implode(self::CATEGORY_TREE_SEPARATOR, array_reverse($tree));
 
         $this->_aCategories[$catId] = self::cleanString($tree);
       }
