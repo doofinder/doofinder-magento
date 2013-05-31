@@ -129,11 +129,12 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
     if ($this->_aCategories === null)
       $this->_aCategories = array();
 
-    $rootCategoryId = $this->_oCurrentStore->getRootCategoryId();
-
+    $rootCategoryId = intval($this->_oCurrentStore->getRootCategoryId());
     $categories = array();
 
     $categoryIds = $oProduct->getAvailableInCategories();
+    $categoryIds = array_unique($categoryIds);
+
     $nbcategories = count($categoryIds);
 
     $i = 0;
@@ -143,24 +144,22 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
       if (!isset($this->_aCategories[$catId]))
       {
         $tree = array();
+
         $category = Mage::getModel('catalog/category')->load($catId);
-
-        if (strlen($category->getName()) && $category->getId() != $rootCategoryId)
-          $tree[] = $category->getName();
-
-        while ($category->getParentId())
+        while ($category->getParentId() && intval($category->getId()) != $rootCategoryId)
         {
-          $category = Mage::getModel('catalog/category')->load($category->getParentId());
-          if (strlen($category->getName()) && $category->getId() != $rootCategoryId)
+          if (strlen($category->getName()))
             $tree[] = $category->getName();
+          $category = Mage::getModel('catalog/category')->load($category->getParentId());
         }
 
-        $tree = implode(self::CATEGORY_TREE_SEPARATOR, array_reverse($tree));
-
-        $this->_aCategories[$catId] = self::cleanString($tree);
+        $this->_aCategories[$catId] = self::cleanString(
+          implode(self::CATEGORY_TREE_SEPARATOR, array_reverse($tree))
+        );
       }
 
-      $categories[] = $this->_aCategories[$catId];
+      if (strlen($this->_aCategories[$catId]))
+        $categories[] = $this->_aCategories[$catId];
     }
 
     sort($categories);
@@ -245,7 +244,14 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
     echo implode(self::CATEGORY_SEPARATOR, $this->_getCategoriesFor($product)).self::TXT_SEPARATOR;
 
     // AVAILABILITY
-    echo ($product->isAvailable() ? 'in stock' : 'out of stock').self::TXT_SEPARATOR;
+    $stockItem = $product->getStockItem();
+
+    if (!$stockItem) {
+        $stockItem = Mage::getModel('cataloginventory/stock_item');
+        $stockItem->loadByProduct($product);
+    }
+
+    echo ($stockItem->getIsInStock() ? 'in stock' : 'out of stock').self::TXT_SEPARATOR;
 
     // BRAND
     $brand = "";
