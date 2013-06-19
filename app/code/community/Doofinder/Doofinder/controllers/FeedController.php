@@ -172,7 +172,8 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
         continue;
       $result[] = $categories[$i - 1];
     }
-    $result[] = $categories[$i - 1];
+    if (!empty($categories[$i - 1]))
+      $result[] = $categories[$i - 1];
 
     return $result;
   }

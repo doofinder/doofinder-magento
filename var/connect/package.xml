@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
     <name>Doofinder_Doofinder</name>
-    <version>1.0.6.8</version>
+    <version>1.0.7.1</version>
     <stability>stable</stability>
     <license uri="http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode">Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported</license>
     <channel>community</channel>
@@ -16,11 +16,11 @@ The data feed publish only public information of your products.&#xD;
 The Doofinder service is not free but it has a 30 day trial period. You can create an account visiting the Doofinder site at:&#xD;
 &#xD;
 http://www.doofinder.com</description>
-    <notes>Fixed categories.</notes>
+    <notes>Added support for 1.4.</notes>
     <authors><author><name>Enrique Mart&#xED;nez Pag&#xE9;s</name><user>doofinder</user><email>enrique@doofinder.com</email></author><author><name>Carlos Escribano Rey</name><user>markhaus</user><email>carlos@markhaus.com</email></author></authors>
-    <date>2013-05-31</date>
-    <time>14:28:15</time>
-    <contents><target name="magecommunity"><dir name="Doofinder"><dir name="Doofinder"><dir name="controllers"><file name="FeedController.php" hash="e68caa1a4e4d72821f76d4009b94734f"/></dir><dir name="etc"><file name="config.xml" hash="9ad7c9b02f654c9a264a56121f241dde"/></dir></dir></dir></target><target name="mageetc"><dir name="modules"><file name="Doofinder_Doofinder.xml" hash="1eb374b3961b943390eea62796491877"/></dir></target></contents>
+    <date>2013-06-19</date>
+    <time>09:45:38</time>
+    <contents><target name="magecommunity"><dir name="Doofinder"><dir name="Doofinder"><dir name="controllers"><file name="FeedController.php" hash="a5fbfc37f22560d25e1c7cba7bf727e9"/></dir><dir name="etc"><file name="config.xml" hash="0f61df58c052d622246044ea8ff33761"/></dir></dir></dir></target><target name="mageetc"><dir name="modules"><file name="Doofinder_Doofinder.xml" hash="1eb374b3961b943390eea62796491877"/></dir></target></contents>
     <compatible/>
     <dependencies><required><php><min>5.2.0</min><max>6.0.0</max></php></required></dependencies>
 </package>
