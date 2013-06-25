@@ -1,5 +1,5 @@
 <_>
-   <form_key>L2ZMaFvC4C5wioWo</form_key>
+   <form_key>p9Cd95iRhKCedMcf</form_key>
    <name>Doofinder_Doofinder</name>
    <channel>community</channel>
    <version_ids>
@@ -17,9 +17,9 @@ The Doofinder service is not free but it has a 30 day trial period. You can crea
 http://www.doofinder.com</description>
    <license>Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported</license>
    <license_uri>http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode</license_uri>
-   <version>1.0.7.1</version>
+   <version>1.0.7.2</version>
    <stability>stable</stability>
-   <notes>Added support for 1.4.</notes>
+   <notes>Fixed bug with flushing.</notes>
    <authors>
       <name>
          <name>Enrique Martínez Pagés</name>
@@ -51,7 +51,7 @@ http://www.doofinder.com</description>
             <max/>
          </max>
          <files>
-            <files>                                 </files>
+            <files>                                  </files>
          </files>
       </package>
       <extension>

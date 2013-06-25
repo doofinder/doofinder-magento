@@ -277,7 +277,7 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
     echo self::splitReferences($product_title);
 
     echo PHP_EOL;
-    flush(); ob_flush();
+    self::flush();
   }
 
   /**
@@ -369,7 +369,7 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
       if ($iOffset0 === 0)
       {
         echo implode(self::TXT_SEPARATOR, self::$csvHeader).PHP_EOL;
-        flush(); ob_flush();
+        self::flush();
       }
 
       $collection = $this->_getProductCollection($iOffset0, $iLimit);
@@ -385,7 +385,7 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
       $iTotal = $this->_countProducts();
 
       echo implode(self::TXT_SEPARATOR, self::$csvHeader).PHP_EOL;
-      flush(); ob_flush();
+      self::flush();
 
       for ($iOffset = 0; $iOffset < $iTotal; $iOffset += $iChunk)
       {
@@ -449,5 +449,13 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
     $s = preg_replace("/([\d])([a-zA-Z-])/", "$1 $2", $s);
 
     return self::cleanReferences($s);
+  }
+
+  private static function flush()
+  {
+    if (function_exists('flush'))
+      flush();
+    if (function_exists('ob_flush'))
+      ob_flush();
   }
 }
