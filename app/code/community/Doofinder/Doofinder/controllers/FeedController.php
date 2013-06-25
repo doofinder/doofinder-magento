@@ -453,9 +453,9 @@ class Doofinder_Doofinder_FeedController extends Mage_Core_Controller_Front_Acti
 
   private static function flush()
   {
-    if (function_exists('flush'))
-      flush();
     if (function_exists('ob_flush'))
-      ob_flush();
+      @ob_flush();
+    if (function_exists('flush'))
+      @flush();
   }
 }
