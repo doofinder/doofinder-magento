@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+
+    <modules>
+        <Doofinder_Feed>
+            <version>1.1.3</version>
+        </Doofinder_Feed>
+    </modules>
+
+    <global>
+        <helpers>
+            <doofinder_feed>
+                <class>Doofinder_Feed_Helper</class>
+            </doofinder_feed>
+        </helpers>
+        <models>
+            <doofinder_feed>
+                <class>Doofinder_Feed_Model</class>
+            </doofinder_feed>
+        </models>
+    </global>
+
+    <admin></admin>
+
+    <install></install>
+
+    <frontend>
+        <routers>
+            <doofinder_feed>
+                <use>standard</use>
+                <args>
+                    <module>Doofinder_Feed</module>
+                    <frontName>doofinder</frontName>
+                </args>
+            </doofinder_feed>
+        </routers>
+    </frontend>
+
+    <default>
+        <doofinder>
+            <feed>
+
+                <enabled>1</enabled>
+                <debug>1</debug>
+
+                <group_configurable_products>1</group_configurable_products>
+
+                <product_types><![CDATA[simple,virtual,bundle,configurable,downloadable,grouped]]></product_types>
+                <!--product_types><![CDATA[bundle]]></product_types-->
+                <excluded_attributes><![CDATA[gallery,image,small_image,special_price,special_from_date,special_to_date,price_view,url_key]]></excluded_attributes>
+                <additional_attributes><![CDATA[status]]></additional_attributes>
+
+                <directives>
+                    <df_directive_id>
+                        <label><![CDATA[Product Id]]></label>
+                    </df_directive_id>
+                    <df_directive_url>
+                        <label><![CDATA[Product URL]]></label>
+                    </df_directive_url>
+                    <df_directive_image_link>
+                        <label><![CDATA[Product Image URL]]></label>
+                    </df_directive_image_link>
+                    <df_directive_sale_price>
+                        <label><![CDATA[Sale Price]]></label>
+                    </df_directive_sale_price>
+                    <df_directive_price>
+                        <label><![CDATA[Price]]></label>
+                    </df_directive_price>
+                    <df_directive_currency>
+                        <label><![CDATA[Store Currency]]></label>
+                    </df_directive_currency>
+                    <df_directive_availability>
+                        <label><![CDATA[Availability]]></label>
+                    </df_directive_availability>
+                    <df_directive_condition>
+                        <label><![CDATA[Product Condition]]></label>
+                    </df_directive_condition>
+                </directives>
+
+                <default_field_map>
+                    <id>
+                        <label>Unique Identifier</label>
+                        <attribute>df_directive_id</attribute>
+                    </id>
+                    <mpn>
+                        <label>Product SKU</label>
+                        <attribute>sku</attribute>
+                    </mpn>
+                    <title>
+                        <label>Title</label>
+                        <attribute>name</attribute>
+                    </title>
+                    <description>
+                        <label>Description</label>
+                        <attribute>description</attribute>
+                    </description>
+                    <brand>
+                        <label>Brand</label>
+                        <attribute>manufacturer</attribute>
+                    </brand>
+                    <link>
+                        <label>Product Link</label>
+                        <attribute>df_directive_url</attribute>
+                    </link>
+                    <image_link>
+                        <label>Image</label>
+                        <attribute>df_directive_image_link</attribute>
+                    </image_link>
+                    <price>
+                        <label>Normal Price</label>
+                        <attribute>df_directive_price</attribute>
+                    </price>
+                    <sale_price>
+                        <label>Normal Price</label>
+                        <attribute>df_directive_sale_price</attribute>
+                    </sale_price>
+                    <currency>
+                        <label>Currency</label>
+                        <attribute>df_directive_currency</attribute>
+                    </currency>
+                </default_field_map>
+
+            </feed>
+        </doofinder>
+    </default>
+
+    <stores></stores>
+
+    <websites></websites>
+
+</config>

@@ -1,9 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <config>
     <modules>
-        <Doofinder_Doofinder>
+        <Doofinder_Feed>
             <active>true</active>
             <codePool>community</codePool>
-        </Doofinder_Doofinder>
+        </Doofinder_Feed>
     </modules>
 </config>

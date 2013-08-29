@@ -1,0 +1,125 @@
+<_>
+   <form_key>DFBkwCo1ANS8lgHA</form_key>
+   <name>Doofinder_Feed</name>
+   <channel>community</channel>
+   <version_ids>
+      <version_ids>2</version_ids>
+   </version_ids>
+   <summary>This plugin allows you to integrate Doofinder in your store with almost no effort.</summary>
+   <description>Doofinder is the best on-site search engine service for Magento. This free extension allows you to populate the data feed file required to use the Doofinder search service for each store view in a URL (the data feed displays only public information of your products).
+
+# Why use Doofinder?
+
+Doofinder provides fast and accurate results based on your website content. Accurate and relevant results appear in your search box at an incredible speed as the user types. With Doofinder you are confident that your visitors are finding what they are looking for regardless of the number of products in your site. These are some advantages of using Doofinder in your site:
+
+- Instant, relevant results.
+- Tolerant of misspellings.
+- Search filters.
+- Increases the conversion rates.
+- No technical knowledge are required.
+- Allows the use of labels and synonyms.
+- Installs in minutes.
+- Provides statistical information.
+- Doofinder brings back the control over the searches in your site to you.
+
+A good search engine should provide relevant results. It is exactly what Doofinder does.
+
+When the user starts typing in the search box, Doofinder displays the best results for her search. If the user makes a typo, our algorithms detect it and will perform the search as if the term is correctly typed.
+
+Furthermore, Doofinder sorts the results displaying the most relevant first.
+
+# Relevant Statistics
+
+The Doofinder&apos;s backend also offers easy to understand statistics. They provide useful information about the usage, results and search trends of your users in the last 90 days.
+
+With the knowledge of what are the most used terms by your users, you can provide guided results for their queries. You can link the results with your Google Analytics profile to better evaluate and improve the contents of your website.
+
+# SaaS
+
+With Doofinder you will benefit permanently of the service updates and improvements with no additional cost. All our plans provide full technical support.
+
+If you have any question, please, contact us. Our technical support team will be happy to assist you.
+
+# More information
+
+Doofinder is fast and innovative. With no doubt, it is the best search engine for Magento. The Doofinder service is not free but it has a 30 day trial period.
+
+You can get more info and create your account visiting the Doofinder site:
+
+http://www.doofinder.com</description>
+   <license>Open Software License (OSL 3.0)</license>
+   <license_uri>http://opensource.org/licenses/osl-3.0.php</license_uri>
+   <version>1.1.3</version>
+   <stability>stable</stability>
+   <notes>Fixed version number.</notes>
+   <authors>
+      <name>
+         <name>Carlos Escribano Rey</name>
+      </name>
+      <user>
+         <user>markhaus</user>
+      </user>
+      <email>
+         <email>carlos@doofinder.com</email>
+      </email>
+   </authors>
+   <depends_php_min>5.2.0</depends_php_min>
+   <depends_php_max>6.0.0</depends_php_max>
+   <depends>
+      <package>
+         <name>
+            <name/>
+         </name>
+         <channel>
+            <channel/>
+         </channel>
+         <min>
+            <min/>
+         </min>
+         <max>
+            <max/>
+         </max>
+         <files>
+            <files>                </files>
+         </files>
+      </package>
+      <extension>
+         <name>
+            <name>Core</name>
+         </name>
+         <min>
+            <min/>
+         </min>
+         <max>
+            <max/>
+         </max>
+      </extension>
+   </depends>
+   <contents>
+      <target>
+         <target>magelocal</target>
+         <target>magecommunity</target>
+         <target>mageetc</target>
+      </target>
+      <path>
+         <path/>
+         <path>Doofinder/Feed</path>
+         <path>modules/Doofinder_Feed.xml</path>
+      </path>
+      <type>
+         <type>file</type>
+         <type>dir</type>
+         <type>file</type>
+      </type>
+      <include>
+         <include/>
+         <include/>
+         <include/>
+      </include>
+      <ignore>
+         <ignore/>
+         <ignore/>
+         <ignore/>
+      </ignore>
+   </contents>
+</_>
