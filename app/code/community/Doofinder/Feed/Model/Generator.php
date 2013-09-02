@@ -391,24 +391,24 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected function _closeFeed()
     {
-        // echo "DUMPED: ".$this->_iDumped.PHP_EOL;
-        // echo "BATCH_SIZE: ".$this->_iBatchSize.PHP_EOL;
-        // echo "PRODUCTS: ".$this->_iProductCount.PHP_EOL;
-
-        if (!$this->_isPartialDump() || !$this->_iDumped)
+        if (!$this->_isPartialDump())
         {
-            if ($this->_isPartialDump())
+            $this->_oXmlWriter->endElement(); // Channel
+            $this->_oXmlWriter->endElement(); // RSS
+            $this->_oXmlWriter->endDocument();
+
+            $this->_flushFeed();
+        }
+        else
+        {
+            $offset = $this->getData('offset');
+            $limit = $this->getData('limit');
+            $total = $this->_iProductCount;
+
+            if ($offset < $total && $offset + $limit >= $total)
             {
                 echo '</channel></rss>';
                 @ob_flush();
-            }
-            else
-            {
-                $this->_oXmlWriter->endElement(); // Channel
-                $this->_oXmlWriter->endElement(); // RSS
-                $this->_oXmlWriter->endDocument();
-
-                $this->_flushFeed();
             }
         }
 
