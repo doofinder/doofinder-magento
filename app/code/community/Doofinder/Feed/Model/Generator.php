@@ -20,6 +20,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     protected $_categories = array();
     protected $_fieldMap;
 
+    protected $_iBatchSize = 0;
     protected $_iDumped = 0;
     protected $_iSkipped = 0;
 
@@ -53,22 +54,22 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
         if (is_null($this->getData('limit')))
         {
+            $this->_iBatchSize = false;
+
             // Dump ALL products
             for ($offset = $this->getData('offset');
                     $offset < $this->_iProductCount;
                     $offset += self::DEFAULT_BATCH_SIZE)
                 $this->_batchProcessProducts($offset, self::DEFAULT_BATCH_SIZE);
-
-            $this->_closeFeed();
         }
         else
         {
-            $total = $this->_batchProcessProducts($this->getData('offset'),
-                                                  $this->getData('limit'));
-
-            if ($this->getData('limit') > $total && $total > 0)
-                $this->_closeFeed();
+            $this->_iBatchSize = $this->_batchProcessProducts(
+                $this->getData('offset'),
+                $this->getData('limit'));
         }
+
+        $this->_closeFeed();
     }
 
     public function addProductToFeed($args)
@@ -94,7 +95,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         if ($map->checkSkipSubmission()->isSkip())
             return;
 
-        $this->_addProductToXml($map);
+        if ($this->_addProductToXml($map))
+            $this->_iDumped++;
 
         $map->unsetData();
     }
@@ -119,6 +121,10 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
             $this->_flushFeed();
         }
+        else
+        {
+            $batchSize = 0;
+        }
 
         return $batchSize;
     }
@@ -126,6 +132,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     protected function _addProductToXml(
         Doofinder_Feed_Model_Map_Product_Abstract $productMap)
     {
+        $iDumped = 0;
+
         try
         {
             if ($productMap->isSkip())
@@ -207,6 +215,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                 }
 
                 $this->_oXmlWriter->endElement();
+
+                $iDumped++;
             }
         }
         catch (Exception $e)
@@ -214,6 +224,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             if ($this->getConfigVar('debug') == 1)
                 $this->_debug($e->getMessage());
         }
+
+        return $iDumped > 0;
     }
 
 
@@ -379,7 +391,11 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected function _closeFeed()
     {
-        if ($this->_mustCloseXml())
+        // echo "DUMPED: ".$this->_iDumped.PHP_EOL;
+        // echo "BATCH_SIZE: ".$this->_iBatchSize.PHP_EOL;
+        // echo "PRODUCTS: ".$this->_iProductCount.PHP_EOL;
+
+        if (!$this->_isPartialDump() || !$this->_iDumped)
         {
             if ($this->_isPartialDump())
             {
@@ -453,17 +469,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     protected function _mustStartXml()
     {
         return $this->getData('offset') == 0;
-    }
-
-    protected function _mustCloseXml()
-    {
-        if ($this->_isPartialDump())
-        {
-            $lastIdx = $this->getData('limit') + $this->getData('offset');
-            return $lastIdx >= $this->_iProductCount;
-        }
-
-        return true;
     }
 
     protected function _loadStore()
