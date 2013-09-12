@@ -10,7 +10,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
 
     protected $_badChars = array('"',"\r\n","\n","\r","\t", "|");
-    protected $_repChars = array(""," "," "," ","", "");
+    protected $_repChars = array(""," "," "," "," ", "");
 
     protected $_store;
 

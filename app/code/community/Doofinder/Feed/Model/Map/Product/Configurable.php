@@ -74,9 +74,9 @@ class Doofinder_Feed_Model_Map_Product_Configurable
                 {
                     foreach ($row as $name => $value)
                     {
-                        if ($name == 'id')
+                        if ($name == 'id' || $name == 'title' || $name == 'description')
                         {
-                            continue; // id value is always unique
+                            continue; // always unique
                         }
                         else if ($name == 'price' || $name == 'normal_price')
                         {

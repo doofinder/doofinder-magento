@@ -3,7 +3,7 @@
 
     <modules>
         <Doofinder_Feed>
-            <version>1.1.6</version>
+            <version>1.2.0</version>
         </Doofinder_Feed>
     </modules>
 
@@ -92,8 +92,24 @@
                     </title>
                     <description>
                         <label>Description</label>
-                        <attribute>description</attribute>
+                        <attribute>short_description</attribute>
                     </description>
+                    <long_description>
+                        <label>Long Description</label>
+                        <attribute>description</attribute>
+                    </long_description>
+                    <meta_title>
+                        <label>Meta Title</label>
+                        <attribute>meta_title</attribute>
+                    </meta_title>
+                    <meta_keyword>
+                        <label>Meta Keywords</label>
+                        <attribute>meta_keyword</attribute>
+                    </meta_keyword>
+                    <meta_description>
+                        <label>Meta Description</label>
+                        <attribute>meta_description</attribute>
+                    </meta_description>
                     <brand>
                         <label>Brand</label>
                         <attribute>manufacturer</attribute>
