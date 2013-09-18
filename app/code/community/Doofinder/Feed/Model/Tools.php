@@ -326,4 +326,35 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
     	}
 		return $this->_conn_write;
     }
+
+    public function getMagentoEdition()
+    {
+        try
+        {
+            return Mage::getEdition();
+        }
+        catch(Exception $e)
+        {
+            $features = array('Enterprise_Enterprise', 'Enterprise_AdminGws',
+                              'Enterprise_Checkout', 'Enterprise_Customer');
+            $editions = array(
+                'Enterprise' => array(true, true, true, true), // ALL features
+                'Professional' => array(true, false),          // ONLY the first
+                'Community' => array(false),                   // NO features
+            );
+
+            foreach ($editions as $editionName => $featuresMap)
+            {
+                $match = true;
+
+                foreach($featuresMap as $i => $featureValue)
+                    $match = $match && ($featureValue === (bool) Mage::getConfig()->getModuleConfig($features[$i]));
+
+                if ($match)
+                    return $editionName;
+            }
+
+            return "Unknown";
+        }
+    }
 }

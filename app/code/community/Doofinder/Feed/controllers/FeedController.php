@@ -24,9 +24,12 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
           ->setHeader('Content-Type','application/json; charset=utf-8')
           ->sendHeaders();
 
+        $tools = Mage::getModel('doofinder_feed/tools');
+
         $config = array(
             'platform' => array(
-                'name' => 'Magento ' . Mage::getEdition() . ' Edition',
+                'name' => 'Magento',
+                'edition' => $tools->getMagentoEdition(),
                 'version' => Mage::getVersion()
             ),
             'module' => array(
