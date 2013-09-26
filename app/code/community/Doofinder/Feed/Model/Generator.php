@@ -7,6 +7,9 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     const DEFAULT_BATCH_SIZE = 1000;
     const CONTENT_TYPE = 'application/xml; charset="utf-8"';
     const PRODUCT_ELEMENT = 'item';
+    const CATEGORY_SEPARATOR = '%%';
+    const CATEGORY_TREE_SEPARATOR = '>';
+    const VALUE_SEPARATOR = '/';
 
 
     protected $_badChars = array('"',"\r\n","\n","\r","\t", "|");
@@ -188,9 +191,14 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
                     $this->_oXmlWriter->startElement($field);
 
+                    if ($field != 'categories')
+                    {
+                        if (!is_array($value))
+                            $value = array($value);
 
-                    if (!is_array($value))
-                        $value = array($value);
+                        $value = implode(self::VALUE_SEPARATOR, $value);
+                    }
+
 
                     /* TODO: Support multivalue fields in XML feed
                     $isMulti = count($value) > 1;
@@ -207,7 +215,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                             $this->_oXmlWriter->endElement();
                     }*/
 
-                    $value = implode ('/', $value);
                     $this->_oXmlWriter->writeCData($value);
 
 
@@ -325,7 +332,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         }
 
         $tree = $this->_sanitizeData($tree);
-        $tree = implode('>', array_reverse($tree));
+        $tree = implode(self::CATEGORY_TREE_SEPARATOR, array_reverse($tree));
         $this->_categories[$catId] = $tree;
 
         return $this->_categories[$catId];

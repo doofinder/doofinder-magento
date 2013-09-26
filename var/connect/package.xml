@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
     <name>Doofinder_Feed</name>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
     <stability>stable</stability>
     <license uri="http://opensource.org/licenses/osl-3.0.php">Open Software License (OSL 3.0)</license>
     <channel>community</channel>
@@ -48,11 +48,12 @@ Doofinder is fast and innovative. With no doubt, it is the best search engine fo
 You can get more info and create your account visiting the Doofinder site:&#xD;
 &#xD;
 http://www.doofinder.com</description>
-    <notes>This release fixes a non critical bug that prevented Doofinder from reading the module configuration.</notes>
+    <notes>- Improved JSON configuration for future integration with the install process.&#xD;
+- Updated the export of categories to match the new specifications. If you have multiple categories for each product you should update to this version.</notes>
     <authors><author><name>Carlos Escribano Rey</name><user>markhaus</user><email>carlos@doofinder.com</email></author></authors>
-    <date>2013-09-18</date>
-    <time>13:12:53</time>
-    <contents><target name="magecommunity"><dir name="Doofinder"><dir name="Feed"><dir name="Helper"><file name="Data.php" hash="895e485ef769edcd00d882f519575188"/><file name="Tax.php" hash="50afff7db31ed8985967bd6c9345c244"/></dir><dir name="Model"><file name="Config.php" hash="8c9531f71a5efd30d20728412b29b2c6"/><file name="Generator.php" hash="32231e5f85d0529d63ee6915c9206906"/><dir name="Map"><dir name="Product"><file name="Abstract.php" hash="285f1a01e8064882565cda6f1b88eb2f"/><file name="Associated.php" hash="673d10cae2da51d356db9355c58dfc5f"/><file name="Bundle.php" hash="291c93634f3b740e2576557b303d4cca"/><file name="Configurable.php" hash="6212f3ef9cadcec9117270e7f604736a"/><file name="Downloadable.php" hash="972ebd1d0bc95f494462d97dad293847"/><file name="Grouped.php" hash="2a2141a64d04240ecd6135713563c91d"/><file name="Simple.php" hash="1384d9a7e5bcfbd85c1c1a5d6b6367c2"/><file name="Virtual.php" hash="295215460482c88669b209c2357531ed"/></dir></dir><file name="Tools.php" hash="bcfb6d0d642a8276fb926b3ac728273a"/></dir><dir name="controllers"><file name="FeedController.php" hash="533550e9b4f39b5710221224120a5540"/><file name="IndexController.php" hash="21d3aae2a34f8c7f58a61cb591c2ccf2"/></dir><dir name="etc"><file name="config.xml" hash="3b4ab23f8660311ef4b60e78c158c60a"/></dir></dir></dir></target><target name="mageetc"><dir name="modules"><file name="Doofinder_Feed.xml" hash="9d3b6fbbbec12708461c33260715451c"/></dir></target></contents>
+    <date>2013-09-26</date>
+    <time>09:05:02</time>
+    <contents><target name="magecommunity"><dir name="Doofinder"><dir name="Feed"><dir name="Helper"><file name="Data.php" hash="895e485ef769edcd00d882f519575188"/><file name="Tax.php" hash="50afff7db31ed8985967bd6c9345c244"/></dir><dir name="Model"><file name="Config.php" hash="8c9531f71a5efd30d20728412b29b2c6"/><file name="Generator.php" hash="c7e151bd0dd2307082e37ae7b34a536f"/><dir name="Map"><dir name="Product"><file name="Abstract.php" hash="2d7f5593b1976a2406a27b0cea6844f8"/><file name="Associated.php" hash="673d10cae2da51d356db9355c58dfc5f"/><file name="Bundle.php" hash="291c93634f3b740e2576557b303d4cca"/><file name="Configurable.php" hash="6212f3ef9cadcec9117270e7f604736a"/><file name="Downloadable.php" hash="972ebd1d0bc95f494462d97dad293847"/><file name="Grouped.php" hash="2a2141a64d04240ecd6135713563c91d"/><file name="Simple.php" hash="1384d9a7e5bcfbd85c1c1a5d6b6367c2"/><file name="Virtual.php" hash="295215460482c88669b209c2357531ed"/></dir></dir><file name="Tools.php" hash="bcfb6d0d642a8276fb926b3ac728273a"/></dir><dir name="controllers"><file name="FeedController.php" hash="58e2d502e55d31089eb619bcbc210662"/><file name="IndexController.php" hash="21d3aae2a34f8c7f58a61cb591c2ccf2"/></dir><dir name="etc"><file name="config.xml" hash="082c8b278ba8ec254b4cea9d20233859"/></dir></dir></dir></target><target name="mageetc"><dir name="modules"><file name="Doofinder_Feed.xml" hash="9d3b6fbbbec12708461c33260715451c"/></dir></target></contents>
     <compatible/>
     <dependencies><required><php><min>5.2.0</min><max>6.0.0</max></php></required></dependencies>
 </package>

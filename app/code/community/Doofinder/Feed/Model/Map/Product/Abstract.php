@@ -93,7 +93,10 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
 
         $i = 0;
         $categories = $this->getGenerator()->getCategories($this->getProduct());
-        $fields['categories'] = implode('/', $categories);
+        $fields['categories'] = implode(
+            Doofinder_Feed_Model_Generator::CATEGORY_SEPARATOR,
+            $categories
+        );
 
         return array($fields);
     }

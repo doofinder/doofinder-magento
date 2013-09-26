@@ -19,12 +19,25 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 
     public function configAction()
     {
-        $this->getResponse()
-          ->clearHeaders()
-          ->setHeader('Content-Type','application/json; charset=utf-8')
-          ->sendHeaders();
+        $this->_sendJSONHeaders();
 
         $tools = Mage::getModel('doofinder_feed/tools');
+
+        $storeCodes = array_keys(Mage::app()->getStores(false, true));
+        $storesConfiguration = array();
+
+        foreach ($storeCodes as $code)
+        {
+            $oStore = Mage::app()->getStore($code);
+            $L = Mage::getStoreConfig('general/locale/code', $oStore->getId());
+            $storesConfiguration[$code] = array(
+                'language' => strtoupper(substr($L, 0, 2)),
+                'currency' => $oStore->getCurrentCurrencyCode(),
+                'prices' => true, // TODO(@carlosescri): Make configurable.
+                'taxes' => true   // TODO(@carlosescri): Make configurable.
+            );
+        }
+
 
         $config = array(
             'platform' => array(
@@ -34,12 +47,35 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             ),
             'module' => array(
                 'version' => $this->_getVersion(),
-                'feeds' => $this->_getFeeds(),
-                'features' => $this->_getFeatures(),
+                'feed' => Mage::getUrl('doofinder/feed'),
+                'options' => array(
+                    'language' => $storeCodes,
+                    'grouped' => true, // TODO(@carlosescri): Make configurable.
+                ),
+                'configuration' => $storesConfiguration
             ),
         );
 
         die(json_encode($config));
+    }
+
+    protected function _sendJSONHeaders()
+    {
+        $this->getResponse()
+          ->clearHeaders()
+          ->setHeader('Content-Type','application/json')
+          ->sendHeaders();
+    }
+
+    protected function _dumpMessage($s_level, $s_message, $a_extra=array())
+    {
+        $error = array('status' => $s_level, 'message' => $s_message);
+
+        if (is_array($a_extra) && count($a_extra))
+            $error = array_merge($error, $a_extra);
+
+        $this->_sendJSONHeaders();
+        die(json_encode($error));
     }
 
     protected function _getVersion()
@@ -50,27 +86,6 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             ->Doofinder_Feed
             ->version
             ->asArray();
-    }
-
-    protected function _getFeeds()
-    {
-        $feeds = array();
-        $baseUrl = Mage::getUrl('doofinder/feed');
-
-        foreach (array_keys(Mage::app()->getStores(false, true)) as $storeCode)
-        {
-            $feeds[] = $baseUrl . '?store=' . $storeCode;
-        }
-
-        return $feeds;
-    }
-
-    protected function _getFeatures()
-    {
-        return array(
-            'default' => array('offset', 'limit'),
-            'magento' => array('store', 'grouped'),
-        );
     }
 
     protected function _getLimit()
@@ -89,15 +104,22 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 
     protected function _getStoreCode()
     {
-        $storeCode = $this->getRequest()->getParam('store');
-
+        $storeCode = $this->getRequest()->getParam('language');
         if (is_null($storeCode))
-            $storeCode = Mage::app()->getStore()->getCode();
+            $storeCode = $this->getRequest()->getParam('store'); // Backwards...
 
-        if (is_null($storeCode))
-            $storeCode = Mage_Core_Model_Store::DEFAULT_CODE;
+        try
+        {
+            if (is_null($storeCode))
+                return Mage_Core_Model_Store::DEFAULT_CODE;
 
-        return $storeCode;
+            return Mage::app()->getStore($storeCode)->getCode();
+        }
+        catch(Mage_Core_Model_Store_Exception $e)
+        {
+            $this->_dumpMessage('error', 'Invalid <language> parameter.',
+                                array('code' => 'INVALID_OPTIONS'));
+        }
     }
 
     protected function _getGrouped()

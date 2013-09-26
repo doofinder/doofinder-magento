@@ -1,5 +1,5 @@
 <_>
-   <form_key>mVWiAqk0o4ZJeQwC</form_key>
+   <form_key>fDybr24sMbeL8zWM</form_key>
    <name>Doofinder_Feed</name>
    <channel>community</channel>
    <version_ids>
@@ -49,9 +49,10 @@ You can get more info and create your account visiting the Doofinder site:
 http://www.doofinder.com</description>
    <license>Open Software License (OSL 3.0)</license>
    <license_uri>http://opensource.org/licenses/osl-3.0.php</license_uri>
-   <version>1.2.1</version>
+   <version>1.2.2</version>
    <stability>stable</stability>
-   <notes>This release fixes a non critical bug that prevented Doofinder from reading the module configuration.</notes>
+   <notes>- Improved JSON configuration for future integration with the install process.
+- Updated the export of categories to match the new specifications. If you have multiple categories for each product you should update to this version.</notes>
    <authors>
       <name>
          <name>Carlos Escribano Rey</name>
@@ -80,7 +81,7 @@ http://www.doofinder.com</description>
             <max/>
          </max>
          <files>
-            <files>                         </files>
+            <files>                          </files>
          </files>
       </package>
       <extension>
