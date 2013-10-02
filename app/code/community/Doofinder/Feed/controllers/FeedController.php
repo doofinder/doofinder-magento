@@ -7,14 +7,39 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             set_time_limit(3600);
 
         $options = array(
-            'limit' => $this->_getLimit(),
-            'offset' => $this->_getOffset(),
+            '_limit_' => $this->_getLimit(),
+            '_offset_' => $this->_getOffset(),
             'store_code' => $this->_getStoreCode(),
             'grouped' => $this->_getGrouped(),
         );
 
         $generator = Mage::getSingleton('doofinder_feed/generator', $options);
         $generator->run();
+    }
+
+    public function debugAction()
+    {
+        $this->getResponse()
+          ->clearHeaders()
+          ->setHeader('Content-Type','application/octet-stream')
+          ->sendHeaders();
+
+        $options = array(
+            '_limit_' => $this->_getLimit(),
+            '_offset_' => $this->_getOffset(),
+            'store_code' => $this->_getStoreCode(),
+            'grouped' => $this->_getGrouped(),
+        );
+
+        $generator = Mage::getSingleton('doofinder_feed/generator', $options);
+
+        echo "THERE ARE [ ".$generator->getProductCount()." ] BASE PRODUCTS.\n\n";
+        echo "------------------------------------------------------------\n\n";
+        if ($options['_limit_'])
+            echo "SQL FOR PRODUCTS WITH OFFSET [ {$options['_offset_']} ] and LIMIT [ {$options['_limit_']} ]:\n\n\n";
+        else
+            echo "SQL FOR ALL PRODUCTS:\n\n\n";
+        echo $generator->getSQL();
     }
 
     public function configAction()

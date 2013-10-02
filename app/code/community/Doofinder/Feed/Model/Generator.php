@@ -4,7 +4,7 @@ if (!defined('DS'))
 
 class Doofinder_Feed_Model_Generator extends Varien_Object
 {
-    const DEFAULT_BATCH_SIZE = 1000;
+    const DEFAULT_BATCH_SIZE = 100;
     const CONTENT_TYPE = 'application/xml; charset="utf-8"';
     const PRODUCT_ELEMENT = 'item';
     const CATEGORY_SEPARATOR = '%%';
@@ -51,16 +51,19 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
         // Generate Feed
         $this->_loadAdditionalAttributes();
-        $this->_initProducts();
+        $this->_iProductCount = $this->getProductCount();
+
+        if ($this->getData('_offset_') >= $this->_iProductCount)  // offset is 0-based
+            return;
 
         $this->_initFeed();
 
-        if (is_null($this->getData('limit')))
+        if (! $this->getData('_limit_'))
         {
             $this->_iBatchSize = false;
 
             // Dump ALL products
-            for ($offset = $this->getData('offset');
+            for ($offset = $this->getData('_offset_');
                     $offset < $this->_iProductCount;
                     $offset += self::DEFAULT_BATCH_SIZE)
                 $this->_batchProcessProducts($offset, self::DEFAULT_BATCH_SIZE);
@@ -68,12 +71,25 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         else
         {
             $this->_iBatchSize = $this->_batchProcessProducts(
-                $this->getData('offset'),
-                $this->getData('limit'));
+                $this->getData('_offset_'),
+                $this->getData('_limit_'));
         }
 
         $this->_closeFeed();
     }
+
+    public function getSQL()
+    {
+        return $this->_getProductCollection(
+            $this->getData('_offset_'), $this->getData('_limit_')
+        )->getSelect()->assemble();
+    }
+
+    public function getProductCount()
+    {
+        return $this->_getProductCollection()->getSize();
+    }
+
 
     public function addProductToFeed($args)
     {
@@ -363,7 +379,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
         @ob_start();
 
-        if ($this->_mustStartXml())
+        if ($this->getData('_offset_') === 0)
         {
             $this->_oXmlWriter->startDocument('1.0', 'UTF-8');
 
@@ -398,7 +414,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected function _closeFeed()
     {
-        if (!$this->_isPartialDump())
+        if (! $this->getData('_limit_'))
         {
             $this->_oXmlWriter->endElement(); // Channel
             $this->_oXmlWriter->endElement(); // RSS
@@ -408,11 +424,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         }
         else
         {
-            $offset = $this->getData('offset');
-            $limit = $this->getData('limit');
-            $total = $this->_iProductCount;
-
-            if ($offset < $total && $offset + $limit >= $total)
+            if ($this->getData('_offset_') < $this->_iProductCount
+                && ($this->getData('_offset_') + $this->getData('_limit_')) >= $this->_iProductCount)
             {
                 echo '</channel></rss>';
                 @ob_flush();
@@ -468,16 +481,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     // protected::Tools
     //
 
-    protected function _isPartialDump()
-    {
-        return !is_null($this->getData('limit'));
-    }
-
-    protected function _mustStartXml()
-    {
-        return $this->getData('offset') == 0;
-    }
-
     protected function _loadStore()
     {
         if (!$this->hasData('store_code'))
@@ -507,11 +510,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             $attribute = $model->getResource()->getAttribute($attrCode);
             $this->_attributes[$attribute->getAttributeCode()] = $attribute;
         }
-    }
-
-    protected function _initProducts()
-    {
-        $this->_iProductCount = $this->_getProductCollection()->getSize();
     }
 
     protected function _getProductCollection($offset = 0, $limit = null)
