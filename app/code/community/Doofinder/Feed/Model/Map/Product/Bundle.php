@@ -26,9 +26,9 @@ class Doofinder_Feed_Model_Map_Product_Bundle
 
         if ($this->getConfig()->compareMagentoVersion(
                 array('major' => 1, 'minor' => 6, 'revision' => 0, 'patch' => 0)))
-            $_prices = $product->getPriceModel()->getTotalPrices($product);
-        else
             $_prices = $product->getPriceModel()->getPrices($product);
+        else
+            $_prices = $product->getPriceModel()->getTotalPrices($product);
 
         if (is_array($_prices))
             $price = min($_prices);

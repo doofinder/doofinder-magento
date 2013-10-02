@@ -105,14 +105,15 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
     protected function _getStoreCode()
     {
         $storeCode = $this->getRequest()->getParam('language');
+
         if (is_null($storeCode))
             $storeCode = $this->getRequest()->getParam('store'); // Backwards...
 
+        if (is_null($storeCode))
+            $storeCode = Mage::app()->getStore()->getCode();
+
         try
         {
-            if (is_null($storeCode))
-                return Mage_Core_Model_Store::DEFAULT_CODE;
-
             return Mage::app()->getStore($storeCode)->getCode();
         }
         catch(Mage_Core_Model_Store_Exception $e)
@@ -125,7 +126,8 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
     protected function _getGrouped()
     {
         $value = $this->getRequest()->getParam('grouped');
-        if (in_array(strtolower($value), array('false', 'off')))
+
+        if (in_array(strtolower($value), array('false', 'off', 'no')))
             return false;
 
         return (bool)$value;

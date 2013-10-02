@@ -329,11 +329,11 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
 
     public function getMagentoEdition()
     {
-        try
+        if (is_callable('Mage::getEdition'))
         {
             return Mage::getEdition();
         }
-        catch(Exception $e)
+        else
         {
             $features = array('Enterprise_Enterprise', 'Enterprise_AdminGws',
                               'Enterprise_Checkout', 'Enterprise_Customer');
