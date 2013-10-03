@@ -54,28 +54,34 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $this->_iProductCount = $this->getProductCount();
 
         if ($this->getData('_offset_') >= $this->_iProductCount)  // offset is 0-based
-            return;
-
-        $this->_initFeed();
-
-        if (! $this->getData('_limit_'))
         {
-            $this->_iBatchSize = false;
-
-            // Dump ALL products
-            for ($offset = $this->getData('_offset_');
-                    $offset < $this->_iProductCount;
-                    $offset += self::DEFAULT_BATCH_SIZE)
-                $this->_batchProcessProducts($offset, self::DEFAULT_BATCH_SIZE);
+            $this->_sendHeader('text/plain');
+            echo "";
+            @ob_end_flush();
         }
         else
         {
-            $this->_iBatchSize = $this->_batchProcessProducts(
-                $this->getData('_offset_'),
-                $this->getData('_limit_'));
-        }
+            $this->_initFeed();
 
-        $this->_closeFeed();
+            if (! $this->getData('_limit_'))
+            {
+                $this->_iBatchSize = false;
+
+                // Dump ALL products
+                for ($offset = $this->getData('_offset_');
+                        $offset < $this->_iProductCount;
+                        $offset += self::DEFAULT_BATCH_SIZE)
+                    $this->_batchProcessProducts($offset, self::DEFAULT_BATCH_SIZE);
+            }
+            else
+            {
+                $this->_iBatchSize = $this->_batchProcessProducts(
+                    $this->getData('_offset_'),
+                    $this->getData('_limit_'));
+            }
+
+            $this->_closeFeed();
+        }
     }
 
     public function getSQL()
@@ -401,9 +407,12 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         }
     }
 
-    protected function _sendHeader()
+    protected function _sendHeader($contentType = null)
     {
-        header('Content-type: ' . $this->getContentType(), true);
+        if ($contentType)
+            header('Content-type: ' . $contentType, true);
+        else
+            header('Content-type: ' . $this->getContentType(), true);
     }
 
     protected function _flushFeed()
