@@ -16,6 +16,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     protected $_repChars = array(""," "," "," "," ", "");
 
     protected $_store;
+    protected $_oRootCategory;
 
     protected $_iProductCount;
 
@@ -48,6 +49,9 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             return;
 
         Doofinder_Feed_Model_Map_Product_Configurable::setGrouped($this->getData('grouped'));
+
+        // Some config
+        $this->_oRootCategory = $this->getRootCategory();
 
         // Generate Feed
         $this->_loadAdditionalAttributes();
@@ -306,11 +310,29 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         return $this->getStore()->getWebsiteId();
     }
 
+    public function getRootCategory()
+    {
+        if (is_null($this->_oRootCategory))
+        {
+            $this->_oRootCategory = Mage::getModel('catalog/category')->load(
+                $this->getStore()->getRootCategoryId()
+            );
+        }
+
+        return $this->_oRootCategory;
+    }
+
     public function getCategories($product)
     {
         $categories = array();
 
-        foreach ($product->getCategoryIds() as $id)
+        $prodCategories = Mage::getResourceModel('catalog/category_collection')
+            ->addIdFilter($product->getCategoryIds())
+            ->addFieldToFilter('path', array('like' => $this->_oRootCategory->getPath() . '/%'))
+            ->getItems();
+        $prodCategories = array_keys($prodCategories);
+
+        foreach ($prodCategories as $id)
         {
             if (isset($this->_categories[$id]))
                 $tree = $this->_categories[$id];
@@ -345,7 +367,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $tree = array();
 
         while ($cat->getParentId()
-               && $cat->getId() != $this->getStore()->getRootCategoryId())
+               && $cat->getId() != $this->_oRootCategory->getId())
         {
           if (strlen($cat->getName()))
             $tree[] = $cat->getName();
