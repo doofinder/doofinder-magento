@@ -78,13 +78,9 @@ class Doofinder_Feed_Model_Map_Product_Configurable
                         {
                             continue; // always unique
                         }
-                        else if ($name == 'price' || $name == 'normal_price')
+                        else if ($name == 'price' || $name == 'normal_price' || $name == 'sale_price')
                         {
-                            // Get min price only
-                            if ($value < $masterData[$name])
-                                $masterData[$name] = $value;
-
-                            continue;
+                            continue; // prices are calculated from the main product
                         }
 
                         if (!is_array($masterData[$name]))
@@ -149,37 +145,6 @@ class Doofinder_Feed_Model_Map_Product_Configurable
             ->initialize();
 
         return $productMap;
-    }
-
-    public function getPrice()
-    {
-        $price = 0.0;
-
-        if (!$this->hasSpecialPrice())
-            $price = $this->calcMinimalPrice($this->getProduct());
-        else
-            $price = $this->getProduct()->getPrice();
-
-        if ($price <= 0)
-            $this->skip = true;
-
-        return $price;
-    }
-
-    public function calcMinimalPrice($product)
-    {
-        $price = 0.0;
-
-        $minimal_price = PHP_INT_MAX;
-
-        foreach ($this->_assocs as $assoc)
-            if ($minimal_price > $assoc->getPrice())
-                $minimal_price = $assoc->getPrice();
-
-        if ($minimal_price < PHP_INT_MAX)
-            $price = $minimal_price;
-
-        return $price;
     }
 
     public function getConfigurableAttributeCodes()

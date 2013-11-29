@@ -211,27 +211,54 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
             return "";
     }
 
+    public function collectProductPrices()
+    {
+        if ( ! $this->getData('collected_product_prices') )
+        {
+            $dataHelper = Mage::helper('doofinder_feed');
+            $taxHelper = Mage::helper('tax');
+
+            $datum = $dataHelper->collectProductPrices(
+                $this->getProduct(),
+                $this->getGenerator()->getStore(),
+                true,
+                $this->getGenerator()->getData('minimal_price'),
+                $this->getGenerator()->getData('grouped')
+            );
+
+            $priceDisplayType = $taxHelper->getPriceDisplayType($oStore);
+
+            if ( $priceDisplayType == Mage_Tax_Model_Config::DISPLAY_TYPE_INCLUDING_TAX
+                 || $priceDisplayType == Mage_Tax_Model_Config::DISPLAY_TYPE_BOTH )
+            {
+                $priceKey = 'including_tax';
+            }
+            else
+            {
+                $priceKey = 'excluding_tax';
+            }
+
+            $prices = array(
+                'price_type' => $datum['price_type'],
+            );
+
+            foreach ( $datum as $priceType => $data )
+                foreach ( $data as $key => $price )
+                    if ( $key == $priceKey )
+                        $prices[$priceType] = $data[$key];
+
+            $this->setData('collected_product_prices', $prices);
+        }
+
+        return $this->getData('collected_product_prices');
+    }
+
     protected function mapDirectivePrice($params = array())
     {
-        $storeId = $this->getStoreId();
-        $product = $this->getProduct();
-        $helper = Mage::helper('doofinder_feed/tax');
+        $prices = $this->collectProductPrices();
+        $fieldData = $this->cleanField($prices['price']);
 
-        $includingTax = true;
-
-        $fieldData = $helper->getPrice(
-            $product,
-            $this->getPrice(),
-            $includingTax,
-            false,
-            false,
-            null,
-            $storeId,
-            ($helper->priceIncludesTax($storeId) ? true : false)
-        );
-        $fieldData = $this->cleanField($fieldData);
-
-        if ($fieldData < 0)
+        if ( $fieldData < 0 )
             $this->skip = true;
 
         return $fieldData;
@@ -239,48 +266,15 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
 
     protected function mapDirectiveSalePrice($params = array())
     {
-        $product = $this->getProduct();
+        $prices = $this->collectProductPrices();
 
-        if (!$product->getSpecialPrice())
+        if ( ! array_key_exists('sale_price', $prices) )
             return null;
-            // return $this->mapDirectivePrice($params);
 
-        $fieldData = $product->getFinalPrice();
-        $fieldData = $this->cleanField($fieldData);
+        $fieldData = $this->cleanField($prices['sale_price']);
 
-        return $fieldData;
-    }
-
-    protected function mapDirectiveSalePriceEffectiveDate($params = array())
-    {
-        $map = $params['map'];
-        $product = $this->getProduct();
-
-        $fieldData = "";
-        if (!$this->hasSpecialPrice())
-            return $fieldData;
-
-        $cDate = Mage::app()->getLocale()->date(null, null, Mage::app()->getLocale()->getDefaultLocale());
-        $timezone = Mage::app()->getStore($this->getStoreId())->getConfig(Mage_Core_Model_Locale::XML_PATH_DEFAULT_TIMEZONE);
-
-        $fromDate = new Zend_Date(null, null, Mage::app()->getLocale()->getDefaultLocale());
-        if ($timezone) $fromDate->setTimezone($timezone);
-        $fromDate->setDate(substr($product->getSpecialFromDate(), 0, 10), 'yyyy-MM-dd');
-        $fromDate->setTime(substr($product->getSpecialFromDate(), 11, 8), 'HH:mm:ss');
-
-        $toDate = new Zend_Date(null, null, Mage::app()->getLocale()->getDefaultLocale());
-        if (!is_empty_date($product->getSpecialToDate())) {
-            if ($timezone) $toDate->setTimezone($timezone);
-            $toDate->setDate(substr($product->getSpecialToDate(), 0, 10), 'yyyy-MM-dd');
-            $toDate->setTime('23:59:59', 'HH:mm:ss');
-        } else {
-            if ($timezone) $toDate->setTimezone($timezone);
-            $toDate->setDate($cDate->toString('yyyy-MM-dd'), 'yyyy-MM-dd');
-            $toDate->setTime('23:59:59', 'HH:mm:ss');
-            $toDate->add(7, Zend_Date::DAY);
-        }
-
-        $fieldData = $fromDate->toString(Zend_Date::ISO_8601)."/".$toDate->toString(Zend_Date::ISO_8601);
+        if ( $fieldData <= 0 )
+            return null;
 
         return $fieldData;
     }

@@ -113,7 +113,9 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             return false;
 
         $product = Mage::getModel('catalog/product');
-        $product->setData($row)->setStoreId($this->getStoreId());
+        $product->setData($row)
+            ->setStoreId($this->getStoreId())
+            ->setCustomerGroupId($this->getData('customer_group_id'));
         $product->getResource()->load($product, $row['entity_id']);
 
         $map->setGenerator($this)

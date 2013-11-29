@@ -104,35 +104,6 @@ class Doofinder_Feed_Model_Map_Product_Associated
         return $value;
     }
 
-    public function mapFieldCurrentPrice($params = array())
-    {
-        $cell = "";
-
-        if (!$this->getParentMap()->hasSpecialPrice())
-            return $cell;
-
-        $product = $this->getProduct();
-        $helper = Mage::helper('doofinder_feed/tax');
-        $storeId = $this->getStoreId();
-
-        $taxIncluded = ( $helper->priceIncludesTax($storeId) ? true : false);
-        $includingTax = ($this->getConfigVar('add_tax_to_price', 'columns') ? true : false);
-
-        $special_price = $this->getPrice() - $this->getParentMap()->getPrice() + $this->getParentMap()->getSpecialPrice();
-        $price = $helper->getPrice($product, $special_price, $includingTax, false, false, null, $storeId, $taxIncluded);
-        $cell = $price;
-
-        return $this->cleanField($cell);
-    }
-
-    public function mapFieldSalePriceEffectiveDate($params = array())
-    {
-        $args = array('map' => $params['map']);
-        $value = "";
-        $value = $this->getParentMap()->mapField('sale_price_effective_date');
-        return $value;
-    }
-
     public function mapFieldAvailability($params = array())
     {
         $args = array('map' => $params['map']);

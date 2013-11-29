@@ -7,39 +7,18 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             set_time_limit(3600);
 
         $options = array(
-            '_limit_' => $this->_getLimit(),
-            '_offset_' => $this->_getOffset(),
+            '_limit_' => $this->_getInteger('limit', null),
+            '_offset_' => $this->_getInteger('offset', 0),
             'store_code' => $this->_getStoreCode(),
-            'grouped' => $this->_getGrouped(),
+            'grouped' => $this->_getBoolean('grouped', true),
+            // Calculate the minimal price with the tier prices
+            'minimal_price' => $this->_getBoolean('minimal_price', false),
+            // Not logged in by default
+            'customer_group_id' => $this->_getInteger('customer_group', 0),
         );
 
         $generator = Mage::getSingleton('doofinder_feed/generator', $options);
         $generator->run();
-    }
-
-    public function debugAction()
-    {
-        $this->getResponse()
-          ->clearHeaders()
-          ->setHeader('Content-Type','application/octet-stream')
-          ->sendHeaders();
-
-        $options = array(
-            '_limit_' => $this->_getLimit(),
-            '_offset_' => $this->_getOffset(),
-            'store_code' => $this->_getStoreCode(),
-            'grouped' => $this->_getGrouped(),
-        );
-
-        $generator = Mage::getSingleton('doofinder_feed/generator', $options);
-
-        echo "THERE ARE [ ".$generator->getProductCount()." ] BASE PRODUCTS.\n\n";
-        echo "------------------------------------------------------------\n\n";
-        if ($options['_limit_'])
-            echo "SQL FOR PRODUCTS WITH OFFSET [ {$options['_offset_']} ] and LIMIT [ {$options['_limit_']} ]:\n\n\n";
-        else
-            echo "SQL FOR ALL PRODUCTS:\n\n\n";
-        echo $generator->getSQL();
     }
 
     public function configAction()
@@ -76,6 +55,9 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
                 'options' => array(
                     'language' => $storeCodes,
                     'grouped' => true, // TODO(@carlosescri): Make configurable.
+                    'minimal_price' => true,
+                    'prices_incl_taxes' => true,
+                    'customer_group_id' => 0,
                 ),
                 'configuration' => $storesConfiguration
             ),
@@ -113,20 +95,6 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             ->asArray();
     }
 
-    protected function _getLimit()
-    {
-        $limit = $this->getRequest()->getParam('limit');
-
-        return is_numeric($limit) ? (int) $limit : null;
-    }
-
-    protected function _getOffset()
-    {
-        $offset = $this->getRequest()->getParam('offset');
-
-        return is_numeric($offset) ? (int) $offset : 0;
-    }
-
     protected function _getStoreCode()
     {
         $storeCode = $this->getRequest()->getParam('language');
@@ -148,13 +116,99 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         }
     }
 
-    protected function _getGrouped()
+    protected function _getBoolean($param, $defaultValue = false)
     {
-        $value = $this->getRequest()->getParam('grouped');
+        $value = strtolower($this->getRequest()->getParam($param));
 
-        if (in_array(strtolower($value), array('false', 'off', 'no')))
+        if ( is_numeric($value) )
+            return ((int)($value *= 1) > 0);
+
+        $yes = array('true', 'on', 'yes');
+        $no  = array('false', 'off', 'no');
+
+        if ( in_array($value, $yes) )
+            return true;
+
+        if ( in_array($value, $no) )
             return false;
 
-        return (bool)$value;
+        return $defaultValue;
+    }
+
+    protected function _getInteger($param, $defaultValue)
+    {
+        $value = $this->getRequest()->getParam($param);
+        if ( is_numeric($value) )
+            return (int)($value *= 1);
+        return $defaultValue;
+    }
+
+    /*
+        TEST TOOLS
+    */
+
+    public function testsAction()
+    {
+        if ( !in_array(@$_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1')) )
+        {
+            die('You are not allowed to access this file.');
+        }
+
+        $oStore           = Mage::app()->getStore($this->_getStoreCode());
+        $bGrouped         = $this->_getBoolean('grouped', true);
+        $bMinimalPrice    = $this->_getBoolean('minimal_price', false);
+        $bCurrencyConvert = $this->_getBoolean('convert_currency', true);
+        $iCustomerGroupId = $this->_getInteger('customer_group', 0);
+
+        $ids = array(
+            'simple' => array(166, 27),
+            'grouped' => 54,
+            'configurable' => 83,
+            'virtual' => 142,
+            'bundle' => 158,
+            'downloadable' => 167
+        );
+
+        $data = array(
+            'store' => array(
+                'store_id' => $oStore->getStoreId(),
+                'website_id' => $oStore->getWebsiteId(),
+                'base_currency' => $oStore->getBaseCurrencyCode(),
+                'current_currency' => $oStore->getCurrentCurrencyCode(),
+                'default_currency' => $oStore->getDefaultCurrencyCode(),
+            ),
+            'products' => array(),
+        );
+
+        $rule = Mage::getModel('catalogrule/rule');
+        $dataHelper = Mage::helper('doofinder_feed');
+
+        foreach ($ids as $product_type => $ids)
+        {
+            foreach ((array) $ids as $id)
+            {
+                $product = Mage::getModel('catalog/product')
+                    ->setStoreId($oStore->getStoreId())
+                    ->setCustomerGroupId($iCustomerGroupId)
+                    ->load($id);
+
+                $data['products'][$id] = array(
+                    'product_type' => $product_type,
+                    'name' => $product->getName(),
+                );
+
+                $data['products'][$id] = array_merge(
+                    $data['products'][$id],
+                    $dataHelper->collectProductPrices($product, $oStore, $bCurrencyConvert, $bMinimalPrice, $bGrouped)
+                );
+            }
+        }
+
+        $this->getResponse()
+          ->clearHeaders()
+          ->setHeader('Content-Type','application/json')
+          ->sendHeaders();
+
+        die(json_encode($data));
     }
 }
