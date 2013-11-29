@@ -187,6 +187,18 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
             }
         }
 
+        if ( $prices['price']['excluding_tax'] <= $prices['sale_price']['excluding_tax'] )
+        {
+            unset($prices['sale_price']['excluding_tax']);
+            unset($prices['sale_price']['including_tax']);
+        }
+
+        if ( $prices['price']['excluding_tax'] <= 0 )
+        {
+            unset($prices['price']['excluding_tax']);
+            unset($prices['price']['including_tax']);
+        }
+
         foreach ( array('price', 'sale_price') as $priceType )
         {
             if ( !isset($prices[$priceType]) )
