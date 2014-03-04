@@ -548,8 +548,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     protected function _getProductCollection($offset = 0, $limit = null)
     {
         $collection = Mage::getModel('catalog/product')
-            ->setStoreId($this->getStoreId())
-            ->getCollection();
+            ->getCollection()
+            ->addStoreFilter($this->getStoreId());
 
         $this->_addProductTypeToFilter($collection);
 

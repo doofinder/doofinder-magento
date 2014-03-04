@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
     <name>Doofinder_Feed</name>
-    <version>1.2.8</version>
+    <version>1.2.9</version>
     <stability>stable</stability>
     <license uri="http://opensource.org/licenses/osl-3.0.php">Open Software License (OSL 3.0)</license>
     <channel>community</channel>
@@ -48,11 +48,11 @@ Doofinder is fast and innovative. With no doubt, it is the best search engine fo
 You can get more info and create your account visiting the Doofinder site:&#xD;
 &#xD;
 http://www.doofinder.com</description>
-    <notes>Better product price calculations.</notes>
+    <notes>Fixed bug that made products not actually being filtered by store.</notes>
     <authors><author><name>Carlos Escribano Rey</name><user>markhaus</user><email>carlos@doofinder.com</email></author></authors>
-    <date>2013-11-29</date>
-    <time>17:32:18</time>
-    <contents><target name="magecommunity"><dir name="Doofinder"><dir name="Feed"><dir name="Helper"><file name="Data.php" hash="ee536bb55b172549f8c5716b5b01556c"/><file name="Tax.php" hash="50afff7db31ed8985967bd6c9345c244"/></dir><dir name="Model"><file name="Config.php" hash="8c9531f71a5efd30d20728412b29b2c6"/><file name="Generator.php" hash="4bf500880db488eb397a8efaa0578916"/><dir name="Map"><dir name="Product"><file name="Abstract.php" hash="d8b349f03bb2cc1a067fdfd64d5bc1f8"/><file name="Associated.php" hash="78053c41b10c8fa88f32eebcbf047aa7"/><file name="Bundle.php" hash="e9488af793a84372918d08ba1692fcc1"/><file name="Configurable.php" hash="3a5bf418243a0127ddc16c844b23d81e"/><file name="Downloadable.php" hash="972ebd1d0bc95f494462d97dad293847"/><file name="Grouped.php" hash="b33474a1f6b61e39645fc297fa9a741d"/><file name="Simple.php" hash="1384d9a7e5bcfbd85c1c1a5d6b6367c2"/><file name="Virtual.php" hash="295215460482c88669b209c2357531ed"/></dir></dir><file name="Tools.php" hash="3b90c7f29ea3ba51211d8135f5ef7a92"/></dir><dir name="controllers"><file name="FeedController.php" hash="ae6b9afa3bcd0e4ec55423fdfc1ccfe5"/><file name="IndexController.php" hash="21d3aae2a34f8c7f58a61cb591c2ccf2"/></dir><dir name="etc"><file name="config.xml" hash="0bc085ade4719f49b5f6ee02cc859dcd"/></dir></dir></dir></target><target name="mageetc"><dir name="modules"><file name="Doofinder_Feed.xml" hash="9d3b6fbbbec12708461c33260715451c"/></dir></target></contents>
+    <date>2014-03-04</date>
+    <time>11:03:19</time>
+    <contents><target name="magecommunity"><dir name="Doofinder"><dir name="Feed"><dir name="Helper"><file name="Data.php" hash="2ed9463c86f7884c0bc93cce58315b45"/><file name="Tax.php" hash="50afff7db31ed8985967bd6c9345c244"/></dir><dir name="Model"><file name="Config.php" hash="8c9531f71a5efd30d20728412b29b2c6"/><file name="Generator.php" hash="993fb35380d099a43a616b224738d29c"/><dir name="Map"><dir name="Product"><file name="Abstract.php" hash="d8b349f03bb2cc1a067fdfd64d5bc1f8"/><file name="Associated.php" hash="78053c41b10c8fa88f32eebcbf047aa7"/><file name="Bundle.php" hash="e9488af793a84372918d08ba1692fcc1"/><file name="Configurable.php" hash="3a5bf418243a0127ddc16c844b23d81e"/><file name="Downloadable.php" hash="972ebd1d0bc95f494462d97dad293847"/><file name="Grouped.php" hash="b33474a1f6b61e39645fc297fa9a741d"/><file name="Simple.php" hash="1384d9a7e5bcfbd85c1c1a5d6b6367c2"/><file name="Virtual.php" hash="295215460482c88669b209c2357531ed"/></dir></dir><file name="Tools.php" hash="3b90c7f29ea3ba51211d8135f5ef7a92"/></dir><dir name="controllers"><file name="FeedController.php" hash="ae6b9afa3bcd0e4ec55423fdfc1ccfe5"/><file name="IndexController.php" hash="21d3aae2a34f8c7f58a61cb591c2ccf2"/></dir><dir name="etc"><file name="config.xml" hash="32d7414b54f1f0e027c68a5487380b51"/></dir></dir></dir></target><target name="mageetc"><dir name="modules"><file name="Doofinder_Feed.xml" hash="9d3b6fbbbec12708461c33260715451c"/></dir></target></contents>
     <compatible/>
     <dependencies><required><php><min>5.2.0</min><max>6.0.0</max></php></required></dependencies>
 </package>
