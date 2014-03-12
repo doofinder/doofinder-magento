@@ -186,16 +186,7 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
     protected function mapDirectiveUrl($params = array())
     {
         $product = $this->getProduct();
-
-        if (count($product->getCategoryIds()) > 0)
-            return sprintf(
-                '%s%s',
-                Mage::app()->getStore($this->getData('store_id'))
-                    ->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK),
-                $product->getUrlPath()
-            );
-        else
-            return $product->getProductUrl();
+        return $product->getUrlModel()->getUrl($product, array('_nosid' => true));
     }
 
     protected function mapDirectiveImageLink($params = array())
