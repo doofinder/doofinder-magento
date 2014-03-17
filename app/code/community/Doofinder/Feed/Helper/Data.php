@@ -225,7 +225,7 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
         // Get Tier Prices
 
-        $tierPrices = $product->getTierPrice($qty);
+        $tierPrices = $product->getTierPrice(null);
 
         if (! is_array($tierPrices))
             $tierPrices = (array) $tierPrices;
