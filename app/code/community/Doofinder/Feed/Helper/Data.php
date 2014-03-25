@@ -187,7 +187,8 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
             }
         }
 
-        if ( $prices['price']['excluding_tax'] <= $prices['sale_price']['excluding_tax'] )
+        if ( isset($prices['sale_price']['excluding_tax']) &&
+            $prices['price']['excluding_tax'] <= $prices['sale_price']['excluding_tax'] )
         {
             unset($prices['sale_price']['excluding_tax']);
             unset($prices['sale_price']['including_tax']);
