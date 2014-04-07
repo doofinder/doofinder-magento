@@ -8,6 +8,16 @@ class Doofinder_Feed_Model_Config extends Mage_Core_Model_Config_Data
     protected $_product_attribute_codes = null;
     protected $_product_directives = null;
 
+    const OUT_OF_STOCK = 'out of stock';
+    const IN_STOCK = 'in stock';
+
+    public function getOutOfStockStatus() {
+        return self::OUT_OF_STOCK;
+    }
+
+    public function getInStockStatus() {
+        return self::IN_STOCK;
+    }
 
     //
     // Get Config

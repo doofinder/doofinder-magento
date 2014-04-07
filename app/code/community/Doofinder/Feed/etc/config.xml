@@ -127,9 +127,13 @@
                         <attribute>df_directive_price</attribute>
                     </price>
                     <sale_price>
-                        <label>Normal Price</label>
+                        <label>Sale Price</label>
                         <attribute>df_directive_sale_price</attribute>
                     </sale_price>
+                    <availability>
+                        <label>Availability</label>
+                        <attribute>df_directive_availability</attribute>
+                    </availability>
                     <currency>
                         <label>Currency</label>
                         <attribute>df_directive_currency</attribute>
