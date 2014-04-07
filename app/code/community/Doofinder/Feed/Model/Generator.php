@@ -203,18 +203,28 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             {
                 $this->_oXmlWriter->startElement(self::PRODUCT_ELEMENT);
 
+                if (!isset($data['description']))
+                {
+                    if (isset($data['long_description'])) {
+                        $data['description'] = $data['long_description'];
+                        unset($data['long_description']);
+                    } else {
+                        $data['description'] = '';
+                    }
+                }
+
                 foreach ($data as $field => $value)
                 {
-                    if (is_array($value))
-                    {
-                        if (!count($value))
-                            continue;
-                    }
-                    else
+                    if (!is_array($value))
                     {
                         $value = trim($value);
-                        if (!strlen($value))
+                    }
+
+                    if ($field != 'description') {
+                        if ((is_array($value) && !count($value)) || !strlen($value))
+                        {
                             continue;
+                        }
                     }
 
                     $this->_oXmlWriter->startElement($field);
