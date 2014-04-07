@@ -217,7 +217,7 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
                 $this->getGenerator()->getData('grouped')
             );
 
-            $priceDisplayType = $taxHelper->getPriceDisplayType($oStore);
+            $priceDisplayType = $taxHelper->getPriceDisplayType($this->getGenerator()->getStore());
 
             if ( $priceDisplayType == Mage_Tax_Model_Config::DISPLAY_TYPE_INCLUDING_TAX
                  || $priceDisplayType == Mage_Tax_Model_Config::DISPLAY_TYPE_BOTH )
