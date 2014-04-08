@@ -233,10 +233,15 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
                 'price_type' => $datum['price_type'],
             );
 
-            foreach ( $datum as $priceType => $data )
-                foreach ( $data as $key => $price )
-                    if ( $key == $priceKey )
+            foreach ( $datum as $priceType => $data ) {
+                if ( !is_array($data) ) continue;
+
+                foreach ( $data as $key => $price ) {
+                    if ( $key == $priceKey ) {
                         $prices[$priceType] = $data[$key];
+                    }
+                }
+            }
 
             $this->setData('collected_product_prices', $prices);
         }
@@ -247,6 +252,10 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
     protected function mapDirectivePrice($params = array())
     {
         $prices = $this->collectProductPrices();
+
+        if ( ! array_key_exists('price', $prices) )
+            return null;
+
         $fieldData = $this->cleanField($prices['price']);
 
         if ( $fieldData < 0 )
