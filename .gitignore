@@ -1,2 +1,3 @@
 localconfig.json
 node_modules
+var/connect/*.tgz
