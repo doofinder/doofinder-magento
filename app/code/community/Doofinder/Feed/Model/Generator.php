@@ -220,11 +220,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                         $value = trim($value);
                     }
 
-                    if ($field != 'description') {
-                        if ((is_array($value) && !count($value)) || !strlen($value))
-                        {
-                            continue;
-                        }
+                    if ($field != 'description' && empty($value)) {
+                        continue;
                     }
 
                     $this->_oXmlWriter->startElement($field);

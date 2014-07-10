@@ -23,8 +23,13 @@ To add a new version number to the code:
 
 $ grunt release
 
-3. Create package via the master site.
-4. Upload to Magento Connect
+3. Create package via the master site admin.
+4. Run:
+
+$ grunt
+
+5. Get .tgz file from master site
+6. Commit & Push
 
 */
 
