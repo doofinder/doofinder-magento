@@ -50,12 +50,41 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
         if ( $product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_GROUPED )
         {
-            if ( $minPriceValue = $product->getMinimalPrice() )
+            $sub_prices = array();
+            $sub_sale_prices = array();
+
+            foreach($product->getTypeInstance()->getChildrenIds($product->getId()) as $ids)
+            {
+                foreach($ids as $id)
+                {
+                    $sub_product = Mage::getModel('catalog/product')->load($id);
+                    $sub_product_price = $this->collectProductPrices($sub_product, $oStore, $currencyConvert, true, $groupConfigurables);
+
+                    if (! empty($sub_product_price['price']['excluding_tax']))
+                    {
+                        $sub_prices[] = $sub_product_price['price']['excluding_tax'];
+
+                        if (! empty($sub_product_price['sale_price']['excluding_tax']))
+                        {
+                            $sub_sale_prices[] = $sub_product_price['sale_price']['excluding_tax'];
+                        }
+                    }
+                }
+            }
+            asort($sub_prices);
+            asort($sub_sale_prices);
+
+            $minPriceValue = array_shift($sub_prices);
+            $minSalePriceValue = array_shift($sub_sale_prices);
+
+            if ( $minPriceValue )
             {
                 $prices['price_type'] = 'minimal';
 
                 $prices['price']['excluding_tax'] = $taxHelper->getPrice($product, $minPriceValue, false, null, null, null, $oStore, null);
                 $prices['price']['including_tax'] = $taxHelper->getPrice($product, $minPriceValue, true, null, null, null, $oStore, null);
+                $prices['sale_price']['excluding_tax'] = $taxHelper->getPrice($product, $minSalePriceValue, false, null, null, null, $oStore, null);
+                $prices['sale_price']['including_tax'] = $taxHelper->getPrice($product, $minSalePriceValue, true, null, null, null, $oStore, null);
             }
         }
         elseif ( $product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_BUNDLE )

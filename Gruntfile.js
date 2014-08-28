@@ -98,6 +98,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-version');
 
+    grunt.registerTask('default', ['clean:sync', 'copy:sync']);
     grunt.registerTask('sync', ['clean:sync', 'copy:sync']);
     grunt.registerTask('release', ['version:release', 'sync']);
     grunt.registerTask('update', ['copy:release']);
