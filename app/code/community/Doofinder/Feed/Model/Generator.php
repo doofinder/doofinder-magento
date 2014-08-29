@@ -250,8 +250,11 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                             $this->_oXmlWriter->endElement();
                     }*/
 
-                    $this->_oXmlWriter->writeCData($value);
-
+                    $written = @$this->_oXmlWriter->writeCData($value);
+                    if ( ! $written )
+                    {
+                        $this->_oXmlWriter->writeComment("Couldn't write '$field' field value!");
+                    }
 
                     $this->_oXmlWriter->endElement();
                 }
