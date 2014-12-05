@@ -5,7 +5,6 @@ if (!defined('DS'))
 class Doofinder_Feed_Model_Generator extends Varien_Object
 {
     const DEFAULT_BATCH_SIZE = 100;
-    const CONTENT_TYPE = 'application/xml; charset="utf-8"';
     const PRODUCT_ELEMENT = 'item';
     const CATEGORY_SEPARATOR = '%%';
     const CATEGORY_TREE_SEPARATOR = '>';
@@ -59,7 +58,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
         if ($this->getData('_offset_') >= $this->_iProductCount)  // offset is 0-based
         {
-            $this->_sendHeader('text/plain');
             echo "";
             @ob_end_flush();
         }
@@ -436,17 +434,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             $this->_oXmlWriter->writeElement('generator', 'Doofinder/'.Mage::getConfig()->getModuleConfig("Doofinder_Feed")->version);
             $this->_oXmlWriter->writeElement('description', 'Magento Product feed for Doofinder');
 
-            $this->_sendHeader();
             $this->_flushFeed();
         }
-    }
-
-    protected function _sendHeader($contentType = null)
-    {
-        if ($contentType)
-            header('Content-type: ' . $contentType, true);
-        else
-            header('Content-type: ' . $this->getContentType(), true);
     }
 
     protected function _flushFeed()
