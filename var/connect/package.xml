@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<package>
+    <name>Doofinder_Feed</name>
+    <version>1.4.1</version>
+    <stability>stable</stability>
+    <license uri="http://opensource.org/licenses/osl-3.0.php">Open Software License (OSL 3.0)</license>
+    <channel>community</channel>
+    <extends/>
+    <summary>This plugin allows you to integrate Doofinder in your store with almost no effort.</summary>
+    <description>Doofinder is the best on-site search engine service for Magento. This free extension allows you to populate the data feed file required to use the Doofinder search service for each store view in a URL (the data feed displays only public information of your products).&#xD;
+&#xD;
+# Why use Doofinder?&#xD;
+&#xD;
+Doofinder provides fast and accurate results based on your website content. Accurate and relevant results appear in your search box at an incredible speed as the user types. With Doofinder you are confident that your visitors are finding what they are looking for regardless of the number of products in your site. These are some advantages of using Doofinder in your site:&#xD;
+&#xD;
+- Instant, relevant results.&#xD;
+- Tolerant of misspellings.&#xD;
+- Search filters.&#xD;
+- Increases the conversion rates.&#xD;
+- No technical knowledge are required.&#xD;
+- Allows the use of labels and synonyms.&#xD;
+- Installs in minutes.&#xD;
+- Provides statistical information.&#xD;
+- Doofinder brings back the control over the searches in your site to you.&#xD;
+&#xD;
+A good search engine should provide relevant results. It is exactly what Doofinder does.&#xD;
+&#xD;
+When the user starts typing in the search box, Doofinder displays the best results for her search. If the user makes a typo, our algorithms detect it and will perform the search as if the term is correctly typed.&#xD;
+&#xD;
+Furthermore, Doofinder sorts the results displaying the most relevant first.&#xD;
+&#xD;
+# Relevant Statistics&#xD;
+&#xD;
+The Doofinder's backend also offers easy to understand statistics. They provide useful information about the usage, results and search trends of your users in the last 90 days.&#xD;
+&#xD;
+With the knowledge of what are the most used terms by your users, you can provide guided results for their queries. You can link the results with your Google Analytics profile to better evaluate and improve the contents of your website.&#xD;
+&#xD;
+# SaaS&#xD;
+&#xD;
+With Doofinder you will benefit permanently of the service updates and improvements with no additional cost. All our plans provide full technical support.&#xD;
+&#xD;
+If you have any question, please, contact us. Our technical support team will be happy to assist you.&#xD;
+&#xD;
+# More information&#xD;
+&#xD;
+Doofinder is fast and innovative. With no doubt, it is the best search engine for Magento. The Doofinder service is not free but it has a 30 day trial period.&#xD;
+&#xD;
+You can get more info and create your account visiting the Doofinder site:&#xD;
+&#xD;
+http://www.doofinder.com</description>
+    <notes>Fixed error when a field value cannot be dumped and a comment is written instead.</notes>
+    <authors><author><name>Carlos Escribano Rey</name><user>markhaus</user><email>carlos@doofinder.com</email></author></authors>
+    <date>2015-01-07</date>
+    <time>14:53:19</time>
+    <contents><target name="magecommunity"><dir name="Doofinder"><dir name="Feed"><dir name="Helper"><file name="Data.php" hash="6b4be50277176e520663cb02d99467af"/><file name="Tax.php" hash="50afff7db31ed8985967bd6c9345c244"/></dir><dir name="Model"><file name="Config.php" hash="0620ffdfd358038beebcdec5cd2a7aec"/><file name="Generator.php" hash="1e4056c8b69f9cdcc68b01446333bdf9"/><dir name="Map"><dir name="Product"><file name="Abstract.php" hash="e76caea569539090538a0c4cf0fd8703"/><file name="Associated.php" hash="78053c41b10c8fa88f32eebcbf047aa7"/><file name="Bundle.php" hash="e9488af793a84372918d08ba1692fcc1"/><file name="Configurable.php" hash="3a5bf418243a0127ddc16c844b23d81e"/><file name="Downloadable.php" hash="972ebd1d0bc95f494462d97dad293847"/><file name="Grouped.php" hash="b33474a1f6b61e39645fc297fa9a741d"/><file name="Simple.php" hash="1384d9a7e5bcfbd85c1c1a5d6b6367c2"/><file name="Virtual.php" hash="295215460482c88669b209c2357531ed"/></dir></dir><file name="Tools.php" hash="3b90c7f29ea3ba51211d8135f5ef7a92"/></dir><dir name="controllers"><file name="FeedController.php" hash="d32b6d2132bd0138e4efce4b6cb95603"/><file name="IndexController.php" hash="21d3aae2a34f8c7f58a61cb591c2ccf2"/></dir><dir name="etc"><file name="config.xml" hash="336ee050d2f5ab0f6d4bf186ce12e700"/></dir></dir></dir></target><target name="mageetc"><dir name="modules"><file name="Doofinder_Feed.xml" hash="9d3b6fbbbec12708461c33260715451c"/></dir></target></contents>
+    <compatible/>
+    <dependencies><required><php><min>5.2.0</min><max>6.0.0</max></php></required></dependencies>
+</package>
