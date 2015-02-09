@@ -54,6 +54,10 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         $storeCodes = array_keys(Mage::app()->getStores(false, true));
         $storesConfiguration = array();
 
+        /*
+         * @todo Make prices configurable
+         * @todo Make taxes configurable
+         */
         foreach ($storeCodes as $code)
         {
             $oStore = Mage::app()->getStore($code);
@@ -61,12 +65,15 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             $storesConfiguration[$code] = array(
                 'language' => strtoupper(substr($L, 0, 2)),
                 'currency' => $oStore->getCurrentCurrencyCode(),
-                'prices' => true, // TODO(@carlosescri): Make configurable.
-                'taxes' => true   // TODO(@carlosescri): Make configurable.
+                'prices' => true,
+                'taxes' => true
             );
         }
 
 
+        /*
+         * @todo Make grouped configurable
+         */
         $config = array(
             'platform' => array(
                 'name' => 'Magento',
@@ -78,7 +85,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
                 'feed' => Mage::getUrl('doofinder/feed'),
                 'options' => array(
                     'language' => $storeCodes,
-                    'grouped' => true, // TODO(@carlosescri): Make configurable.
+                    'grouped' => true,
                     'minimal_price' => true,
                     'prices_incl_taxes' => true,
                     'customer_group_id' => 0,
