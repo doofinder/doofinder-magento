@@ -1,4 +1,20 @@
 <?php
+/**
+ * This file is part of Doofinder_Feed.
+ */
+
+/**
+ * @category   Models
+ * @package    Doofinder_Feed
+ * @version    1.4.1
+ */
+
+/**
+ * Tools model for Doofinder Feed
+ *
+ * @version    1.4.1
+ * @package    Doofinder_Feed
+ */
 class Doofinder_Feed_Model_Tools extends Varien_Object
 {
 	public function _construct()

@@ -1,4 +1,20 @@
 <?php
+/**
+ * This file is part of Doofinder_Feed.
+ */
+
+/**
+ * @category   Models
+ * @package    Doofinder_Feed
+ * @version    1.4.1
+ */
+
+/**
+ * Generator model for Doofinder Feed
+ *
+ * @version    1.4.1
+ * @package    Doofinder_Feed
+ */
 if (!defined('DS'))
     define('DS', DIRECTORY_SEPARATOR);
 
