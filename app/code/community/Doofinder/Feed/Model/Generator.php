@@ -651,6 +651,9 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         return $this->_fieldMap;
     }
 
+    /**
+     * @todo Get rid of die()
+     */
     protected function _stopOnException(Exception $e)
     {
         header('HTTP/1.1 404 Not Found', true, 404);

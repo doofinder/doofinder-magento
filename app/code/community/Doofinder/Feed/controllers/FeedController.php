@@ -111,7 +111,8 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             ),
         );
 
-        die(json_encode($config));
+        $response = Mage::helper('core')->jsonEncode($config);
+        $this->getResponse()->setBody($response);
     }
 
     protected function _dumpMessage($s_level, $s_message, $a_extra=array())
@@ -122,7 +123,9 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             $error = array_merge($error, $a_extra);
 
         $this->_sendJSONHeaders();
-        die(json_encode($error));
+
+        $response = Mage::helper('core')->jsonEncode($error);
+        $this->getResponse()->setBody($response);
     }
 
     protected function _getVersion()
@@ -246,6 +249,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 
         $this->_sendJSONHeaders();
 
-        die(json_encode($data));
+        $response = Mage::helper('core')->jsonEncode($data);
+        $this->getResponse()->setBody($response);
     }
 }
