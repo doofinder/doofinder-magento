@@ -476,8 +476,8 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
         return $this->getProduct()->getPrice();
     }
 
-     public function calcMinimalPrice($product)
-     {
+    public function calcMinimalPrice($product)
+    {
         return $product->getMinimalPrice();
     }
 

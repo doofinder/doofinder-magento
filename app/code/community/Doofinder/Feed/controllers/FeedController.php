@@ -17,6 +17,29 @@
  */
 class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 {
+
+    /**
+     * Send JSON headers
+     */
+    protected function _sendJSONHeaders()
+    {
+        $this->getResponse()
+            ->clearHeaders()
+            ->setHeader('Content-type', 'application/json')
+            ->sendHeaders();
+    }
+
+    /**
+     * Send XML headers
+     */
+    protected function _sendXMLHeaders()
+    {
+        $this->getResponse()
+            ->clearHeaders()
+            ->setHeader('Content-type', 'application/xml; charset="utf-8"', true)
+            ->sendHeaders();
+    }
+
     public function indexAction()
     {
         if (!ini_get('safe_mode'))
@@ -33,10 +56,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             'customer_group_id' => $this->_getInteger('customer_group', 0),
         );
 
-        $this->getResponse()
-            ->clearHeaders()
-            ->setHeader('Content-type', 'application/xml; charset="utf-8"', true)
-            ->sendHeaders();
+        $this->_sendXMLHeaders();
 
         $generator = Mage::getSingleton('doofinder_feed/generator', $options);
         $generator->run();
@@ -44,10 +64,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 
     public function configAction()
     {
-        $this->getResponse()
-            ->clearHeaders()
-            ->setHeader('Content-type', 'application/json')
-            ->sendHeaders();
+        $this->_sendJSONHeaders();
 
         $tools = Mage::getModel('doofinder_feed/tools');
 
@@ -227,10 +244,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             }
         }
 
-        $this->getResponse()
-          ->clearHeaders()
-          ->setHeader('Content-Type','application/json')
-          ->sendHeaders();
+        $this->_sendJSONHeaders();
 
         die(json_encode($data));
     }
