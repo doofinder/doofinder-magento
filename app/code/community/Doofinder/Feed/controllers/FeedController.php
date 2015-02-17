@@ -192,9 +192,10 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 
     public function testsAction()
     {
-        if ( !in_array(@$_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1')) )
+        if ( !in_array(Mage::helper('core/http')->getRemoteAddr(), array('127.0.0.1', '::1')) )
         {
-            die('You are not allowed to access this file.');
+            $this->norouteAction();
+            return false;
         }
 
         $oStore           = Mage::app()->getStore($this->_getStoreCode());
