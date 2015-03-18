@@ -485,9 +485,9 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected function _debug($m)
     {
-        echo '<pre>';
-        var_dump($m);
-        echo '</pre>';
+        // echo '<pre>';
+        // var_dump($m);
+        // echo '</pre>';
     }
 
     protected function _sanitizeData($data)

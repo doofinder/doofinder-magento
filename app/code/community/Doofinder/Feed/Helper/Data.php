@@ -17,6 +17,16 @@
  */
 class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 {
+    private $store = null;
+
+    private $currencyConvert = false;
+
+    private $useMinimalPrice = false;
+
+    private $groupConfigurables = true;
+
+    private $minTierPrice = null;
+
     /**
      * $product         => Product instance
      * $oStore          => Store instance
@@ -41,7 +51,10 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function collectProductPrices(Mage_Catalog_Model_Product $product, $oStore, $currencyConvert=false, $useMinimalPrice=false, $groupConfigurables=true)
     {
-        $prices = array();
+        $this->store = $oStore;
+        $this->currencyConvert = $currencyConvert;
+        $this->useMinimalPrice = $useMinimalPrice;
+        $this->groupConfigurables = $groupConfigurables;
 
         $weeeHelper = Mage::helper('weee');
         $taxHelper = Mage::helper('tax');
@@ -51,187 +64,48 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
         $tierPrices = $this->getProductTierPrices($product, $oStore);
 
-        $minTierPrice = null;
-
         foreach ($tierPrices as $tier)
         {
-            if ( is_null($minTierPrice) || $tier['base_price_excl_tax'] < $minTierPrice['base_price_excl_tax'] )
+            if ( is_null($this->minTierPrice) || $tier['base_price_excl_tax'] < $this->minTierPrice['base_price_excl_tax'] )
             {
-                $minTierPrice = $tier;
+                $this->minTierPrice = $tier;
                 continue;
             }
         }
 
-        // Prices
-
         if ( $product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_GROUPED )
         {
-            $sub_prices = array();
-            $sub_sale_prices = array();
-
-            foreach($product->getTypeInstance()->getChildrenIds($product->getId()) as $ids)
-            {
-                foreach($ids as $id)
-                {
-                    $sub_product = Mage::getModel('catalog/product')->load($id);
-                    $sub_product_price = $this->collectProductPrices($sub_product, $oStore, $currencyConvert, true, $groupConfigurables);
-
-                    if (! empty($sub_product_price['price']['excluding_tax']))
-                    {
-                        $sub_prices[] = $sub_product_price['price']['excluding_tax'];
-
-                        if (! empty($sub_product_price['sale_price']['excluding_tax']))
-                        {
-                            $sub_sale_prices[] = $sub_product_price['sale_price']['excluding_tax'];
-                        }
-                    }
-                }
-            }
-            asort($sub_prices);
-            asort($sub_sale_prices);
-
-            $minPriceValue = array_shift($sub_prices);
-            $minSalePriceValue = array_shift($sub_sale_prices);
-
-            if ( $minPriceValue )
-            {
-                $prices['price_type'] = 'minimal';
-
-                $prices['price']['excluding_tax'] = $taxHelper->getPrice($product, $minPriceValue, false, null, null, null, $oStore, null);
-                $prices['price']['including_tax'] = $taxHelper->getPrice($product, $minPriceValue, true, null, null, null, $oStore, null);
-                $prices['sale_price']['excluding_tax'] = $taxHelper->getPrice($product, $minSalePriceValue, false, null, null, null, $oStore, null);
-                $prices['sale_price']['including_tax'] = $taxHelper->getPrice($product, $minSalePriceValue, true, null, null, null, $oStore, null);
-            }
+            $prices = $this->_getGroupedProductPrice($product);
         }
         elseif ( $product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_BUNDLE )
         {
-            if ( method_exists($product->getPriceModel(), 'getTotalPrices') )
-            {
-                $bundle_price_excl_tax = $product->getPriceModel()->getTotalPrices($product, 'min', false, true);
-                $bundle_price_incl_tax = $product->getPriceModel()->getTotalPrices($product, 'min', true, true);
-            }
-            else // Magento 1.5.0.1 + 1.5.1.0
-            {
-                $bundle_price_excl_tax = $product->getPriceModel()->getPricesDependingOnTax($product, 'min', false);
-                $bundle_price_incl_tax = $product->getPriceModel()->getPricesDependingOnTax($product, 'min', true);
-            }
-
-            if ( $bundle_price_excl_tax )
-            {
-                $prices['price_type'] = 'minimal';
-
-                $prices['price']['excluding_tax'] = $bundle_price_excl_tax;
-                $prices['price']['including_tax'] = $bundle_price_incl_tax;
-            }
+            $prices = $this->_getBundleProductPrice($product);
         }
         else /* ! $product->isGrouped */
         {
-            $prices['price_type'] = 'normal';
+            $prices = $this->_getProductPrice($product);
+        }
 
-            $weeeTaxAmount = $weeeHelper->getAmountForDisplay($product);
+        $prices = $this->_cleanPrices($prices);
 
-            $weeeTaxAttributes = null;
-
-            if ( $weeeHelper->typeOfDisplay($product, array(1, 2, 4), null, $oStore) )
+        foreach ( array('price', 'sale_price') as $priceType )
+        {
+            if ( !isset($prices[$priceType]) )
+                continue;
+            foreach ( $prices[$priceType] as $priceMode => $priceValue )
             {
-                $weeeTaxAmount = $weeeHelper->getAmount($product, null, null, $oStore->getWebsiteId(), false);
-                $weeeTaxAttributes = $weeeHelper->getProductWeeeAttributesForDisplay($product);
-            }
-
-            // Precios originales y finales (segun Magento) sin Weee
-
-            $base_price_excl_tax = $taxHelper->getPrice($product, $product->getPrice(), false, null, null, null, $oStore, null);
-            $base_price_incl_tax = $taxHelper->getPrice($product, $product->getPrice(), true, null, null, null, $oStore, null);
-
-            $final_price_excl_tax = $taxHelper->getPrice($product, $product->getFinalPrice(), false, null, null, null, $oStore, null);
-            $final_price_incl_tax = $taxHelper->getPrice($product, $product->getFinalPrice(), true, null, null, null, $oStore, null);
-
-            if ( $minTierPrice && $useMinimalPrice
-                && $minTierPrice['base_price_excl_tax'] < $final_price_excl_tax)
-            {
-                $prices['price_type'] = 'minimal';
-
-                $base_price_excl_tax = $minTierPrice['base_price_excl_tax'];
-                $base_price_incl_tax = $minTierPrice['base_price_incl_tax'];
-            }
-
-            // Algunas preguntas
-
-            $inclFptOnly = $weeeHelper->typeOfDisplay($product, 0, null, $oStore);                     // Including FPT only
-            $inclFptAndDescription = $weeeHelper->typeOfDisplay($product, 1, null, $oStore);           // Including FPT and FPT description
-            $exclFptAndDescriptionFinalPrice = $weeeHelper->typeOfDisplay($product, 2, null, $oStore); // Excluding FPT, FPT description, final price
-            $exclFpt = $weeeHelper->typeOfDisplay($product, 3, null, $oStore);                         // Excluding FPT
-            $inclFptAndDescriptionWithTaxes = $weeeHelper->typeOfDisplay($product, 4, null, $oStore);  // Including FPT and FPT description [incl. FPT VAT]
-
-            // Elegimos y calculamos los precios finales
-
-            if ( $final_price_excl_tax >= $base_price_excl_tax )
-            {
-                $prices['price']['excluding_tax'] = $base_price_excl_tax;
-                $prices['price']['including_tax'] = $base_price_incl_tax;
-
-                if ( $weeeTaxAmount )
-                {
-                    $prices['price']['including_tax'] += $weeeTaxAmount;
-
-                    if ( $inclFptOnly || $inclFptAndDescription || $inclFptAndDescriptionWithTaxes )
-                        $prices['price']['excluding_tax'] += $weeeTaxAmount;
+                if ( $currencyConvert ) {
+                    $priceValue = $oStore->convertPrice($priceValue, false, false);
                 }
-            }
-            else
-            {
-                $prices['price']['excluding_tax'] = $base_price_excl_tax;
-                $prices['price']['including_tax'] = $base_price_incl_tax;
-
-                $prices['sale_price']['excluding_tax'] = $final_price_excl_tax;
-                $prices['sale_price']['including_tax'] = $final_price_incl_tax;
-
-                $originalWeeeTaxAmount = $weeeHelper->getOriginalAmount($product);
-
-                if ( $weeeTaxAmount )
-                {
-                    $prices['price']['including_tax'] += $originalWeeeTaxAmount;
-                    $prices['sale_price']['including_tax'] += $weeeTaxAmount;
-
-                    if ( $inclFptOnly || $inclFptAndDescription || $inclFptAndDescriptionWithTaxes )
-                    {
-                        $prices['price']['excluding_tax'] += $originalWeeeTaxAmount;
-                        $prices['sale_price']['excluding_tax'] += $weeeTaxAmount;
-                    }
-                }
-            }
-
-            if ( $product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE && $groupConfigurables && $useMinimalPrice )
-            {
-                $childProducts = $product->getTypeInstance()->getUsedProducts();
-
-                foreach ( $childProducts as $child )
-                {
-                    $childPrices = $this->collectProductPrices($child, $oStore, false, $useMinimalPrice, $groupConfigurables);
-
-                    // Compare regular price
-                    if ( $childPrices['price']['excluding_tax'] < $prices['price']['excluding_tax'] )
-                    {
-                        $prices['price']['excluding_tax'] = $childPrices['price']['excluding_tax'];
-                        $prices['price']['including_tax'] = $childPrices['price']['including_tax'];
-                        $prices['price']['overriden'] = true;
-                    }
-
-                    // Compare sale price
-                    if ( array_key_exists('sale_price', $childPrices) )
-                    {
-                        if ( ! array_key_exists('sale_price', $prices)
-                            || $childPrices['sale_price']['excluding_tax'] < $prices['sale_price']['excluding_tax'] )
-                        {
-                            $prices['sale_price']['excluding_tax'] = $childPrices['sale_price']['excluding_tax'];
-                            $prices['sale_price']['including_tax'] = $childPrices['sale_price']['including_tax'];
-                            $prices['sale_price']['overriden'] = true;
-                        }
-                    }
-                }
+                $prices[$priceType][$priceMode] = $priceValue;
             }
         }
 
+        return $prices;
+    }
+
+    protected function _cleanPrices($prices)
+    {
         if ( isset($prices['sale_price']['excluding_tax']) &&
             $prices['price']['excluding_tax'] <= $prices['sale_price']['excluding_tax'] )
         {
@@ -245,20 +119,204 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
             unset($prices['price']['including_tax']);
         }
 
-        foreach ( array('price', 'sale_price') as $priceType )
-        {
-            if ( !isset($prices[$priceType]) )
-                continue;
-            foreach ( $prices[$priceType] as $priceMode => $priceValue )
-            {
-                if ( $currencyConvert )
-                    $priceValue = $oStore->convertPrice($priceValue, false, false);
+        return $prices;
+    }
 
-                $prices[$priceType][$priceMode] = $priceValue;
+    protected function _getProductPrice($product)
+    {
+        $prices = array();
+
+        $weeeHelper = Mage::helper('weee');
+        $taxHelper = Mage::helper('tax');
+        $coreHelper = Mage::helper('core');
+
+        $prices['price_type'] = 'normal';
+
+        $weeeTaxAmount = $weeeHelper->getAmountForDisplay($product);
+
+        $weeeTaxAttributes = null;
+
+        if ( $weeeHelper->typeOfDisplay($product, array(1, 2, 4), null, $this->store) )
+        {
+            $weeeTaxAmount = $weeeHelper->getAmount($product, null, null, $this->store->getWebsiteId(), false);
+            $weeeTaxAttributes = $weeeHelper->getProductWeeeAttributesForDisplay($product);
+        }
+
+        // Precios originales y finales (segun Magento) sin Weee
+
+        $base_price_excl_tax = $taxHelper->getPrice($product, $product->getPrice(), false, null, null, null, $this->store, null);
+        $base_price_incl_tax = $taxHelper->getPrice($product, $product->getPrice(), true, null, null, null, $this->store, null);
+
+        $final_price_excl_tax = $taxHelper->getPrice($product, $product->getFinalPrice(), false, null, null, null, $this->store, null);
+        $final_price_incl_tax = $taxHelper->getPrice($product, $product->getFinalPrice(), true, null, null, null, $this->store, null);
+
+        if ( $this->minTierPrice && $this->useMinimalPrice
+            && $this->minTierPrice['base_price_excl_tax'] < $final_price_excl_tax)
+        {
+            $prices['price_type'] = 'minimal';
+
+            $base_price_excl_tax = $this->minTierPrice['base_price_excl_tax'];
+            $base_price_incl_tax = $this->minTierPrice['base_price_incl_tax'];
+        }
+
+        // Algunas preguntas
+
+        $inclFptOnly = $weeeHelper->typeOfDisplay($product, 0, null, $this->store);                     // Including FPT only
+        $inclFptAndDescription = $weeeHelper->typeOfDisplay($product, 1, null, $this->store);           // Including FPT and FPT description
+        $exclFptAndDescriptionFinalPrice = $weeeHelper->typeOfDisplay($product, 2, null, $this->store); // Excluding FPT, FPT description, final price
+        $exclFpt = $weeeHelper->typeOfDisplay($product, 3, null, $this->store);                         // Excluding FPT
+        $inclFptAndDescriptionWithTaxes = $weeeHelper->typeOfDisplay($product, 4, null, $this->store);  // Including FPT and FPT description [incl. FPT VAT]
+
+        // Elegimos y calculamos los precios finales
+
+        if ( $final_price_excl_tax >= $base_price_excl_tax )
+        {
+            $prices['price']['excluding_tax'] = $base_price_excl_tax;
+            $prices['price']['including_tax'] = $base_price_incl_tax;
+
+            if ( $weeeTaxAmount )
+            {
+                $prices['price']['including_tax'] += $weeeTaxAmount;
+
+                if ( $inclFptOnly || $inclFptAndDescription || $inclFptAndDescriptionWithTaxes )
+                    $prices['price']['excluding_tax'] += $weeeTaxAmount;
+            }
+        }
+        else
+        {
+            $prices['price']['excluding_tax'] = $base_price_excl_tax;
+            $prices['price']['including_tax'] = $base_price_incl_tax;
+
+            $prices['sale_price']['excluding_tax'] = $final_price_excl_tax;
+            $prices['sale_price']['including_tax'] = $final_price_incl_tax;
+
+            $originalWeeeTaxAmount = $weeeHelper->getOriginalAmount($product);
+
+            if ( $weeeTaxAmount )
+            {
+                $prices['price']['including_tax'] += $originalWeeeTaxAmount;
+                $prices['sale_price']['including_tax'] += $weeeTaxAmount;
+
+                if ( $inclFptOnly || $inclFptAndDescription || $inclFptAndDescriptionWithTaxes )
+                {
+                    $prices['price']['excluding_tax'] += $originalWeeeTaxAmount;
+                    $prices['sale_price']['excluding_tax'] += $weeeTaxAmount;
+                }
             }
         }
 
+        if ( $product->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE && $this->groupConfigurables && $this->useMinimalPrice )
+        {
+            $prices = $this->_getConfigurableProductPrice($product);
+        }
         return $prices;
+    }
+
+    protected function _getConfigurableProductPrice($product, $prices)
+    {
+        $childProducts = $product->getTypeInstance()->getUsedProducts();
+
+        foreach ( $childProducts as $child )
+        {
+            $childPrices = $this->collectProductPrices($child, $this->store, false, $this->useMinimalPrice, $this->groupConfigurables);
+
+            // Compare regular price
+            if ( $childPrices['price']['excluding_tax'] < $prices['price']['excluding_tax'] )
+            {
+                $prices['price']['excluding_tax'] = $childPrices['price']['excluding_tax'];
+                $prices['price']['including_tax'] = $childPrices['price']['including_tax'];
+                $prices['price']['overriden'] = true;
+            }
+
+            // Compare sale price
+            if ( array_key_exists('sale_price', $childPrices) )
+            {
+                if ( ! array_key_exists('sale_price', $prices)
+                    || $childPrices['sale_price']['excluding_tax'] < $prices['sale_price']['excluding_tax'] )
+                {
+                    $prices['sale_price']['excluding_tax'] = $childPrices['sale_price']['excluding_tax'];
+                    $prices['sale_price']['including_tax'] = $childPrices['sale_price']['including_tax'];
+                    $prices['sale_price']['overriden'] = true;
+                }
+            }
+        }
+        return $prices;
+    }
+
+    protected function _getGroupedProductPrice($product)
+    {
+        $prices = array();
+
+        $weeeHelper = Mage::helper('weee');
+        $taxHelper = Mage::helper('tax');
+        $coreHelper = Mage::helper('core');
+
+        $sub_prices = array();
+        $sub_sale_prices = array();
+
+        foreach($product->getTypeInstance()->getChildrenIds($product->getId()) as $ids)
+        {
+            foreach($ids as $id)
+            {
+                $sub_product = Mage::getModel('catalog/product')->load($id);
+                $sub_product_price = $this->collectProductPrices($sub_product, $this->store, $this->currencyConvert, true, $this->groupConfigurables);
+
+                if (! empty($sub_product_price['price']['excluding_tax']))
+                {
+                    $sub_prices[] = $sub_product_price['price']['excluding_tax'];
+
+                    if (! empty($sub_product_price['sale_price']['excluding_tax']))
+                    {
+                        $sub_sale_prices[] = $sub_product_price['sale_price']['excluding_tax'];
+                    }
+                }
+            }
+        }
+        asort($sub_prices);
+        asort($sub_sale_prices);
+
+        $minPriceValue = array_shift($sub_prices);
+        $minSalePriceValue = array_shift($sub_sale_prices);
+
+        if ( $minPriceValue )
+        {
+            $prices['price_type'] = 'minimal';
+
+            $prices['price']['excluding_tax'] = $taxHelper->getPrice($product, $minPriceValue, false, null, null, null, $this->store, null);
+            $prices['price']['including_tax'] = $taxHelper->getPrice($product, $minPriceValue, true, null, null, null, $this->store, null);
+            $prices['sale_price']['excluding_tax'] = $taxHelper->getPrice($product, $minSalePriceValue, false, null, null, null, $this->store, null);
+            $prices['sale_price']['including_tax'] = $taxHelper->getPrice($product, $minSalePriceValue, true, null, null, null, $this->store, null);
+        }
+
+        return $prices;
+    }
+
+    protected function _getBundleProductPrice($product)
+    {
+        $prices = array();
+
+        $weeeHelper = Mage::helper('weee');
+        $taxHelper = Mage::helper('tax');
+        $coreHelper = Mage::helper('core');
+
+        if ( method_exists($product->getPriceModel(), 'getTotalPrices') )
+        {
+            $bundle_price_excl_tax = $product->getPriceModel()->getTotalPrices($product, 'min', false, true);
+            $bundle_price_incl_tax = $product->getPriceModel()->getTotalPrices($product, 'min', true, true);
+        }
+        else // Magento 1.5.0.1 + 1.5.1.0
+        {
+            $bundle_price_excl_tax = $product->getPriceModel()->getPricesDependingOnTax($product, 'min', false);
+            $bundle_price_incl_tax = $product->getPriceModel()->getPricesDependingOnTax($product, 'min', true);
+        }
+
+        if ( $bundle_price_excl_tax )
+        {
+            $prices['price_type'] = 'minimal';
+
+            $prices['price']['excluding_tax'] = $bundle_price_excl_tax;
+            $prices['price']['including_tax'] = $bundle_price_incl_tax;
+        }
     }
 
     public function getProductTierPrices(Mage_Catalog_Model_Product $product, $oStore)
