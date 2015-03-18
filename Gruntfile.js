@@ -12,9 +12,11 @@ localconfig.json
 The first time you checkout the repo, copy Doofinder_Feed.xml and package.xml to
 /var/connect/ in the master site.
 
-To sync files:
+While developing execute:
 
 $ grunt
+
+and files will be synced automatically.
 
 To create a new release:
 
@@ -85,11 +87,17 @@ module.exports = function(grunt) {
         },
 
         version: {
-            release: {
+            config: {
                 options: {
                     prefix: '\\s+<version>'
                 },
                 src: ['app/code/community/Doofinder/Feed/etc/config.xml']
+            },
+            php: {
+                options: {
+                    prefix: '@version\\s*'
+                },
+                src: grunt.file.expand({filter: 'isFile'}, 'app/**/*.php')
             }
         },
 
@@ -108,6 +116,6 @@ module.exports = function(grunt) {
 
     grunt.registerTask('default', ['clean:sync', 'copy:sync', 'watch:dev']);
     grunt.registerTask('sync', ['clean:sync', 'copy:sync']);
-    grunt.registerTask('release', ['version:release', 'sync']);
+    grunt.registerTask('release', ['version', 'sync']);
     grunt.registerTask('update', ['copy:release']);
 };
