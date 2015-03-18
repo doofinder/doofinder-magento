@@ -1,4 +1,20 @@
 <?php
+/**
+ * This file is part of Doofinder_Feed.
+ */
+
+/**
+ * @category   Models
+ * @package    Doofinder_Feed
+ * @version    1.4.1
+ */
+
+/**
+ * Generator model for Doofinder Feed
+ *
+ * @version    1.4.1
+ * @package    Doofinder_Feed
+ */
 if (!defined('DS'))
     define('DS', DIRECTORY_SEPARATOR);
 
@@ -635,6 +651,9 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         return $this->_fieldMap;
     }
 
+    /**
+     * @todo Get rid of die()
+     */
     protected function _stopOnException(Exception $e)
     {
         header('HTTP/1.1 404 Not Found', true, 404);

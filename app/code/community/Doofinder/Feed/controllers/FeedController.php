@@ -1,6 +1,45 @@
 <?php
+/**
+ * This file is part of Doofinder_Feed.
+ */
+
+/**
+ * @category   controllers
+ * @package    Doofinder_Feed
+ * @version    1.4.1
+ */
+
+/**
+ * Feed controller for Doofinder Feed
+ *
+ * @version    1.4.1
+ * @package    Doofinder_Feed
+ */
 class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 {
+
+    /**
+     * Send JSON headers
+     */
+    protected function _sendJSONHeaders()
+    {
+        $this->getResponse()
+            ->clearHeaders()
+            ->setHeader('Content-type', 'application/json')
+            ->sendHeaders();
+    }
+
+    /**
+     * Send XML headers
+     */
+    protected function _sendXMLHeaders()
+    {
+        $this->getResponse()
+            ->clearHeaders()
+            ->setHeader('Content-type', 'application/xml; charset="utf-8"', true)
+            ->sendHeaders();
+    }
+
     public function indexAction()
     {
         if (!ini_get('safe_mode'))
@@ -17,10 +56,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             'customer_group_id' => $this->_getInteger('customer_group', 0),
         );
 
-        $this->getResponse()
-            ->clearHeaders()
-            ->setHeader('Content-type', 'application/xml; charset="utf-8"', true)
-            ->sendHeaders();
+        $this->_sendXMLHeaders();
 
         $generator = Mage::getSingleton('doofinder_feed/generator', $options);
         $generator->run();
@@ -28,16 +64,17 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 
     public function configAction()
     {
-        $this->getResponse()
-            ->clearHeaders()
-            ->setHeader('Content-type', 'application/json')
-            ->sendHeaders();
+        $this->_sendJSONHeaders();
 
         $tools = Mage::getModel('doofinder_feed/tools');
 
         $storeCodes = array_keys(Mage::app()->getStores(false, true));
         $storesConfiguration = array();
 
+        /*
+         * @todo Make prices configurable
+         * @todo Make taxes configurable
+         */
         foreach ($storeCodes as $code)
         {
             $oStore = Mage::app()->getStore($code);
@@ -45,12 +82,15 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             $storesConfiguration[$code] = array(
                 'language' => strtoupper(substr($L, 0, 2)),
                 'currency' => $oStore->getCurrentCurrencyCode(),
-                'prices' => true, // TODO(@carlosescri): Make configurable.
-                'taxes' => true   // TODO(@carlosescri): Make configurable.
+                'prices' => true,
+                'taxes' => true
             );
         }
 
 
+        /*
+         * @todo Make grouped configurable
+         */
         $config = array(
             'platform' => array(
                 'name' => 'Magento',
@@ -62,7 +102,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
                 'feed' => Mage::getUrl('doofinder/feed'),
                 'options' => array(
                     'language' => $storeCodes,
-                    'grouped' => true, // TODO(@carlosescri): Make configurable.
+                    'grouped' => true,
                     'minimal_price' => true,
                     'prices_incl_taxes' => true,
                     'customer_group_id' => 0,
@@ -71,7 +111,8 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             ),
         );
 
-        die(json_encode($config));
+        $response = Mage::helper('core')->jsonEncode($config);
+        $this->getResponse()->setBody($response);
     }
 
     protected function _dumpMessage($s_level, $s_message, $a_extra=array())
@@ -82,7 +123,9 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             $error = array_merge($error, $a_extra);
 
         $this->_sendJSONHeaders();
-        die(json_encode($error));
+
+        $response = Mage::helper('core')->jsonEncode($error);
+        $this->getResponse()->setBody($response);
     }
 
     protected function _getVersion()
@@ -149,9 +192,10 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 
     public function testsAction()
     {
-        if ( !in_array(@$_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1')) )
+        if ( !in_array(Mage::helper('core/http')->getRemoteAddr(), array('127.0.0.1', '::1')) )
         {
-            die('You are not allowed to access this file.');
+            $this->norouteAction();
+            return false;
         }
 
         $oStore           = Mage::app()->getStore($this->_getStoreCode());
@@ -204,11 +248,9 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             }
         }
 
-        $this->getResponse()
-          ->clearHeaders()
-          ->setHeader('Content-Type','application/json')
-          ->sendHeaders();
+        $this->_sendJSONHeaders();
 
-        die(json_encode($data));
+        $response = Mage::helper('core')->jsonEncode($data);
+        $this->getResponse()->setBody($response);
     }
 }
