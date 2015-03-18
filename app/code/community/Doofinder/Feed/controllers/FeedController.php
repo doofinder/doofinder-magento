@@ -25,7 +25,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
     {
         $this->getResponse()
             ->clearHeaders()
-            ->setHeader('Content-type', 'application/json')
+            ->setHeader('Content-type', 'application/json; charset="utf-8"', true)
             ->sendHeaders();
     }
 

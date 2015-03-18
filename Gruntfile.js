@@ -91,14 +91,22 @@ module.exports = function(grunt) {
                 },
                 src: ['app/code/community/Doofinder/Feed/etc/config.xml']
             }
+        },
+
+        watch: {
+            dev: {
+                files: ['app/**/*'],
+                tasks: ['clean:sync', 'copy:sync']
+            }
         }
     });
 
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-version');
 
-    grunt.registerTask('default', ['clean:sync', 'copy:sync']);
+    grunt.registerTask('default', ['clean:sync', 'copy:sync', 'watch:dev']);
     grunt.registerTask('sync', ['clean:sync', 'copy:sync']);
     grunt.registerTask('release', ['version:release', 'sync']);
     grunt.registerTask('update', ['copy:release']);
