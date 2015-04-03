@@ -21,23 +21,23 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
     /**
      * Send JSON headers
      */
-    protected function _sendJSONHeaders()
+    protected function _setJSONHeaders()
     {
-        $this->getResponse()
-            ->clearHeaders()
-            ->setHeader('Content-type', 'application/json; charset="utf-8"', true)
-            ->sendHeaders();
+        // $this->getResponse()
+        //     ->clearHeaders()
+        //     ->setHeader('Content-type', 'application/json; charset="utf-8"', true);
+        //     // ->sendHeaders();
     }
 
     /**
      * Send XML headers
      */
-    protected function _sendXMLHeaders()
+    protected function _setXMLHeaders()
     {
-        $this->getResponse()
-            ->clearHeaders()
-            ->setHeader('Content-type', 'application/xml; charset="utf-8"', true)
-            ->sendHeaders();
+        // $this->getResponse()
+        //     ->clearHeaders()
+        //     ->setHeader('Content-type', 'application/xml; charset="utf-8"', true);
+        //     // ->sendHeaders();
     }
 
     public function indexAction()
@@ -56,15 +56,16 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             'customer_group_id' => $this->_getInteger('customer_group', 0),
         );
 
-        $this->_sendXMLHeaders();
+        $this->_setXMLHeaders();
 
         $generator = Mage::getSingleton('doofinder_feed/generator', $options);
-        $generator->run();
+        $response = $generator->run();
+        $this->getResponse()->setBody($response);
     }
 
     public function configAction()
     {
-        $this->_sendJSONHeaders();
+        $this->_setJSONHeaders();
 
         $tools = Mage::getModel('doofinder_feed/tools');
 
@@ -122,7 +123,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         if (is_array($a_extra) && count($a_extra))
             $error = array_merge($error, $a_extra);
 
-        $this->_sendJSONHeaders();
+        $this->_setJSONHeaders();
 
         $response = Mage::helper('core')->jsonEncode($error);
         $this->getResponse()->setBody($response);
@@ -248,7 +249,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             }
         }
 
-        $this->_sendJSONHeaders();
+        $this->_setJSONHeaders();
 
         $response = Mage::helper('core')->jsonEncode($data);
         $this->getResponse()->setBody($response);

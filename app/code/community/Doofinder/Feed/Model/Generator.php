@@ -45,6 +45,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected $_oXmlWriter;
 
+    protected $_response;
 
     //
     // public::Export
@@ -72,10 +73,10 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $this->_loadAdditionalAttributes();
         $this->_iProductCount = $this->getProductCount();
 
+
         if ($this->getData('_offset_') >= $this->_iProductCount)  // offset is 0-based
         {
-            echo "";
-            @ob_end_flush();
+            return "";
         }
         else
         {
@@ -99,6 +100,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             }
 
             $this->_closeFeed();
+            return $this->_response;
         }
     }
 
@@ -431,8 +433,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $this->_oXmlWriter = new XMLWriter();
         $this->_oXmlWriter->openMemory();
 
-        @ob_start();
-
         if ($this->getData('_offset_') === 0)
         {
             $this->_oXmlWriter->startDocument('1.0', 'UTF-8');
@@ -456,8 +456,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected function _flushFeed()
     {
-        echo $this->_oXmlWriter->flush(true);
-        @ob_flush();
+        $this->_response .= $this->_oXmlWriter->flush(true);
     }
 
     protected function _closeFeed()
@@ -475,19 +474,16 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             if ($this->getData('_offset_') < $this->_iProductCount
                 && ($this->getData('_offset_') + $this->getData('_limit_')) >= $this->_iProductCount)
             {
-                echo '</channel></rss>';
-                @ob_flush();
+                $this->_response .= '</channel></rss>';
             }
         }
-
-        @ob_end_flush();
     }
 
     protected function _debug($m)
     {
-        // echo '<pre>';
+        // $this->_response .= '<pre>';
         // var_dump($m);
-        // echo '</pre>';
+        // $this->_response .= '</pre>';
     }
 
     protected function _sanitizeData($data)
@@ -656,7 +652,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
      */
     protected function _stopOnException(Exception $e)
     {
-        header('HTTP/1.1 404 Not Found', true, 404);
-        die($e->getMessage());
+        // header('HTTP/1.1 404 Not Found', true, 404);
+        // die($e->getMessage());
+        Mage::log($e->getMessage());
     }
 }
