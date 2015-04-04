@@ -229,6 +229,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                     }
                 }
 
+                krsort($data);
+
                 foreach ($data as $field => $value)
                 {
                     if (!is_array($value))
