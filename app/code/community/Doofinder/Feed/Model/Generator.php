@@ -389,22 +389,40 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         return $result;
     }
 
+    /**
+     *  Get all parent category names (including itself) for selected category ID
+     *  @param int $catId Category ID
+     *  @return string Category names concat'd by CATEGORY_TREE_SEPARATOR
+     */
     protected function _getCategoryTree($catId)
     {
-        $cat = Mage::getModel('catalog/category')->load($catId);
+        $category = Mage::getModel('catalog/category')->load($catId);
         $tree = array();
 
-        while ($cat->getParentId()
-               && $cat->getId() != $this->_oRootCategory->getId())
-        {
-          if (strlen($cat->getName()))
-            $tree[] = $cat->getName();
+        $path = $category->getPath();
+        $ids = explode('/', $path);
 
-          $cat = Mage::getModel('catalog/category')->load($cat->getParentId());
+        unset($ids[0]);
+
+        $categories = Mage::getModel('catalog/category')
+            ->getCollection()
+            ->addIdFilter($ids)
+            ->addAttributeToSort('path', 'asc')
+            ->addAttributeToSelect('*');
+
+        foreach ($categories as $category)
+        {
+            if ($category->getId() != $this->_oRootCategory->getId())
+            {
+                if (strlen($category->getName()))
+                {
+                    $tree[] = $category->getName();
+                }
+            }
         }
 
         $tree = $this->_sanitizeData($tree);
-        $tree = implode(self::CATEGORY_TREE_SEPARATOR, array_reverse($tree));
+        $tree = implode(self::CATEGORY_TREE_SEPARATOR, $tree);
         $this->_categories[$catId] = $tree;
 
         return $this->_categories[$catId];
