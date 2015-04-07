@@ -53,8 +53,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     public function run()
     {
-        @set_time_limit(3600);
-
         if ($this->getConfigVar('debug') == 1)
         {
             @error_reporting(E_ALL);

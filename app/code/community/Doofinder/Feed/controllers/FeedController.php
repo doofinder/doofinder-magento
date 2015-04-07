@@ -42,9 +42,6 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 
     public function indexAction()
     {
-        if (!ini_get('safe_mode'))
-            set_time_limit(3600);
-
         $options = array(
             '_limit_' => $this->_getInteger('limit', null),
             '_offset_' => $this->_getInteger('offset', 0),
