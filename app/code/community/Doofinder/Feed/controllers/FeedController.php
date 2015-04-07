@@ -188,67 +188,67 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         TEST TOOLS
     */
 
-    public function testsAction()
-    {
-        if ( !in_array(Mage::helper('core/http')->getRemoteAddr(), array('127.0.0.1', '::1')) )
-        {
-            $this->norouteAction();
-            return false;
-        }
+    // public function testsAction()
+    // {
+    //     if ( !in_array(Mage::helper('core/http')->getRemoteAddr(), array('127.0.0.1', '::1')) )
+    //     {
+    //         $this->norouteAction();
+    //         return false;
+    //     }
 
-        $oStore           = Mage::app()->getStore($this->_getStoreCode());
-        $bGrouped         = $this->_getBoolean('grouped', true);
-        $bMinimalPrice    = $this->_getBoolean('minimal_price', false);
-        $bCurrencyConvert = $this->_getBoolean('convert_currency', true);
-        $iCustomerGroupId = $this->_getInteger('customer_group', 0);
+    //     $oStore           = Mage::app()->getStore($this->_getStoreCode());
+    //     $bGrouped         = $this->_getBoolean('grouped', true);
+    //     $bMinimalPrice    = $this->_getBoolean('minimal_price', false);
+    //     $bCurrencyConvert = $this->_getBoolean('convert_currency', true);
+    //     $iCustomerGroupId = $this->_getInteger('customer_group', 0);
 
-        $ids = array(
-            'simple' => array(166, 27),
-            'grouped' => 54,
-            'configurable' => 83,
-            'virtual' => 142,
-            'bundle' => 158,
-            'downloadable' => 167
-        );
+    //     $ids = array(
+    //         'simple' => array(166, 27),
+    //         'grouped' => 54,
+    //         'configurable' => 83,
+    //         'virtual' => 142,
+    //         'bundle' => 158,
+    //         'downloadable' => 167
+    //     );
 
-        $data = array(
-            'store' => array(
-                'store_id' => $oStore->getStoreId(),
-                'website_id' => $oStore->getWebsiteId(),
-                'base_currency' => $oStore->getBaseCurrencyCode(),
-                'current_currency' => $oStore->getCurrentCurrencyCode(),
-                'default_currency' => $oStore->getDefaultCurrencyCode(),
-            ),
-            'products' => array(),
-        );
+    //     $data = array(
+    //         'store' => array(
+    //             'store_id' => $oStore->getStoreId(),
+    //             'website_id' => $oStore->getWebsiteId(),
+    //             'base_currency' => $oStore->getBaseCurrencyCode(),
+    //             'current_currency' => $oStore->getCurrentCurrencyCode(),
+    //             'default_currency' => $oStore->getDefaultCurrencyCode(),
+    //         ),
+    //         'products' => array(),
+    //     );
 
-        $rule = Mage::getModel('catalogrule/rule');
-        $dataHelper = Mage::helper('doofinder_feed');
+    //     $rule = Mage::getModel('catalogrule/rule');
+    //     $dataHelper = Mage::helper('doofinder_feed');
 
-        foreach ($ids as $product_type => $ids)
-        {
-            foreach ((array) $ids as $id)
-            {
-                $product = Mage::getModel('catalog/product')
-                    ->setStoreId($oStore->getStoreId())
-                    ->setCustomerGroupId($iCustomerGroupId)
-                    ->load($id);
+    //     foreach ($ids as $product_type => $ids)
+    //     {
+    //         foreach ((array) $ids as $id)
+    //         {
+    //             $product = Mage::getModel('catalog/product')
+    //                 ->setStoreId($oStore->getStoreId())
+    //                 ->setCustomerGroupId($iCustomerGroupId)
+    //                 ->load($id);
 
-                $data['products'][$id] = array(
-                    'product_type' => $product_type,
-                    'name' => $product->getName(),
-                );
+    //             $data['products'][$id] = array(
+    //                 'product_type' => $product_type,
+    //                 'name' => $product->getName(),
+    //             );
 
-                $data['products'][$id] = array_merge(
-                    $data['products'][$id],
-                    $dataHelper->collectProductPrices($product, $oStore, $bCurrencyConvert, $bMinimalPrice, $bGrouped)
-                );
-            }
-        }
+    //             $data['products'][$id] = array_merge(
+    //                 $data['products'][$id],
+    //                 $dataHelper->collectProductPrices($product, $oStore, $bCurrencyConvert, $bMinimalPrice, $bGrouped)
+    //             );
+    //         }
+    //     }
 
-        $this->_setJSONHeaders();
+    //     $this->_setJSONHeaders();
 
-        $response = Mage::helper('core')->jsonEncode($data);
-        $this->getResponse()->setBody($response);
-    }
+    //     $response = Mage::helper('core')->jsonEncode($data);
+    //     $this->getResponse()->setBody($response);
+    // }
 }
