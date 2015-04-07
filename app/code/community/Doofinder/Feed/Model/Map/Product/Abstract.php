@@ -538,7 +538,7 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
 
         if ($image != 'no_selection' && $image != "")
         {
-            if (!file_exists($this->getData('images_path_prefix') . $image))
+            if (!is_file($this->getData('images_path_prefix') . $image))
                 return false;
         }
         else
