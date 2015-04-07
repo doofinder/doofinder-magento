@@ -30,13 +30,13 @@ class Doofinder_Feed_Test_Model_Product extends EcomDev_PHPUnit_Test_Case
                 true
             );
 
-        $finalPriceWithTax = Mage::helper('tax')->getPrice($product, $product->getFinalPrice(), true);
-        $finalPriceNoTax = Mage::helper('tax')->getPrice($product, $product->getFinalPrice(), false);
+        $finalPriceInclTax = Mage::helper('tax')->getPrice($product, $product->getFinalPrice(), true);
+        $finalPriceExclTax = Mage::helper('tax')->getPrice($product, $product->getFinalPrice(), false);
 
         // Check that prices w/ and without tax are different
         $this->assertNotEquals(
-            $finalPriceWithTax,
-            $finalPriceNoTax
+            $finalPriceInclTax,
+            $finalPriceExclTax
         );
 
         $expected = $this->expected('%s-%s', $productId, $storeId);
@@ -46,12 +46,12 @@ class Doofinder_Feed_Test_Model_Product extends EcomDev_PHPUnit_Test_Case
         {
             // With tax
             $this->assertEquals(
-                Mage::helper('core')->currency($finalPriceWithTax, true, false),
+                Mage::helper('core')->currency($finalPriceInclTax, true, false),
                 Mage::helper('core')->currency($prices['sale_price']['including_tax'], true, false)
             );
             // Without tax
             $this->assertEquals(
-                Mage::helper('core')->currency($finalPriceNoTax, true, false),
+                Mage::helper('core')->currency($finalPriceExclTax, true, false),
                 Mage::helper('core')->currency($prices['sale_price']['excluding_tax'], true, false)
             );
         }

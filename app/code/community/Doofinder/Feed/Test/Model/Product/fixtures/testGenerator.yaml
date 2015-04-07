@@ -49,14 +49,16 @@ scope:
       is_active: 1
 config:
   default/catalog/price/scope: 1 # Set price scope to website
-  default/shipping/origin/country_id: US
-  default/shipping/origin/region_id: 12
-  default/shipping/origin/postcode: 90034
-  default/tax/calculation/algorithm: UNIT_BASE_CACLULATION # Set tax calculation to unit based
+  default/tax/calculation/algorithm: UNIT_BASE_CACLULATION
   default/tax/calculation/based_on: origin
   default/tax/calculation/apply_tax_on: 0
-  default/tax/calculation/price_includes_tax: 0 # Set prices to include tax
-  default/tax/display/type: 3
+  default/tax/calculation/price_includes_tax: 0
+  default/tax/calculation/apply_after_discount: 1
+  default/tax/defaults/country: DE
+  default/tax/defaults/region: 0
+  default/tax/defaults/postcode: *
+  default/tax/display/type: 2
+  default/tax/sales_display/price: 1
 tables:
   tax/tax_class:
     - class_id: 3
@@ -64,11 +66,11 @@ tables:
       class_type: CUSTOMER
   tax/tax_calculation_rate:
     - tax_calculation_rate_id: 3
-      tax_country_id: US
+      tax_country_id: DE
       tax_region_id: 12
       tax_postcode: *
       code: VAT
-      rate: 20
+      rate: 19
   tax/tax_calculation_rule:
     - tax_calculation_rule_id: 1
       code: Retail Customer-VAT
@@ -105,7 +107,7 @@ eav:
       category_ids:
         - 2 # Default Category
       price: 12.99
-      tax_class_id: 3 # Taxable Goods
+      tax_class_id: 3       # Retail Customer-VAT
       status: 1             # Enabled
       visibility: 4         # Visible in Catalog & Search
       /websites:            # Set different prices per website
