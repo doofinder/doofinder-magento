@@ -383,11 +383,11 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
         }
 
         if ($value != "")
-            return html_entity_decode($value);
+            return htmlspecialchars_decode($value);
 
         $value = $this->getFieldValue($args);
 
-        return html_entity_decode($value);
+        return htmlspecialchars_decode($value);
     }
 
 
@@ -532,22 +532,25 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
     // protected::Tools
     //
 
-    protected function hasImage($product)
-    {
-        $image = $product->getData('image');
+    // protected function hasImage($product)
+    // {
+    //     $image = $product->getData('image');
+    //     $validator = new Zend_Validate_File_Exists;
 
-        if ($image != 'no_selection' && $image != "")
-        {
-            if (!is_file($this->getData('images_path_prefix') . $image))
-                return false;
-        }
-        else
-        {
-            return false;
-        }
+    //     if ($image != 'no_selection' && $image != "")
+    //     {
+    //         // if ($validator->isValid($this->getData('images_path_prefix') . $image) != 'fileExistsDoesNotExist')
+    //         //     return false;
+    //         if (!is_file($this->getData('images_path_prefix') . $image))
+    //             return false;
+    //     }
+    //     else
+    //     {
+    //         return false;
+    //     }
 
-        return true;
-    }
+    //     return true;
+    // }
 
     protected function cleanField($field)
     {
