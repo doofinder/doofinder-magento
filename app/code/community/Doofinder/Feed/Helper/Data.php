@@ -254,29 +254,29 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         $sub_prices = array();
         $sub_sale_prices = array();
 
-        foreach($product->getTypeInstance()->getChildrenIds($product->getId()) as $ids)
+        $childrenIds = $product->getTypeInstance()->getChildrenIds($product->getId());
+        $collection = Mage::getModel('catalog/product')->getCollection();
+        $collection
+            ->addIdFilter($childrenIds)
+            ->addAttributeToSelect('*')
+            ->load();
+
+        foreach($collection as $product)
         {
-            $collection = Mage::getModel('catalog/product')->getCollection();
-            $collection
-                ->addIdFilter($ids)
-                ->addAttributeToSelect('*')
-                ->load();
-            foreach($collection as $product)
+            $sub_product_price = $this->collectProductPrices($product, $this->store, $this->currencyConvert, true, $this->groupConfigurables);
+
+            if (! empty($sub_product_price['price']['excluding_tax']))
             {
-                $sub_product_price = $this->collectProductPrices($product, $this->store, $this->currencyConvert, true, $this->groupConfigurables);
+                $sub_prices[] = $sub_product_price['price']['excluding_tax'];
 
-                if (! empty($sub_product_price['price']['excluding_tax']))
+                if (! empty($sub_product_price['sale_price']['excluding_tax']))
                 {
-                    $sub_prices[] = $sub_product_price['price']['excluding_tax'];
-
-                    if (! empty($sub_product_price['sale_price']['excluding_tax']))
-                    {
-                        $sub_sale_prices[] = $sub_product_price['sale_price']['excluding_tax'];
-                    }
+                    $sub_sale_prices[] = $sub_product_price['sale_price']['excluding_tax'];
                 }
-
             }
+
         }
+
         asort($sub_prices);
         asort($sub_sale_prices);
 
