@@ -256,10 +256,14 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
         foreach($product->getTypeInstance()->getChildrenIds($product->getId()) as $ids)
         {
-            foreach($ids as $id)
+            $collection = Mage::getModel('catalog/product')->getCollection();
+            $collection
+                ->addIdFilter($ids)
+                ->addAttributeToSelect('*')
+                ->load();
+            foreach($collection as $product)
             {
-                $sub_product = Mage::getModel('catalog/product')->load($id);
-                $sub_product_price = $this->collectProductPrices($sub_product, $this->store, $this->currencyConvert, true, $this->groupConfigurables);
+                $sub_product_price = $this->collectProductPrices($product, $this->store, $this->currencyConvert, true, $this->groupConfigurables);
 
                 if (! empty($sub_product_price['price']['excluding_tax']))
                 {
@@ -270,6 +274,7 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
                         $sub_sale_prices[] = $sub_product_price['sale_price']['excluding_tax'];
                     }
                 }
+
             }
         }
         asort($sub_prices);
