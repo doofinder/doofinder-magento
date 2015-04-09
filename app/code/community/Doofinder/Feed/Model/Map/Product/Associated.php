@@ -157,7 +157,7 @@ class Doofinder_Feed_Model_Map_Product_Associated
         // get value from parent first
         $value = $this->getParentMap()->mapField('product_type');
         if ($value != "")
-            return html_entity_decode($value);
+            return htmlspecialchars_decode($value);
 
         $map_by_category = $this->getConfig()->getMapCategorySorted('product_type_by_category', $this->getStoreId());
         $category_ids = $this->getProduct()->getCategoryIds();
@@ -176,10 +176,10 @@ class Doofinder_Feed_Model_Map_Product_Associated
         }
 
         if ($value != "")
-            return html_entity_decode($value);
+            return htmlspecialchars_decode($value);
 
         $value = $this->getCellValue($args);
 
-        return html_entity_decode($value);
+        return htmlspecialchars_decode($value);
     }
 }
