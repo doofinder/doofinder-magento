@@ -33,12 +33,26 @@ class Doofinder_Feed_Model_Map_Product_Configurable
     {
         $this->_assocs = array();
 
+        // $assoc = Mage::getResourceModel('catalog/product_collection');
+        // $assoc->setStoreId($this->getStoreId());
+
+        // $assocIds = $this->getAssocIds();
+        // $associatedProducts = $assoc
+        //     ->addIdFilter($assocIds)
+        //     ->addAttributeToSelect('*')
+        //     ->load();
+
+        // foreach ($associatedProducts as $associated)
+        // {
+        //     $this->_assocs[$associated->getId()] = $associated;
+        // }
+
         // Create a product model for each associated product
         foreach ($this->getAssocIds() as $assocId)
         {
             $assoc = Mage::getModel('catalog/product');
             $assoc->setStoreId($this->getStoreId());
-            $assoc->getResource()->load($assoc, $assocId);
+            $assoc->load($assocId);
             $this->_assocs[$assocId] = $assoc;
         }
 
@@ -139,6 +153,8 @@ class Doofinder_Feed_Model_Map_Product_Configurable
                 $this->getProduct(),
                 $this->getStoreId()
             );
+
+        asort($this->_assoc_ids);
 
         return $this->_assoc_ids;
     }
