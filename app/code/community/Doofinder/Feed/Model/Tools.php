@@ -135,20 +135,15 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
 
         $attributeId = $attribute->getAttributeId();
 
-        $sql = "SELECT optval.value
-            FROM ".$this->getRes()->getTableName('eav/attribute_option')." opt
-            INNER JOIN ".$this->getRes()->getTableName('eav/attribute_option_value')." optval ON opt.option_id=optval.option_id
-            WHERE
-                opt.option_id='".addslashes($valueId)."'
-                AND
-                opt.attribute_id = '".addslashes($attributeId)."'
-                AND
-                optval.store_id = '".addslashes($storeId)."'";
+        $conn = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $query = $conn->select()
+            ->from($this->getRes()->getTableName('eav/attribute_option'),
+                array('opt'))
+            ->where('opt.option_id = ?', $valueId)
+            ->where('opt.attribute_id = ?', $attributeId)
+            ->where('opt.store_id = ?', $storeId);
 
-        if ($debug)
-            Mage::log($sql);
-
-        $value = $this->getConnRead()->fetchCol($sql);
+        $value = $this->getConnRead()->fetchCol($query);
         if (is_array($value) && @$value[0] === null)
             $value = null;
         elseif (is_array($value) && isset($value[0]))
