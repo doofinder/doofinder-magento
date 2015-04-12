@@ -195,20 +195,24 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
      */
     public function getProductInStoresIds($productId)
     {
+
+        $conn = Mage::getSingleton('core/resource')->getConnection('core_read');
+
         if (is_array($productId))
         {
             $value = array();
             foreach ($productId as $pid)
                 $value[$pid] = array();
 
-            $sql = "SELECT ";
-            $sql .= " pw.product_id AS 'product_id', s.store_id AS 'store_id'";
-            $sql .=    " FROM ".$this->getRes()->getTableName('catalog/product_website')." AS pw
-            INNER JOIN ".$this->getRes()->getTableName('core/store')." AS s
-                ON s.website_id = pw.website_id
-            WHERE";
-            $sql .= " pw.product_id IN (\"".implode("\",\"", $productId)."\")";
-            $rows = $this->getConnRead()->fetchAll($sql);
+            $query = $conn->select()
+                ->from(array('pw' => $this->getRes()->getTableName('catalog/product_website')),
+                    array('product_id' => 'pw.product_id',
+                        'store_id' => 's.store_id'))
+                ->joinInner(array('s' => $this->getRes()->getTableName('core/store')),
+                    's.website_id = pw.website_id')
+                ->where('pw.product_id IN (?)', $productId);
+
+            $rows = $this->getConnRead()->fetchAll($query);
             foreach ($rows as $row)
             {
                 if (!isset($value[$row['product_id']]))
@@ -218,14 +222,14 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
             return $value;
         }
 
-        $sql = "SELECT ";
-        $sql .= " s.store_id ";
-        $sql .=    " FROM ".$this->getRes()->getTableName('catalog/product_website')." AS pw
-        INNER JOIN ".$this->getRes()->getTableName('core/store')." AS s
-            ON s.website_id = pw.website_id
-        WHERE";
-        $sql .= " pw.product_id=\"".addslashes($productId)."\"";
-        $value = $this->getConnRead()->fetchCol($sql);
+        $query = $conn->select()
+            ->from(array('pw' => $this->getRes()->getTableName('catalog/product_website')),
+                's.store_id')
+            ->joinInner(array('s' => $this->getRes()->getTableName('core/store')),
+                's.website_id = pw.website_id')
+            ->where('pw.product_id = ?', $productId);
+
+        $value = $this->getConnRead()->fetchCol($query);
 
         return $value;
     }
