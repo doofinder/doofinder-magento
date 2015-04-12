@@ -60,20 +60,18 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
 
         $attributeId = $attribute->getAttributeId();
 
-        $sql = "SELECT val.value
-            FROM ".$this->getRes()->getTableName('catalog/product')."_".$type." val
-            INNER JOIN ".$this->getRes()->getTableName('eav/attribute')." eav ON val.attribute_id=eav.attribute_id
-            WHERE
-                val.entity_id='".addslashes($productId)."'
-                AND
-                val.entity_type_id = ".$this->getEntityType('catalog_product')->getEntityTypeId()."
-                AND
-                val.store_id = '".addslashes($storeId)."'
-                AND
-                val.attribute_id = '".addslashes($attributeId)."'";
-        if ($debug)
-            Mage::log($sql);
-        $value = $this->getConnRead()->fetchCol($sql);
+        $conn = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $query = $conn->select()
+            ->from(array('val' => $this->getRes()->getTableName('catalog/product')."_".$type),
+                array('value'))
+            ->joinInner(array('eav' => $this->getRes()->getTableName('eav/attribute')),
+                'val.attribute_id=eav.attribute_id')
+            ->where('val.entity_id = ?', $productId)
+            ->where('val.entity_type_id = ?', $this->getEntityType('catalog_product')->getEntityTypeId())
+            ->where('val.store_id = ?', $storeId)
+            ->where('val.attribute_id = ?', $attributeId);
+
+        $value = $this->getConnRead()->fetchCol($query);
         if (is_array($value) && @$value[0] === null)
             $value = null;
         elseif (is_array($value) && isset($value[0]))
