@@ -171,12 +171,13 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
     {
         $data = false;
 
-        $sql = "SELECT
-                    `category_id`
-                FROM `".$this->getRes()->getTableName('catalog/category_product')."`
-                WHERE
-                    `product_id`=\"".addslashes($productId)."\"";
-        $result = $this->getConnRead()->fetchAll($sql);
+        $conn = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $query = $conn->select()
+            ->from($this->getRes()->getTableName('catalog/category_product'),
+                array('category_id'))
+            ->where('product_id = ?', $productId);
+
+        $result = $this->getConnRead()->fetchAll($query);
 
         if ($result !== false)
         {
