@@ -200,23 +200,13 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
             $value = array();
             foreach ($productId as $pid)
                 $value[$pid] = array();
-        }
 
-        $sql = "SELECT ";
-        if (is_array($productId))
-        {
+            $sql = "SELECT ";
             $sql .= " pw.product_id AS 'product_id', s.store_id AS 'store_id'";
-        }
-        else
-        {
-            $sql .= " s.store_id ";
-        }
-        $sql .=    " FROM ".$this->getRes()->getTableName('catalog/product_website')." AS pw
+            $sql .=    " FROM ".$this->getRes()->getTableName('catalog/product_website')." AS pw
             INNER JOIN ".$this->getRes()->getTableName('core/store')." AS s
                 ON s.website_id = pw.website_id
             WHERE";
-        if (is_array($productId))
-        {
             $sql .= " pw.product_id IN (\"".implode("\",\"", $productId)."\")";
             $rows = $this->getConnRead()->fetchAll($sql);
             foreach ($rows as $row)
@@ -225,12 +215,17 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
                     $value[$row['product_id']] = array();
                 $value[$row['product_id']][] = $row['store_id'];
             }
+            return $value;
         }
-        else
-        {
-            $sql .= " pw.product_id=\"".addslashes($productId)."\"";
-            $value = $this->getConnRead()->fetchCol($sql);
-        }
+
+        $sql = "SELECT ";
+        $sql .= " s.store_id ";
+        $sql .=    " FROM ".$this->getRes()->getTableName('catalog/product_website')." AS pw
+        INNER JOIN ".$this->getRes()->getTableName('core/store')." AS s
+            ON s.website_id = pw.website_id
+        WHERE";
+        $sql .= " pw.product_id=\"".addslashes($productId)."\"";
+        $value = $this->getConnRead()->fetchCol($sql);
 
         return $value;
     }
