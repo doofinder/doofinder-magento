@@ -102,21 +102,21 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
         if ($type_id != Mage_Catalog_Model_Product_Type::TYPE_SIMPLE)
             return $data;
 
-        $sql = "SELECT
-                    `cpe`.`entity_id` AS 'entity_id',
-                    `cpe`.`sku` AS 'sku',
-                    `cpe_parent`.`entity_id` AS 'parent_entity_id',
-                    `cpe_parent`.`sku` AS 'parent_sku'
-                FROM `".$this->getRes()->getTableName('catalog/product')."` AS `cpe`
-                INNER JOIN `".$this->getRes()->getTableName('catalog/product_super_link')."` AS `cpsl`
-                    ON `cpe`.`entity_id`=`cpsl`.`product_id`
-                INNER JOIN `".$this->getRes()->getTableName('catalog/product')."` AS `cpe_parent`
-                    ON `cpsl`.`parent_id`=`cpe_parent`.`entity_id`
-                WHERE
-                    `cpe`.`sku`=\"".addslashes($sku)."\"
-                    AND
-                    `cpe_parent`.`type_id`=\"".addslashes($parent_type_id)."\"";
-        $result = $this->getConnRead()->fetchRow($sql);
+        $conn = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $query = $conn->select()
+            ->from(array('cpe' => $this->getRes()->getTableName('catalog/product')),
+                array('entity_id' => 'cpe.entity_id',
+                    'sku' => 'cpe.sku',
+                    'parent_entity_id' => 'cpe_parent.entity_id',
+                    'parent_sku' => 'cpe_parent.sku'))
+            ->joinInner(array('cpsl' => $this->getRes()->getTableName('catalog/product_super_link')),
+                'cpe.entity_id = cpsl.product_id')
+            ->joinInner(array('cpe_parent' => $this->getRes()->getTableName('catalog/product')),
+                'cpsl.parent_id = cpe_parent.entity_id')
+            ->where('cpe.sku', $sku)
+            ->where('cpe_parent.type_id', $parent_type_id);
+
+        $result = $this->getConnRead()->fetchRow($query);
 
         if ($result !== false)
         {
