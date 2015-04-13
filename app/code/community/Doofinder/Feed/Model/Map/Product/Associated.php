@@ -78,33 +78,20 @@ class Doofinder_Feed_Model_Map_Product_Associated
             $params[$attrCode] = $data;
         }
 
-        $urlinfo = parse_url($value);
+        $uri = Zend_Uri::factory($value);
+        $scheme = $uri->getScheme();
+        $query = $uri->getQueryAsArray();
+        $port = $uri->getPort();
 
-        if ($urlinfo !== false)
+        if ($uri->valid())
         {
-            if (isset($urlinfo['query']))
-                $urlinfo['query'] .= '&'.http_build_query($params);
-            else
-                $urlinfo['query'] = http_build_query($params);
+            $params = array_merge($query, $params);
+            $uri->setQuery($params);
 
-            $new = "";
+            if ($uri->valid())
+                return $uri->getUri();
 
-            foreach ($urlinfo as $k => $v)
-            {
-                if ($k == 'scheme')
-                    $new .= $v.'://';
-                elseif ($k == 'port')
-                    $new .= ':'.$v;
-                elseif ($k == 'query')
-                    $new .= '?'.$v;
-                else
-                    $new .= $v;
-            }
-
-            if (parse_url($new) === false)
-                $this->skip = true;
-            else
-                $value = $new;
+            $this->skip = true;
         }
 
         return $value;
