@@ -241,16 +241,21 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
     public function getChildsIds($productId)
     {
         $data = false;
-        $sql = "SELECT
-                    `cpe`.`entity_id`
-                FROM ".$this->getRes()->getTableName('catalog/product')." AS `cpe`
-                INNER JOIN ".$this->getRes()->getTableName('catalog/product_super_link')." AS `cpsl`
-                    ON `cpe`.`entity_id`=`cpsl`.`product_id`
-                INNER JOIN ".$this->getRes()->getTableName('catalog/product')." AS `cpe_parent`
-                    ON `cpsl`.`parent_id`=`cpe_parent`.`entity_id`
-                WHERE
-                    `cpe_parent`.`entity_id`=\"".addslashes($productId)."\"";
-        $result = $this->getConnRead()->fetchAll($sql);
+
+        $conn = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $query = $conn->select()
+            ->from(array('cpe' => $this->getRes()->getTableName('catalog/product')),
+                array('cpe.entity_id')
+                )
+            ->joinInner(array('cpsl' => $this->getRes()->getTableName('catalog/product_super_link')),
+                'cpe.entity_id = cpsl.product_id',
+                array())
+            ->joinInner(array('cpe_parent' => $this->getRes()->getTableName('catalog/product')),
+                'cpsl.parent_id = cpe_parent.entity_id',
+                array())
+            ->where('cpe_parent.entity_id = ?', $productId);
+
+        $result = $this->getConnRead()->fetchAll($query);
 
         if ($result !== false)
         {
