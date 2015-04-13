@@ -280,14 +280,17 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
     public function getConfigurableAttributeCodes($productId)
     {
         $data = false;
-        $sql = "SELECT
-                    `eav`.`attribute_code`
-                FROM ".$this->getRes()->getTableName('catalog/product_super_attribute')." AS `csa`
-                INNER JOIN ".$this->getRes()->getTableName('eav/attribute')." AS `eav`
-                    ON `eav`.`attribute_id`=`csa`.`attribute_id`
-                WHERE
-                    `csa`.`product_id`=\"".addslashes($productId)."\"";
-        $result = $this->getConnRead()->fetchAll($sql);
+
+        $conn = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $query = $conn->select()
+            ->from(array('csa' => $this->getRes()->getTableName('catalog/product_super_attribute')),
+                array('eav.attribute_code'))
+            ->joinInner(array('eav' => $this->getRes()->getTableName('eav/attribute')),
+                'eav.attribute_id = csa.attribute_code',
+                array())
+            ->where('csa.product_id = ?', $productId);
+
+        $result = $this->getConnRead()->fetchAll($query);
 
         if ($result !== false)
         {
