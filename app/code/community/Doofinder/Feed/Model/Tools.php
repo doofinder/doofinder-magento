@@ -65,7 +65,8 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
             ->from(array('val' => $this->getRes()->getTableName('catalog/product')."_".$type),
                 array('value'))
             ->joinInner(array('eav' => $this->getRes()->getTableName('eav/attribute')),
-                'val.attribute_id=eav.attribute_id')
+                'val.attribute_id=eav.attribute_id',
+                array())
             ->where('val.entity_id = ?', $productId)
             ->where('val.entity_type_id = ?', $this->getEntityType('catalog_product')->getEntityTypeId())
             ->where('val.store_id = ?', $storeId)
@@ -110,9 +111,11 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
                     'parent_entity_id' => 'cpe_parent.entity_id',
                     'parent_sku' => 'cpe_parent.sku'))
             ->joinInner(array('cpsl' => $this->getRes()->getTableName('catalog/product_super_link')),
-                'cpe.entity_id = cpsl.product_id')
+                'cpe.entity_id = cpsl.product_id',
+                array())
             ->joinInner(array('cpe_parent' => $this->getRes()->getTableName('catalog/product')),
-                'cpsl.parent_id = cpe_parent.entity_id')
+                'cpsl.parent_id = cpe_parent.entity_id',
+                array())
             ->where('cpe.sku', $sku)
             ->where('cpe_parent.type_id', $parent_type_id);
 
@@ -209,7 +212,8 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
                     array('product_id' => 'pw.product_id',
                         'store_id' => 's.store_id'))
                 ->joinInner(array('s' => $this->getRes()->getTableName('core/store')),
-                    's.website_id = pw.website_id')
+                    's.website_id = pw.website_id',
+                    array())
                 ->where('pw.product_id IN (?)', $productId);
 
             $rows = $this->getConnRead()->fetchAll($query);
@@ -226,7 +230,8 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
             ->from(array('pw' => $this->getRes()->getTableName('catalog/product_website')),
                 's.store_id')
             ->joinInner(array('s' => $this->getRes()->getTableName('core/store')),
-                's.website_id = pw.website_id')
+                's.website_id = pw.website_id',
+                array())
             ->where('pw.product_id = ?', $productId);
 
         $value = $this->getConnRead()->fetchCol($query);
