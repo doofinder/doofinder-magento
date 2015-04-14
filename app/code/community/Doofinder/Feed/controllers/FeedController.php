@@ -23,10 +23,9 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
      */
     protected function _setJSONHeaders()
     {
-        // $this->getResponse()
-        //     ->clearHeaders()
-        //     ->setHeader('Content-type', 'application/json; charset="utf-8"', true);
-        //     // ->sendHeaders();
+        $this->getResponse()
+            ->clearHeaders()
+            ->setHeader('Content-type', 'application/json; charset="utf-8"', true);
     }
 
     /**
@@ -34,10 +33,9 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
      */
     protected function _setXMLHeaders()
     {
-        // $this->getResponse()
-        //     ->clearHeaders()
-        //     ->setHeader('Content-type', 'application/xml; charset="utf-8"', true);
-        //     // ->sendHeaders();
+        $this->getResponse()
+            ->clearHeaders()
+            ->setHeader('Content-type', 'application/xml; charset="utf-8"', true);
     }
 
     public function indexAction()
@@ -69,10 +67,6 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         $storeCodes = array_keys(Mage::app()->getStores(false, true));
         $storesConfiguration = array();
 
-        /*
-         * @todo Make prices configurable
-         * @todo Make taxes configurable
-         */
         foreach ($storeCodes as $code)
         {
             $oStore = Mage::app()->getStore($code);
@@ -85,10 +79,6 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             );
         }
 
-
-        /*
-         * @todo Make grouped configurable
-         */
         $config = array(
             'platform' => array(
                 'name' => 'Magento',

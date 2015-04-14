@@ -53,12 +53,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     public function run()
     {
-        if ($this->getConfigVar('debug') == 1)
-        {
-            @error_reporting(E_ALL);
-            @ini_set('display_errors', 'On');
-        }
-
         if ($this->getConfigVar('enabled') != 1)
             return;
 
@@ -666,13 +660,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         return $this->_fieldMap;
     }
 
-    /**
-     * @todo Get rid of die()
-     */
     protected function _stopOnException(Exception $e)
     {
-        // header('HTTP/1.1 404 Not Found', true, 404);
-        // die($e->getMessage());
         Mage::log($e->getMessage());
     }
 }
