@@ -32,28 +32,20 @@ class Doofinder_Feed_Model_Map_Product_Configurable
     public function _beforeMap()
     {
         $this->_assocs = array();
+        $assocIds = $this->getAssocIds();
 
-        // $assoc = Mage::getResourceModel('catalog/product_collection');
-        // $assoc->setStoreId($this->getStoreId());
+        $assoc = Mage::getModel('catalog/product');
+        $assoc->setStoreId($this->getStoreId());
 
-        // $assocIds = $this->getAssocIds();
-        // $associatedProducts = $assoc
-        //     ->addIdFilter($assocIds)
-        //     ->addAttributeToSelect('*')
-        //     ->load();
+        $associatedProducts = $assoc
+            ->getCollection()
+            ->addIdFilter($assocIds)
+            ->addAttributeToSelect('*')
+            ->load();
 
-        // foreach ($associatedProducts as $associated)
-        // {
-        //     $this->_assocs[$associated->getId()] = $associated;
-        // }
-
-        // Create a product model for each associated product
-        foreach ($this->getAssocIds() as $assocId)
+        foreach ($associatedProducts as $associated)
         {
-            $assoc = Mage::getModel('catalog/product');
-            $assoc->setStoreId($this->getStoreId());
-            $assoc->load($assocId);
-            $this->_assocs[$assocId] = $assoc;
+            $this->_assocs[$associated->getId()] = $associated;
         }
 
         $assocMapArr = array();

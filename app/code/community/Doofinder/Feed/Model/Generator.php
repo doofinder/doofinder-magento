@@ -247,8 +247,9 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                         if (!is_array($value))
                             $value = array($value);
 
-                        $value = implode(self::VALUE_SEPARATOR, $value);
+                        $value = implode(self::VALUE_SEPARATOR, array_filter($value));
                     }
+
 
 
                     /* TODO: Support multivalue fields in XML feed
