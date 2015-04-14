@@ -70,6 +70,15 @@ class Doofinder_Feed_Model_Map_Product_Configurable
         // $grouped = ($this->getConfigVar('group_configurable_products') == 1);
         $grouped = self::$_grouped;
 
+        $skipFields = array(
+            'id',
+            'title',
+            'description',
+            'price',
+            'normal_price',
+            'sale_price'
+            );
+
         // Check if this product should be in the feed
         if (!$this->isSkip())
         {
@@ -96,33 +105,12 @@ class Doofinder_Feed_Model_Map_Product_Configurable
                 {
                     foreach ($row as $name => $value)
                     {
-                        if ($name == 'id' || $name == 'title' || $name == 'description')
+                        if (in_array($name, $skipFields))
                         {
-                            continue; // always unique
-                        }
-                        else if ($name == 'price' || $name == 'normal_price' || $name == 'sale_price')
-                        {
-                            continue; // prices are calculated from the main product
+                            continue;
                         }
 
-                        if (!is_array($masterData[$name]))
-                        {
-                            if ($masterData[$name] != $value)
-                            {
-                                if (strlen($masterData[$name]))
-                                    $masterData[$name] = array(
-                                        $masterData[$name],
-                                        $value
-                                    );
-                                else
-                                    $masterData[$name] = $value;
-                            }
-                        }
-                        else
-                        {
-                            if (!in_array($value, $masterData[$name]))
-                                $masterData[$name][] = $value;
-                        }
+                        $masterData = $this->_mapGrouped($name, $value, $masterData);
                     }
                 }
                 else
@@ -136,6 +124,29 @@ class Doofinder_Feed_Model_Map_Product_Configurable
             $rows[] = $masterData; // Add the complete master data object
 
         return $rows;
+    }
+
+    protected function _mapGrouped($name, $value, $masterData)
+    {
+        if (!is_array($masterData[$name]))
+        {
+            if ($masterData[$name] != $value)
+            {
+                if (strlen($masterData[$name]))
+                    $masterData[$name] = array(
+                        $masterData[$name],
+                        $value
+                    );
+                else
+                    $masterData[$name] = $value;
+            }
+        }
+        else
+        {
+            if (!in_array($value, $masterData[$name]))
+                $masterData[$name][] = $value;
+        }
+        return $masterData;
     }
 
     public function getAssocIds()
