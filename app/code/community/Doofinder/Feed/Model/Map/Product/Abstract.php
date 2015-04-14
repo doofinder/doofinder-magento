@@ -190,7 +190,7 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
     // protected::Mapping::Directives
     //
 
-    protected function mapDirectiveId($params = array())
+    protected function mapDirectiveId()
     {
         // $storeCode = $this->getStoreCode();
         $fieldData = $this->getProduct()->getId();
@@ -199,13 +199,13 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
         return $this->cleanField($fieldData);
     }
 
-    protected function mapDirectiveUrl($params = array())
+    protected function mapDirectiveUrl()
     {
         $product = $this->getProduct();
         return $product->getUrlModel()->getUrl($product, array('_nosid' => true));
     }
 
-    protected function mapDirectiveImageLink($params = array())
+    protected function mapDirectiveImageLink()
     {
         $product = $this->getProduct();
         $image = $product->getData('image');
@@ -214,8 +214,8 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
             return (string) Mage::helper('catalog/image')
                 ->init($product, 'image')
                 ->resize(120);
-        else
-            return "";
+
+        return "";
     }
 
     public function collectProductPrices()
@@ -265,7 +265,7 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
         return $this->getData('collected_product_prices');
     }
 
-    protected function mapDirectivePrice($params = array())
+    protected function mapDirectivePrice()
     {
         $prices = $this->collectProductPrices();
 
@@ -280,7 +280,7 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
         return $fieldData;
     }
 
-    protected function mapDirectiveSalePrice($params = array())
+    protected function mapDirectiveSalePrice()
     {
         $prices = $this->collectProductPrices();
 
@@ -295,7 +295,7 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
         return $fieldData;
     }
 
-    protected function mapDirectiveCurrency($params = array())
+    protected function mapDirectiveCurrency()
     {
         return $this->getData('store_currency_code');
     }
