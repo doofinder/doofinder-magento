@@ -244,23 +244,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                         $value = implode(self::VALUE_SEPARATOR, array_filter($value));
                     }
 
-
-
-                    /* TODO: Support multivalue fields in XML feed
-                    $isMulti = count($value) > 1;
-
-
-                    foreach ($value as $v)
-                    {
-                        if ($isMulti)
-                            $this->_oXmlWriter->startElement('node');
-
-                        $this->_oXmlWriter->writeCData($v);
-
-                        if ($isMulti)
-                            $this->_oXmlWriter->endElement();
-                    }*/
-
                     $written = @$this->_oXmlWriter->writeCData($value);
                     if ( ! $written )
                     {
