@@ -335,6 +335,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $prodCategories = Mage::getResourceModel('catalog/category_collection')
             ->addIdFilter($product->getCategoryIds())
             ->addFieldToFilter('path', array('like' => $this->_oRootCategory->getPath() . '/%'))
+            ->addFieldToFilter('is_active', array('eq'=>'1'))
             ->getItems();
         $prodCategories = array_keys($prodCategories);
 
