@@ -17,78 +17,78 @@
  */
 class Doofinder_Feed_Model_Tools extends Varien_Object
 {
-	public function _construct()
-	{
-		parent::_construct();
-		$this->loadEntityType('catalog_product');
-	}
-
-	public function loadEntityType($type)
+    public function _construct()
     {
-    	if (is_array($type))
-    	{
-    		foreach ($type as $t)
-    			if (is_string($t))
-    				$this->loadEntityType($t);
-    	}
-    	else
-    	{
-	    	$entityType = Mage::getModel('eav/config')->getEntityType('catalog_product');
+        parent::_construct();
+        $this->loadEntityType('catalog_product');
+    }
 
-	        Mage::register('doofinder_feed/entity_type/'.$type, $entityType);
-    	}
+    public function loadEntityType($type)
+    {
+        if (is_array($type))
+        {
+            foreach ($type as $t)
+                if (is_string($t))
+                    $this->loadEntityType($t);
+        }
+        else
+        {
+            $entityType = Mage::getModel('eav/config')->getEntityType('catalog_product');
+
+            Mage::unregister('doofinder_feed/entity_type/'.$type);
+            Mage::register('doofinder_feed/entity_type/'.$type, $entityType);
+        }
         return $this;
     }
 
     public function getEntityType($type)
     {
-    	return Mage::registry('doofinder_feed/entity_type/'.$type);
+        return Mage::registry('doofinder_feed/entity_type/'.$type);
     }
 
-	public function getProductAttributeValueBySql($attribute, $type = "text", $productId, $storeId = null, $strict = false, $debug = false)
-	{
-		if (array_search($type, array('text', 'int', 'decimal', 'varchar', 'datetime')) === false)
-    	{
-    		Mage::throwException(sprintf("Unknown attribute backend type %s for attribute code %s.", $type, $attribute->getAttributeCode()));
-    	}
+    public function getProductAttributeValueBySql($attribute, $type = "text", $productId, $storeId = null, $strict = false, $debug = false)
+    {
+        if (array_search($type, array('text', 'int', 'decimal', 'varchar', 'datetime')) === false)
+        {
+            Mage::throwException(sprintf("Unknown attribute backend type %s for attribute code %s.", $type, $attribute->getAttributeCode()));
+        }
 
-		if (is_null($storeId))
-		{
-			return $this->getProductAttributeValueBySql($attribute, $type, $productId, Mage_Core_Model_App::ADMIN_STORE_ID, true, $debug);
-		}
+        if (is_null($storeId))
+        {
+            return $this->getProductAttributeValueBySql($attribute, $type, $productId, Mage_Core_Model_App::ADMIN_STORE_ID, true, $debug);
+        }
 
-		$attributeId = $attribute->getAttributeId();
+        $attributeId = $attribute->getAttributeId();
 
-		$sql = "SELECT val.value
-			FROM ".$this->getRes()->getTableName('catalog/product')."_".$type." val
-			INNER JOIN ".$this->getRes()->getTableName('eav/attribute')." eav ON val.attribute_id=eav.attribute_id
-			WHERE
-				val.entity_id='".addslashes($productId)."'
-				AND
-				val.entity_type_id = ".$this->getEntityType('catalog_product')->getEntityTypeId()."
-				AND
-				val.store_id = '".addslashes($storeId)."'
-				AND
-				val.attribute_id = '".addslashes($attributeId)."'";
-		if ($debug)
-			var_dump($sql);
-		$value = $this->getConnRead()->fetchCol($sql);
-		if (is_array($value) && @$value[0] === null)
-			$value = null;
-		elseif (is_array($value) && isset($value[0]))
-			$value = $value[0];
-		else if (is_array($value) && count($value) == 0)
-			$value = null;
+        $conn = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $query = $conn->select()
+            ->from(array('val' => $this->getRes()->getTableName('catalog/product')."_".$type),
+                array('value'))
+            ->joinInner(array('eav' => $this->getRes()->getTableName('eav/attribute')),
+                'val.attribute_id=eav.attribute_id',
+                array())
+            ->where('val.entity_id = ?', $productId)
+            ->where('val.entity_type_id = ?', $this->getEntityType('catalog_product')->getEntityTypeId())
+            ->where('val.store_id = ?', $storeId)
+            ->where('val.attribute_id = ?', $attributeId);
 
-		if (is_null($value) && $storeId != Mage_Core_Model_App::ADMIN_STORE_ID && $strict === false)
-		{
-			return $this->getProductAttributeValueBySql($attribute, $type, $productId, Mage_Core_Model_App::ADMIN_STORE_ID, true, $debug);
-		}
+        $value = $this->getConnRead()->fetchCol($query);
+        if (is_array($value) && @$value[0] === null)
+            $value = null;
+        elseif (is_array($value) && isset($value[0]))
+            $value = $value[0];
+        else if (is_array($value) && count($value) == 0)
+            $value = null;
 
-		return $value;
-	}
+        if (is_null($value) && $storeId != Mage_Core_Model_App::ADMIN_STORE_ID && $strict === false)
+        {
+            return $this->getProductAttributeValueBySql($attribute, $type, $productId, Mage_Core_Model_App::ADMIN_STORE_ID, true, $debug);
+        }
 
-	/**
+        return $value;
+    }
+
+    /**
      * Check if there is a parent of type (configurable, ..)
      *
      * @param string $type_id
@@ -98,74 +98,71 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
      */
     public function isChildOfProductType($type_id, $sku, $parent_type_id)
     {
-    	$data = false;
+        $data = false;
 
-    	if ($type_id != Mage_Catalog_Model_Product_Type::TYPE_SIMPLE)
-    		return $data;
+        if ($type_id != Mage_Catalog_Model_Product_Type::TYPE_SIMPLE)
+            return $data;
 
-		$sql = "SELECT
-					`cpe`.`entity_id` AS 'entity_id',
-					`cpe`.`sku` AS 'sku',
-					`cpe_parent`.`entity_id` AS 'parent_entity_id',
-					`cpe_parent`.`sku` AS 'parent_sku'
-				FROM `".$this->getRes()->getTableName('catalog/product')."` AS `cpe`
-				INNER JOIN `".$this->getRes()->getTableName('catalog/product_super_link')."` AS `cpsl`
-					ON `cpe`.`entity_id`=`cpsl`.`product_id`
-				INNER JOIN `".$this->getRes()->getTableName('catalog/product')."` AS `cpe_parent`
-					ON `cpsl`.`parent_id`=`cpe_parent`.`entity_id`
-				WHERE
-					`cpe`.`sku`=\"".addslashes($sku)."\"
-					AND
-					`cpe_parent`.`type_id`=\"".addslashes($parent_type_id)."\"";
-		$result = $this->getConnRead()->fetchRow($sql);
+        $conn = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $query = $conn->select()
+            ->from(array('cpe' => $this->getRes()->getTableName('catalog/product')),
+                array('entity_id' => 'cpe.entity_id',
+                    'sku' => 'cpe.sku',
+                    'parent_entity_id' => 'cpe_parent.entity_id',
+                    'parent_sku' => 'cpe_parent.sku'))
+            ->joinInner(array('cpsl' => $this->getRes()->getTableName('catalog/product_super_link')),
+                'cpe.entity_id = cpsl.product_id',
+                array())
+            ->joinInner(array('cpe_parent' => $this->getRes()->getTableName('catalog/product')),
+                'cpsl.parent_id = cpe_parent.entity_id',
+                array())
+            ->where('cpe.sku', $sku)
+            ->where('cpe_parent.type_id', $parent_type_id);
 
-		if ($result !== false)
-		{
-			$data = $result;
-		}
+        $result = $this->getConnRead()->fetchRow($query);
 
-		return $data;
+        if ($result !== false)
+        {
+            $data = $result;
+        }
+
+        return $data;
     }
 
     public function getProductAttributeSelectValue($attribute, $valueId, $storeId = null, $strict = false, $debug = false)
-	{
-		if (is_null($storeId))
-		{
-			return $this->getProductAttributeSelectValue($attribute, $valueId, Mage_Core_Model_App::ADMIN_STORE_ID, true, $debug);
-		}
+    {
+        if (is_null($storeId))
+        {
+            return $this->getProductAttributeSelectValue($attribute, $valueId, Mage_Core_Model_App::ADMIN_STORE_ID, true, $debug);
+        }
 
-		$attributeId = $attribute->getAttributeId();
+        $attributeId = $attribute->getAttributeId();
 
-		$sql = "SELECT optval.value
-			FROM ".$this->getRes()->getTableName('eav/attribute_option')." opt
-			INNER JOIN ".$this->getRes()->getTableName('eav/attribute_option_value')." optval ON opt.option_id=optval.option_id
-			WHERE
-				opt.option_id='".addslashes($valueId)."'
-				AND
-				opt.attribute_id = '".addslashes($attributeId)."'
-				AND
-				optval.store_id = '".addslashes($storeId)."'";
+        $conn = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $query = $conn->select()
+            ->from($this->getRes()->getTableName('eav/attribute_option'),
+                array('opt'))
+            ->where('opt.option_id = ?', $valueId)
+            ->where('opt.attribute_id = ?', $attributeId)
+            ->where('opt.store_id = ?', $storeId);
 
-		if ($debug)
-			var_dump($sql);
+        $value = $this->getConnRead()->fetchCol($query);
+        if (is_array($value) && @$value[0] === null)
+            $value = null;
+        elseif (is_array($value) && isset($value[0]))
+            $value = $value[0];
+        else if (is_array($value) && count($value) == 0)
+            $value = null;
 
-		$value = $this->getConnRead()->fetchCol($sql);
-		if (is_array($value) && @$value[0] === null)
-			$value = null;
-		elseif (is_array($value) && isset($value[0]))
-			$value = $value[0];
-		else if (is_array($value) && count($value) == 0)
-			$value = null;
+        if (is_null($value) && $storeId != Mage_Core_Model_App::ADMIN_STORE_ID && $strict === false)
+        {
+            return $this->getProductAttributeSelectValue($attribute, $valueId, Mage_Core_Model_App::ADMIN_STORE_ID, true, $debug);
+        }
 
-		if (is_null($value) && $storeId != Mage_Core_Model_App::ADMIN_STORE_ID && $strict === false)
-		{
-			return $this->getProductAttributeSelectValue($attribute, $valueId, Mage_Core_Model_App::ADMIN_STORE_ID, true, $debug);
-		}
+        return $value;
+    }
 
-		return $value;
-	}
-
-	/**
+    /**
      * Get categories ids by product id.
      *
      * @param string $type_id
@@ -175,22 +172,23 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
      */
     public function getCategoriesById($productId)
     {
-    	$data = false;
+        $data = false;
 
-		$sql = "SELECT
-					`category_id`
-				FROM `".$this->getRes()->getTableName('catalog/category_product')."`
-				WHERE
-					`product_id`=\"".addslashes($productId)."\"";
-		$result = $this->getConnRead()->fetchAll($sql);
+        $conn = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $query = $conn->select()
+            ->from($this->getRes()->getTableName('catalog/category_product'),
+                array('category_id'))
+            ->where('product_id = ?', $productId);
 
-		if ($result !== false)
-		{
-			$data = array();
-			foreach ($result as $k => $row)
-				$data[] = $row['category_id'];
-		}
-		return $data;
+        $result = $this->getConnRead()->fetchAll($query);
+
+        if ($result !== false)
+        {
+            $data = array();
+            foreach ($result as $k => $row)
+                $data[] = $row['category_id'];
+        }
+        return $data;
     }
 
     /**
@@ -199,148 +197,157 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
      * @return array()
      */
     public function getProductInStoresIds($productId)
-	{
-		if (is_array($productId))
-		{
-			$value = array();
-			foreach ($productId as $pid)
-				$value[$pid] = array();
-		}
-
-		$sql = "SELECT ";
-		if (is_array($productId))
-		{
-			$sql .= " pw.product_id AS 'product_id', s.store_id AS 'store_id'";
-		}
-		else
-		{
-			$sql .= " s.store_id ";
-		}
-		$sql .=	" FROM ".$this->getRes()->getTableName('catalog/product_website')." AS pw
-			INNER JOIN ".$this->getRes()->getTableName('core/store')." AS s
-				ON s.website_id = pw.website_id
-			WHERE";
-		if (is_array($productId))
-		{
-			$sql .= " pw.product_id IN (\"".implode("\",\"", $productId)."\")";
-			$rows = $this->getConnRead()->fetchAll($sql);
-			foreach ($rows as $row)
-			{
-				if (!isset($value[$row['product_id']]))
-					$value[$row['product_id']] = array();
-				$value[$row['product_id']][] = $row['store_id'];
-			}
-		}
-		else
-		{
-			$sql .= " pw.product_id=\"".addslashes($productId)."\"";
-			$value = $this->getConnRead()->fetchCol($sql);
-		}
-
-		return $value;
-	}
-
-	/**
-	 * @param int $productId - parent product id
-	 * @return array
-	 */
-	public function getChildsIds($productId)
-	{
-		$data = false;
-		$sql = "SELECT
-					`cpe`.`entity_id`
-				FROM ".$this->getRes()->getTableName('catalog/product')." AS `cpe`
-				INNER JOIN ".$this->getRes()->getTableName('catalog/product_super_link')." AS `cpsl`
-					ON `cpe`.`entity_id`=`cpsl`.`product_id`
-				INNER JOIN ".$this->getRes()->getTableName('catalog/product')." AS `cpe_parent`
-					ON `cpsl`.`parent_id`=`cpe_parent`.`entity_id`
-				WHERE
-					`cpe_parent`.`entity_id`=\"".addslashes($productId)."\"";
-		$result = $this->getConnRead()->fetchAll($sql);
-
-		if ($result !== false)
-		{
-			foreach ($result as $row)
-			{
-				$data[] = $row['entity_id'];
-			}
-		}
-
-		return $data;
-	}
-
-	/**
-	 * @param int $productId - parent product id
-	 * @return array
-	 */
-	public function getConfigurableAttributeCodes($productId)
-	{
-		$data = false;
-		$sql = "SELECT
-					`eav`.`attribute_code`
-				FROM ".$this->getRes()->getTableName('catalog/product_super_attribute')." AS `csa`
-				INNER JOIN ".$this->getRes()->getTableName('eav/attribute')." AS `eav`
-					ON `eav`.`attribute_id`=`csa`.`attribute_id`
-				WHERE
-					`csa`.`product_id`=\"".addslashes($productId)."\"";
-		$result = $this->getConnRead()->fetchAll($sql);
-
-		if ($result !== false)
-		{
-			foreach ($result as $row)
-			{
-				$data[] = $row['attribute_code'];
-			}
-		}
-
-		return $data;
-	}
-
-	public function explodeMultiselectValue($value)
-	{
-		$arr = array();
-		if (!empty($value))
-		{
-			$arr = explode(',', $value);
-			foreach ($arr as $k => $v) $arr[$k] = trim($v);
-		}
-		return $arr;
-	}
-
-	/**
-	 * @return Mage_Core_Model_Resource
-	 */
-	public function getRes()
     {
-    	if (is_null($this->_res))
-    	{
-    		$this->_res = Mage::getSingleton('core/resource');
-    	}
-		return $this->_res;
+
+        $conn = Mage::getSingleton('core/resource')->getConnection('core_read');
+
+        if (is_array($productId))
+        {
+            $value = array();
+            foreach ($productId as $pid)
+                $value[$pid] = array();
+
+            $query = $conn->select()
+                ->from(array('pw' => $this->getRes()->getTableName('catalog/product_website')),
+                    array('product_id' => 'pw.product_id',
+                        'store_id' => 's.store_id'))
+                ->joinInner(array('s' => $this->getRes()->getTableName('core/store')),
+                    's.website_id = pw.website_id',
+                    array())
+                ->where('pw.product_id IN (?)', $productId);
+
+            $rows = $this->getConnRead()->fetchAll($query);
+            foreach ($rows as $row)
+            {
+                if (!isset($value[$row['product_id']]))
+                    $value[$row['product_id']] = array();
+                $value[$row['product_id']][] = $row['store_id'];
+            }
+            return $value;
+        }
+
+        $query = $conn->select()
+            ->from(array('pw' => $this->getRes()->getTableName('catalog/product_website')),
+                's.store_id')
+            ->joinInner(array('s' => $this->getRes()->getTableName('core/store')),
+                's.website_id = pw.website_id',
+                array())
+            ->where('pw.product_id = ?', $productId);
+
+        $value = $this->getConnRead()->fetchCol($query);
+
+        return $value;
     }
 
     /**
-	 * @return Varien_Db_Adapter_Pdo_Mysql
-	 */
+     * @param int $productId - parent product id
+     * @return array
+     */
+    public function getChildsIds($productId)
+    {
+        $data = false;
+
+        $conn = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $query = $conn->select()
+            ->from(array('cpe' => $this->getRes()->getTableName('catalog/product')),
+                array('cpe.entity_id')
+                )
+            ->joinInner(array('cpsl' => $this->getRes()->getTableName('catalog/product_super_link')),
+                'cpe.entity_id = cpsl.product_id',
+                array())
+            ->joinInner(array('cpe_parent' => $this->getRes()->getTableName('catalog/product')),
+                'cpsl.parent_id = cpe_parent.entity_id',
+                array())
+            ->where('cpe_parent.entity_id = ?', $productId);
+
+        $result = $this->getConnRead()->fetchAll($query);
+
+        if ($result !== false)
+        {
+            foreach ($result as $row)
+            {
+                $data[] = $row['entity_id'];
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param int $productId - parent product id
+     * @return array
+     */
+    public function getConfigurableAttributeCodes($productId)
+    {
+        $data = false;
+
+        $conn = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $query = $conn->select()
+            ->from(array('csa' => $this->getRes()->getTableName('catalog/product_super_attribute')),
+                array('eav.attribute_code'))
+            ->joinInner(array('eav' => $this->getRes()->getTableName('eav/attribute')),
+                'eav.attribute_id = csa.attribute_code',
+                array())
+            ->where('csa.product_id = ?', $productId);
+
+        $result = $this->getConnRead()->fetchAll($query);
+
+        if ($result !== false)
+        {
+            foreach ($result as $row)
+            {
+                $data[] = $row['attribute_code'];
+            }
+        }
+
+        return $data;
+    }
+
+    public function explodeMultiselectValue($value)
+    {
+        $arr = array();
+        if (!empty($value))
+        {
+            $arr = explode(',', $value);
+            foreach ($arr as $k => $v) $arr[$k] = trim($v);
+        }
+        return $arr;
+    }
+
+    /**
+     * @return Mage_Core_Model_Resource
+     */
+    public function getRes()
+    {
+        if (is_null($this->_res))
+        {
+            $this->_res = Mage::getSingleton('core/resource');
+        }
+        return $this->_res;
+    }
+
+    /**
+     * @return Varien_Db_Adapter_Pdo_Mysql
+     */
     public function getConnRead()
     {
-    	if (is_null($this->_conn_read))
-    	{
-    		$this->_conn_read = $this->getRes()->getConnection('core_read');
-    	}
-		return $this->_conn_read;
+        if (is_null($this->_conn_read))
+        {
+            $this->_conn_read = $this->getRes()->getConnection('core_read');
+        }
+        return $this->_conn_read;
     }
 
     /**
-	 * @return Varien_Db_Adapter_Pdo_Mysql
-	 */
+     * @return Varien_Db_Adapter_Pdo_Mysql
+     */
     public function getConnWrite()
     {
-    	if (is_null($this->_conn_write))
-    	{
-    		$this->_conn_write = $this->getRes()->getConnection('core_write');
-    	}
-		return $this->_conn_write;
+        if (is_null($this->_conn_write))
+        {
+            $this->_conn_write = $this->getRes()->getConnection('core_write');
+        }
+        return $this->_conn_write;
     }
 
     public function getMagentoEdition()

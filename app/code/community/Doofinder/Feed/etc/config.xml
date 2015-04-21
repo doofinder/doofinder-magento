@@ -148,4 +148,15 @@
 
     <websites></websites>
 
+    <phpunit>
+        <suite>
+            <modules>
+                <Doofinder_Feed />
+            </modules>
+            <groups>
+                <controller>Controller</controller>
+            </groups>
+        </suite>
+    </phpunit>
+
 </config>

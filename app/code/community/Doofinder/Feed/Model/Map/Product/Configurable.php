@@ -32,14 +32,20 @@ class Doofinder_Feed_Model_Map_Product_Configurable
     public function _beforeMap()
     {
         $this->_assocs = array();
+        $assocIds = $this->getAssocIds();
 
-        // Create a product model for each associated product
-        foreach ($this->getAssocIds() as $assocId)
+        $assoc = Mage::getModel('catalog/product');
+        $assoc->setStoreId($this->getStoreId());
+
+        $associatedProducts = $assoc
+            ->getCollection()
+            ->addIdFilter($assocIds)
+            ->addAttributeToSelect('*')
+            ->load();
+
+        foreach ($associatedProducts as $associated)
         {
-            $assoc = Mage::getModel('catalog/product');
-            $assoc->setStoreId($this->getStoreId());
-            $assoc->getResource()->load($assoc, $assocId);
-            $this->_assocs[$assocId] = $assoc;
+            $this->_assocs[$associated->getId()] = $associated;
         }
 
         $assocMapArr = array();
@@ -63,6 +69,15 @@ class Doofinder_Feed_Model_Map_Product_Configurable
         $rows = array();
         // $grouped = ($this->getConfigVar('group_configurable_products') == 1);
         $grouped = self::$_grouped;
+
+        $skipFields = array(
+            'id',
+            'title',
+            'description',
+            'price',
+            'normal_price',
+            'sale_price'
+            );
 
         // Check if this product should be in the feed
         if (!$this->isSkip())
@@ -90,33 +105,12 @@ class Doofinder_Feed_Model_Map_Product_Configurable
                 {
                     foreach ($row as $name => $value)
                     {
-                        if ($name == 'id' || $name == 'title' || $name == 'description')
+                        if (in_array($name, $skipFields))
                         {
-                            continue; // always unique
-                        }
-                        else if ($name == 'price' || $name == 'normal_price' || $name == 'sale_price')
-                        {
-                            continue; // prices are calculated from the main product
+                            continue;
                         }
 
-                        if (!is_array($masterData[$name]))
-                        {
-                            if ($masterData[$name] != $value)
-                            {
-                                if (strlen($masterData[$name]))
-                                    $masterData[$name] = array(
-                                        $masterData[$name],
-                                        $value
-                                    );
-                                else
-                                    $masterData[$name] = $value;
-                            }
-                        }
-                        else
-                        {
-                            if (!in_array($value, $masterData[$name]))
-                                $masterData[$name][] = $value;
-                        }
+                        $masterData = $this->_mapGrouped($name, $value, $masterData);
                     }
                 }
                 else
@@ -132,6 +126,29 @@ class Doofinder_Feed_Model_Map_Product_Configurable
         return $rows;
     }
 
+    protected function _mapGrouped($name, $value, $masterData)
+    {
+        if (!is_array($masterData[$name]))
+        {
+            if ($masterData[$name] != $value)
+            {
+                if (strlen($masterData[$name]))
+                    $masterData[$name] = array(
+                        $masterData[$name],
+                        $value
+                    );
+                else
+                    $masterData[$name] = $value;
+            }
+        }
+        else
+        {
+            if (!in_array($value, $masterData[$name]))
+                $masterData[$name][] = $value;
+        }
+        return $masterData;
+    }
+
     public function getAssocIds()
     {
         if (is_null($this->_assoc_ids))
@@ -139,6 +156,8 @@ class Doofinder_Feed_Model_Map_Product_Configurable
                 $this->getProduct(),
                 $this->getStoreId()
             );
+
+        asort($this->_assoc_ids);
 
         return $this->_assoc_ids;
     }

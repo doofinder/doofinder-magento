@@ -21,30 +21,25 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
     /**
      * Send JSON headers
      */
-    protected function _sendJSONHeaders()
+    protected function _setJSONHeaders()
     {
         $this->getResponse()
             ->clearHeaders()
-            ->setHeader('Content-type', 'application/json; charset="utf-8"', true)
-            ->sendHeaders();
+            ->setHeader('Content-type', 'application/json; charset="utf-8"', true);
     }
 
     /**
      * Send XML headers
      */
-    protected function _sendXMLHeaders()
+    protected function _setXMLHeaders()
     {
         $this->getResponse()
             ->clearHeaders()
-            ->setHeader('Content-type', 'application/xml; charset="utf-8"', true)
-            ->sendHeaders();
+            ->setHeader('Content-type', 'application/xml; charset="utf-8"', true);
     }
 
     public function indexAction()
     {
-        if (!ini_get('safe_mode'))
-            set_time_limit(3600);
-
         $options = array(
             '_limit_' => $this->_getInteger('limit', null),
             '_offset_' => $this->_getInteger('offset', 0),
@@ -56,25 +51,22 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             'customer_group_id' => $this->_getInteger('customer_group', 0),
         );
 
-        $this->_sendXMLHeaders();
+        $this->_setXMLHeaders();
 
         $generator = Mage::getSingleton('doofinder_feed/generator', $options);
-        $generator->run();
+        $response = $generator->run();
+        $this->getResponse()->setBody($response);
     }
 
     public function configAction()
     {
-        $this->_sendJSONHeaders();
+        $this->_setJSONHeaders();
 
         $tools = Mage::getModel('doofinder_feed/tools');
 
         $storeCodes = array_keys(Mage::app()->getStores(false, true));
         $storesConfiguration = array();
 
-        /*
-         * @todo Make prices configurable
-         * @todo Make taxes configurable
-         */
         foreach ($storeCodes as $code)
         {
             $oStore = Mage::app()->getStore($code);
@@ -87,10 +79,6 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             );
         }
 
-
-        /*
-         * @todo Make grouped configurable
-         */
         $config = array(
             'platform' => array(
                 'name' => 'Magento',
@@ -122,7 +110,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         if (is_array($a_extra) && count($a_extra))
             $error = array_merge($error, $a_extra);
 
-        $this->_sendJSONHeaders();
+        $this->_setJSONHeaders();
 
         $response = Mage::helper('core')->jsonEncode($error);
         $this->getResponse()->setBody($response);
@@ -190,67 +178,67 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         TEST TOOLS
     */
 
-    public function testsAction()
-    {
-        if ( !in_array(Mage::helper('core/http')->getRemoteAddr(), array('127.0.0.1', '::1')) )
-        {
-            $this->norouteAction();
-            return false;
-        }
+    // public function testsAction()
+    // {
+    //     if ( !in_array(Mage::helper('core/http')->getRemoteAddr(), array('127.0.0.1', '::1')) )
+    //     {
+    //         $this->norouteAction();
+    //         return false;
+    //     }
 
-        $oStore           = Mage::app()->getStore($this->_getStoreCode());
-        $bGrouped         = $this->_getBoolean('grouped', true);
-        $bMinimalPrice    = $this->_getBoolean('minimal_price', false);
-        $bCurrencyConvert = $this->_getBoolean('convert_currency', true);
-        $iCustomerGroupId = $this->_getInteger('customer_group', 0);
+    //     $oStore           = Mage::app()->getStore($this->_getStoreCode());
+    //     $bGrouped         = $this->_getBoolean('grouped', true);
+    //     $bMinimalPrice    = $this->_getBoolean('minimal_price', false);
+    //     $bCurrencyConvert = $this->_getBoolean('convert_currency', true);
+    //     $iCustomerGroupId = $this->_getInteger('customer_group', 0);
 
-        $ids = array(
-            'simple' => array(166, 27),
-            'grouped' => 54,
-            'configurable' => 83,
-            'virtual' => 142,
-            'bundle' => 158,
-            'downloadable' => 167
-        );
+    //     $ids = array(
+    //         'simple' => array(166, 27),
+    //         'grouped' => 54,
+    //         'configurable' => 83,
+    //         'virtual' => 142,
+    //         'bundle' => 158,
+    //         'downloadable' => 167
+    //     );
 
-        $data = array(
-            'store' => array(
-                'store_id' => $oStore->getStoreId(),
-                'website_id' => $oStore->getWebsiteId(),
-                'base_currency' => $oStore->getBaseCurrencyCode(),
-                'current_currency' => $oStore->getCurrentCurrencyCode(),
-                'default_currency' => $oStore->getDefaultCurrencyCode(),
-            ),
-            'products' => array(),
-        );
+    //     $data = array(
+    //         'store' => array(
+    //             'store_id' => $oStore->getStoreId(),
+    //             'website_id' => $oStore->getWebsiteId(),
+    //             'base_currency' => $oStore->getBaseCurrencyCode(),
+    //             'current_currency' => $oStore->getCurrentCurrencyCode(),
+    //             'default_currency' => $oStore->getDefaultCurrencyCode(),
+    //         ),
+    //         'products' => array(),
+    //     );
 
-        $rule = Mage::getModel('catalogrule/rule');
-        $dataHelper = Mage::helper('doofinder_feed');
+    //     $rule = Mage::getModel('catalogrule/rule');
+    //     $dataHelper = Mage::helper('doofinder_feed');
 
-        foreach ($ids as $product_type => $ids)
-        {
-            foreach ((array) $ids as $id)
-            {
-                $product = Mage::getModel('catalog/product')
-                    ->setStoreId($oStore->getStoreId())
-                    ->setCustomerGroupId($iCustomerGroupId)
-                    ->load($id);
+    //     foreach ($ids as $product_type => $ids)
+    //     {
+    //         foreach ((array) $ids as $id)
+    //         {
+    //             $product = Mage::getModel('catalog/product')
+    //                 ->setStoreId($oStore->getStoreId())
+    //                 ->setCustomerGroupId($iCustomerGroupId)
+    //                 ->load($id);
 
-                $data['products'][$id] = array(
-                    'product_type' => $product_type,
-                    'name' => $product->getName(),
-                );
+    //             $data['products'][$id] = array(
+    //                 'product_type' => $product_type,
+    //                 'name' => $product->getName(),
+    //             );
 
-                $data['products'][$id] = array_merge(
-                    $data['products'][$id],
-                    $dataHelper->collectProductPrices($product, $oStore, $bCurrencyConvert, $bMinimalPrice, $bGrouped)
-                );
-            }
-        }
+    //             $data['products'][$id] = array_merge(
+    //                 $data['products'][$id],
+    //                 $dataHelper->collectProductPrices($product, $oStore, $bCurrencyConvert, $bMinimalPrice, $bGrouped)
+    //             );
+    //         }
+    //     }
 
-        $this->_sendJSONHeaders();
+    //     $this->_setJSONHeaders();
 
-        $response = Mage::helper('core')->jsonEncode($data);
-        $this->getResponse()->setBody($response);
-    }
+    //     $response = Mage::helper('core')->jsonEncode($data);
+    //     $this->getResponse()->setBody($response);
+    // }
 }

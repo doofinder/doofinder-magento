@@ -1,0 +1,118 @@
+scope:
+  website: # Initialize websites
+    - website_id: 2
+      code: usa_website
+      name: USA Website
+      default_group_id: 2
+    - website_id: 3
+      code: canada_website
+      name: Canada Website
+      default_group_id: 3
+    - website_id: 4
+      code: german_website
+      name: German Website
+      default_group_id: 4
+  group: # Initializes store groups
+    - group_id: 2
+      website_id: 2
+      name: USA Store Group
+      default_store_id: 2
+      root_category_id: 2 # Default Category
+    - group_id: 3
+      website_id: 3
+      name: Canada Store Group
+      default_store_id: 3
+      root_category_id: 2 # Default Category
+    - group_id: 4
+      website_id: 4
+      name: German Store Group
+      default_store_id: 4
+      root_category_id: 2 # Default Category
+  store: # Initializes store views
+    - store_id: 2
+      website_id: 2
+      group_id: 2
+      code: usa
+      name: USA Store
+      is_active: 1
+    - store_id: 3
+      website_id: 3
+      group_id: 3
+      code: canada
+      name: Canada Store
+      is_active: 1
+    - store_id: 4
+      website_id: 4
+      group_id: 4
+      code: germany
+      name: Germany Store
+      is_active: 1
+config:
+  default/catalog/price/scope: 1 # Set price scope to website
+  default/tax/calculation/algorithm: UNIT_BASE_CACLULATION
+  default/tax/calculation/based_on: origin
+  default/tax/calculation/apply_tax_on: 0
+  default/tax/calculation/price_includes_tax: 0
+  default/tax/calculation/apply_after_discount: 1
+  default/tax/defaults/country: DE
+  default/tax/defaults/region: 0
+  default/tax/defaults/postcode: *
+  default/tax/display/type: 2
+  default/tax/sales_display/price: 1
+tables:
+  tax/tax_class:
+    - class_id: 3
+      class_name: Retail Customer
+      class_type: CUSTOMER
+  tax/tax_calculation_rate:
+    - tax_calculation_rate_id: 3
+      tax_country_id: DE
+      tax_region_id: 12
+      tax_postcode: *
+      code: VAT
+      rate: 19
+  tax/tax_calculation_rule:
+    - tax_calculation_rule_id: 1
+      code: Retail Customer-VAT
+      priority: 1
+      position: 1
+      calculate_subtotal: 0
+  tax/tax_calculation:
+    - tax_calculation_id: 3
+      tax_calculation_rule_id: 1
+      tax_calculation_rate_id: 3
+      customer_tax_class_id: 3
+      product_tax_class_id: 3
+  customer/customer_group:
+    - customer_group_id: 1
+      customer_group_code: General
+      tax_class_id: 3
+eav:
+  catalog_product:
+    - entity_id: 1
+      attribute_set_id: 4
+      type_id: simple
+      sku: book
+      name: Book
+      short_description: Book
+      description: Book
+      url_key: book
+      stock:
+        qty: 100.00
+        is_in_stock: 1
+      website_ids:
+        - usa_website
+        - canada_website
+        - german_website
+      category_ids:
+        - 2 # Default Category
+      price: 12.99
+      tax_class_id: 3       # Retail Customer-VAT
+      status: 1             # Enabled
+      visibility: 4         # Visible in Catalog & Search
+      /websites:            # Set different prices per website
+        usa_website:
+          special_price: 9.99
+        german_website:
+          price: 9.99
+          special_price: 5.99

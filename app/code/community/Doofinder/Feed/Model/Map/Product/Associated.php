@@ -78,33 +78,20 @@ class Doofinder_Feed_Model_Map_Product_Associated
             $params[$attrCode] = $data;
         }
 
-        $urlinfo = parse_url($value);
+        $uri = Zend_Uri::factory($value);
+        $scheme = $uri->getScheme();
+        $query = $uri->getQueryAsArray();
+        $port = $uri->getPort();
 
-        if ($urlinfo !== false)
+        if ($uri->valid())
         {
-            if (isset($urlinfo['query']))
-                $urlinfo['query'] .= '&'.http_build_query($params);
-            else
-                $urlinfo['query'] = http_build_query($params);
+            $params = array_merge($query, $params);
+            $uri->setQuery($params);
 
-            $new = "";
+            if ($uri->valid())
+                return $uri->getUri();
 
-            foreach ($urlinfo as $k => $v)
-            {
-                if ($k == 'scheme')
-                    $new .= $v.'://';
-                elseif ($k == 'port')
-                    $new .= ':'.$v;
-                elseif ($k == 'query')
-                    $new .= '?'.$v;
-                else
-                    $new .= $v;
-            }
-
-            if (parse_url($new) === false)
-                $this->skip = true;
-            else
-                $value = $new;
+            $this->skip = true;
         }
 
         return $value;
@@ -157,7 +144,7 @@ class Doofinder_Feed_Model_Map_Product_Associated
         // get value from parent first
         $value = $this->getParentMap()->mapField('product_type');
         if ($value != "")
-            return html_entity_decode($value);
+            return htmlspecialchars_decode($value);
 
         $map_by_category = $this->getConfig()->getMapCategorySorted('product_type_by_category', $this->getStoreId());
         $category_ids = $this->getProduct()->getCategoryIds();
@@ -176,10 +163,10 @@ class Doofinder_Feed_Model_Map_Product_Associated
         }
 
         if ($value != "")
-            return html_entity_decode($value);
+            return htmlspecialchars_decode($value);
 
         $value = $this->getCellValue($args);
 
-        return html_entity_decode($value);
+        return htmlspecialchars_decode($value);
     }
 }

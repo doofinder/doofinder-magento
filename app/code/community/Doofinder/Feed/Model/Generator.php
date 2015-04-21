@@ -45,6 +45,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected $_oXmlWriter;
 
+    protected $_response;
 
     //
     // public::Export
@@ -52,14 +53,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     public function run()
     {
-        @set_time_limit(3600);
-
-        if ($this->getConfigVar('debug') == 1)
-        {
-            @error_reporting(E_ALL);
-            @ini_set('display_errors', 'On');
-        }
-
         if ($this->getConfigVar('enabled') != 1)
             return;
 
@@ -72,10 +65,10 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $this->_loadAdditionalAttributes();
         $this->_iProductCount = $this->getProductCount();
 
+
         if ($this->getData('_offset_') >= $this->_iProductCount)  // offset is 0-based
         {
-            echo "";
-            @ob_end_flush();
+            return "";
         }
         else
         {
@@ -99,6 +92,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             }
 
             $this->_closeFeed();
+            return $this->_response;
         }
     }
 
@@ -227,6 +221,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                     }
                 }
 
+                krsort($data);
+
                 foreach ($data as $field => $value)
                 {
                     if (!is_array($value))
@@ -245,24 +241,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                         if (!is_array($value))
                             $value = array($value);
 
-                        $value = implode(self::VALUE_SEPARATOR, $value);
+                        $value = implode(self::VALUE_SEPARATOR, array_filter($value));
                     }
-
-
-                    /* TODO: Support multivalue fields in XML feed
-                    $isMulti = count($value) > 1;
-
-
-                    foreach ($value as $v)
-                    {
-                        if ($isMulti)
-                            $this->_oXmlWriter->startElement('node');
-
-                        $this->_oXmlWriter->writeCData($v);
-
-                        if ($isMulti)
-                            $this->_oXmlWriter->endElement();
-                    }*/
 
                     $written = @$this->_oXmlWriter->writeCData($value);
                     if ( ! $written )
@@ -355,6 +335,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $prodCategories = Mage::getResourceModel('catalog/category_collection')
             ->addIdFilter($product->getCategoryIds())
             ->addFieldToFilter('path', array('like' => $this->_oRootCategory->getPath() . '/%'))
+            ->addFieldToFilter('is_active', array('eq'=>'1'))
             ->getItems();
         $prodCategories = array_keys($prodCategories);
 
@@ -387,22 +368,40 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         return $result;
     }
 
+    /**
+     *  Get all parent category names (including itself) for selected category ID
+     *  @param int $catId Category ID
+     *  @return string Category names concat'd by CATEGORY_TREE_SEPARATOR
+     */
     protected function _getCategoryTree($catId)
     {
-        $cat = Mage::getModel('catalog/category')->load($catId);
+        $category = Mage::getModel('catalog/category')->load($catId);
         $tree = array();
 
-        while ($cat->getParentId()
-               && $cat->getId() != $this->_oRootCategory->getId())
-        {
-          if (strlen($cat->getName()))
-            $tree[] = $cat->getName();
+        $path = $category->getPath();
+        $ids = explode('/', $path);
 
-          $cat = Mage::getModel('catalog/category')->load($cat->getParentId());
+        unset($ids[0]);
+
+        $categories = Mage::getModel('catalog/category')
+            ->getCollection()
+            ->addIdFilter($ids)
+            ->addAttributeToSort('path', 'asc')
+            ->addAttributeToSelect('*');
+
+        foreach ($categories as $category)
+        {
+            if ($category->getId() != $this->_oRootCategory->getId())
+            {
+                if (strlen($category->getName()))
+                {
+                    $tree[] = $category->getName();
+                }
+            }
         }
 
         $tree = $this->_sanitizeData($tree);
-        $tree = implode(self::CATEGORY_TREE_SEPARATOR, array_reverse($tree));
+        $tree = implode(self::CATEGORY_TREE_SEPARATOR, $tree);
         $this->_categories[$catId] = $tree;
 
         return $this->_categories[$catId];
@@ -431,8 +430,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $this->_oXmlWriter = new XMLWriter();
         $this->_oXmlWriter->openMemory();
 
-        @ob_start();
-
         if ($this->getData('_offset_') === 0)
         {
             $this->_oXmlWriter->startDocument('1.0', 'UTF-8');
@@ -456,8 +453,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected function _flushFeed()
     {
-        echo $this->_oXmlWriter->flush(true);
-        @ob_flush();
+        $this->_response .= $this->_oXmlWriter->flush(true);
     }
 
     protected function _closeFeed()
@@ -475,19 +471,16 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             if ($this->getData('_offset_') < $this->_iProductCount
                 && ($this->getData('_offset_') + $this->getData('_limit_')) >= $this->_iProductCount)
             {
-                echo '</channel></rss>';
-                @ob_flush();
+                $this->_response .= '</channel></rss>';
             }
         }
-
-        @ob_end_flush();
     }
 
     protected function _debug($m)
     {
-        echo '<pre>';
-        var_dump($m);
-        echo '</pre>';
+        // $this->_response .= '<pre>';
+        // var_dump($m);
+        // $this->_response .= '</pre>';
     }
 
     protected function _sanitizeData($data)
@@ -651,12 +644,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         return $this->_fieldMap;
     }
 
-    /**
-     * @todo Get rid of die()
-     */
     protected function _stopOnException(Exception $e)
     {
-        header('HTTP/1.1 404 Not Found', true, 404);
-        die($e->getMessage());
+        Mage::log($e->getMessage());
     }
 }

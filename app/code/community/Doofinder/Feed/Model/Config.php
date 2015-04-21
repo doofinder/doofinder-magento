@@ -133,39 +133,39 @@ class Doofinder_Feed_Model_Config extends Mage_Core_Model_Config_Data
     // Tools for Dropdowns
     //
 
-    protected function _loadProductAttributeCodes($storeId = null)
-    {
-        if (!is_null($this->_product_attribute_codes))
-            return;
+    // protected function _loadProductAttributeCodes($storeId = null)
+    // {
+    //     if (!is_null($this->_product_attribute_codes))
+    //         return;
 
-        $config = Mage::getModel('eav/config');
+    //     $config = Mage::getModel('eav/config');
 
-        $this->_product_attribute_codes = array();
+    //     $this->_product_attribute_codes = array();
 
-        $excludedAttrs = $this->getMultipleSelectVar('excluded_attributes');
-        $attributesCodes = $config->getEntityAttributeCodes(
-            'catalog_product',
-            new Varien_Object(array('store_id' => $storeId))
-        );
+    //     $excludedAttrs = $this->getMultipleSelectVar('excluded_attributes');
+    //     $attributesCodes = $config->getEntityAttributeCodes(
+    //         'catalog_product',
+    //         new Varien_Object(array('store_id' => $storeId))
+    //     );
 
-        foreach ($attributesCodes as $attrCode)
-        {
-            if (array_search($attrCode, $excludedAttrs) !== false)
-                continue;
+    //     foreach ($attributesCodes as $attrCode)
+    //     {
+    //         if (array_search($attrCode, $excludedAttrs) !== false)
+    //             continue;
 
-            $attr = $config->getAttribute('catalog_product', $attrCode);
+    //         $attr = $config->getAttribute('catalog_product', $attrCode);
 
-            if ($attr !== false && $attr->getAttributeId() > 0)
-            {
-                $code = $attr->getAttributeCode();
-                $this->_product_attribute_codes[$code] = addslashes(
-                    $attr->getFrontend()->getLabel().' ('.$code.')'
-                );
-            }
-        }
+    //         if ($attr !== false && $attr->getAttributeId() > 0)
+    //         {
+    //             $code = $attr->getAttributeCode();
+    //             $this->_product_attribute_codes[$code] = addslashes(
+    //                 $attr->getFrontend()->getLabel().' ('.$code.')'
+    //             );
+    //         }
+    //     }
 
-        asort($this->_product_attribute_codes);
-    }
+    //     asort($this->_product_attribute_codes);
+    // }
 
     protected function _loadProductDirectives($storeId = null)
     {
