@@ -6,13 +6,13 @@
 /**
  * @category   Helpers
  * @package    Doofinder_Feed
- * @version    1.4.2
+ * @version    1.5.0
  */
 
 /**
  * Tax helper for Doofinder Feed
  *
- * @version    1.4.2
+ * @version    1.5.0
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Helper_Tax extends Mage_Tax_Helper_Data
