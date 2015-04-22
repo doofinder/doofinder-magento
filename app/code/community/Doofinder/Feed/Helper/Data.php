@@ -322,6 +322,8 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
             $prices['price']['excluding_tax'] = $bundle_price_excl_tax;
             $prices['price']['including_tax'] = $bundle_price_incl_tax;
         }
+
+        return $prices;
     }
 
     public function getProductTierPrices(Mage_Catalog_Model_Product $product, $oStore)
