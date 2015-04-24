@@ -6,13 +6,13 @@
 /**
  * @category   controllers
  * @package    Doofinder_Feed
- * @version    1.4.2
+ * @version    1.5.1
  */
 
 /**
  * Index controller for Doofinder Feed
  *
- * @version    1.4.2
+ * @version    1.5.1
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_IndexController extends Mage_Core_Controller_Front_Action
