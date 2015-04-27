@@ -255,6 +255,20 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         $sub_sale_prices = array();
 
         $childrenIds = $product->getTypeInstance()->getChildrenIds($product->getId());
+
+        if (empty($childrenIds) || !is_array($childrenIds)) {
+            return array(
+                'price' => array(
+                    'including_tax' => 0,
+                    'excluding_tax' => 0
+                ),
+                'sale_price' => array(
+                    'including_tax' => 0,
+                    'excluding_tax' => 0
+                )
+            );
+        }
+
         $collection = Mage::getModel('catalog/product')->getCollection();
         $collection
             ->addIdFilter($childrenIds)
