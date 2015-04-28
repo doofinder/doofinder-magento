@@ -255,6 +255,7 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         $sub_sale_prices = array();
 
         $childrenIds = $product->getTypeInstance()->getChildrenIds($product->getId());
+        $childrenIds = $childrenIds[Mage_Catalog_Model_Product_Link::LINK_TYPE_GROUPED];
 
         if (empty($childrenIds) || !is_array($childrenIds)) {
             return array(
