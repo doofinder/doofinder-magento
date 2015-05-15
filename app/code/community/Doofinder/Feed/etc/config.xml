@@ -18,6 +18,11 @@
                 <class>Doofinder_Feed_Model</class>
             </doofinder_feed>
         </models>
+        <blocks>
+            <doofinder_feed>
+                <class>Doofinder_Feed_Block</class>
+            </doofinder_feed>
+        </blocks>
     </global>
 
     <adminhtml>
@@ -165,7 +170,7 @@
         <doofinder_cron>
             <settings>
                 <name>doofinder-default.xml</name>
-                <display_price>1</display_price>
+                <minimal_price>1</minimal_price>
                 <grouped>1</grouped>
             </settings>
         </doofinder_cron>

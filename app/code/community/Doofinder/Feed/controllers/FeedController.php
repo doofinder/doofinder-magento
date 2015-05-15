@@ -50,7 +50,6 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             // Not logged in by default
             'customer_group_id' => $this->_getInteger('customer_group', 0),
         );
-
         $this->_setXMLHeaders();
 
         $generator = Mage::getSingleton('doofinder_feed/generator', $options);
