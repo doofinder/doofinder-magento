@@ -20,7 +20,27 @@
         </models>
     </global>
 
-    <admin></admin>
+    <adminhtml>
+        <acl>
+            <resources>
+                <admin>
+                    <children>
+                        <system>
+                            <children>
+                                <config>
+                                    <children>
+                                        <doofinder_cron>
+                                            <title>Cron Options</title>
+                                        </doofinder_cron>
+                                    </children>
+                                </config>
+                            </children>
+                        </system>
+                    </children>
+                </admin>
+            </resources>
+        </acl>
+    </adminhtml>
 
     <install></install>
 
@@ -142,6 +162,13 @@
 
             </feed>
         </doofinder>
+        <doofinder_cron>
+            <settings>
+                <name>doofinder-default.xml</name>
+                <display_price>1</display_price>
+                <grouped>1</grouped>
+            </settings>
+        </doofinder_cron>
     </default>
 
     <stores></stores>
