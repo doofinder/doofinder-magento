@@ -184,7 +184,7 @@
         <jobs>
             <doofinder_feed_generate>
                 <schedule>
-                    <cron_expr>*/5 * * * *</cron_expr>
+                    <cron_expr>H * * * *</cron_expr>
                 </schedule>
                 <run>
                     <model>doofinder_feed/observer::generateFeed</model>
