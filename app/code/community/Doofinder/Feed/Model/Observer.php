@@ -62,17 +62,28 @@ class Doofinder_Feed_Model_Observer
         $startTime = Mage::getStoreConfig('doofinder_cron/settings/time', Mage::app()->getStore());
         $frequency = Mage::getStoreConfig('doofinder_cron/settings/frequency', Mage::app()->getStore());
 
-        $this->startTime($this->timeToArray($startTime));
-        $this->frequency($this->timeToArray($frequency));
+        /*$this->startTime = $this->timeToArray($startTime);
+        $this->frequency = $this->timeToArray($frequency);*/
     }
 
     public function generateFeed()
     {
-
         if ($this->enabled) {
             try {
 
-                $lastRun = 0;
+                $lastRunDir = Mage::getBaseDir("var").DS.'doofinder';
+                $lastRunFilename = Mage::getBaseDir("var").DS.'doofinder'.DS.'lastrun.txt';
+                // If directory doesn't exist create one
+                $checkStatus = $this->_checkCacheFile($lastRunDir, $lastRunFilename);
+                // Check if file exists, if not create one
+                // with content value 0
+
+
+                if ($checkStatus) {
+                    Mage::log($checkStatus);
+                }
+
+                $lastRun = (int)file_get_contents($lastRunFilename);
 
                 $options = array(
                     '_limit_' => $this->stepSize,
@@ -87,20 +98,29 @@ class Doofinder_Feed_Model_Observer
 
                 $generator = Mage::getSingleton('doofinder_feed/generator', $options);
                 $xmlData = $generator->run($options);
-                $dir = Mage::getBaseDir('media').DS.'doofinder';
-                $path = Mage::getBaseDir('media').DS.'doofinder'.DS.$this->xmlPath;
 
-                // If directory doesn't exist create one
-                if (!file_exists($dir)) {
-                    $this->_createDirectory($dir);
-                }
 
-                // If file can not be save throw an error
-                if (!$success = file_put_contents($path, $xmlData)) {
-                    throw new Exception("File can not be saved: {$path}");
+                if ($xmlData) {
+                    $dir = Mage::getBaseDir('media').DS.'doofinder';
+                    $path = Mage::getBaseDir('media').DS.'doofinder'.DS.$this->xmlPath;
+
+                    // If directory doesn't exist create one
+                    if (!file_exists($dir)) {
+                        $this->_createDirectory($dir);
+                    }
+
+                    // If file can not be save throw an error
+                    if (!$success = file_put_contents($path, $xmlData)) {
+                        throw new Exception("File can not be saved: {$path}");
+                    }
+                    $currentRun = $lastRun + $this->stepSize;
+                    file_put_contents($lastRunFilename, $currentRun);
+
+                } else {
+                    file_put_contents($lastRunFilename, '0');
                 }
             } catch (Exception $e) {
-                Mage::errorLog('Exception: '.$e);
+
             }
         }
     }
@@ -119,6 +139,7 @@ class Doofinder_Feed_Model_Observer
 
         return true;
     }
+
 
     /**
      * Cast any value to bool
@@ -147,6 +168,20 @@ class Doofinder_Feed_Model_Observer
         return $defaultValue;
     }
 
+    protected function _checkCacheFile($lastRunDir, $lastRunFilename) {
+        $msg = '';
+        if (!file_exists($lastRunDir)) {
+            $this->_createDirectory($lastRunDir);
+            $msg .= 'Directory has been created.';
+        }
+
+        if (!file_exists($lastRunFilename)) {
+            file_put_contents($lastRunFilename, '0');
+            $msg .= 'Lastrun file has beed created.';
+        }
+
+        return $msg;
+    }
 
     /**
      * Converts time string into array.
@@ -158,7 +193,7 @@ class Doofinder_Feed_Model_Observer
         $newTime;
 
         // Validate $time variable
-        if(!$time || !is_string($time) || substr_count($time, ',') < 2)) {
+        if(!$time || !is_string($time) || substr_count($time, ',') < 2) {
             Mage::throwException('Incorrect time string.');
             return false;
         }
