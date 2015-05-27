@@ -20,6 +20,11 @@
             </doofinder_feed>
             <doofinder_feed_mysql4>
                 <class>Doofinder_Feed_Model_Mysql4</class>
+                <entities>
+                    <doofinder_feed>
+                        <table>doofinder_cron_settings</table>
+                    </doofinder_feed>
+                </entities>
             </doofinder_feed_mysql4>
         </models>
         <resources>

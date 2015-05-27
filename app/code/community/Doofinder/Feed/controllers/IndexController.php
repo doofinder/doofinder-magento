@@ -26,5 +26,6 @@ class Doofinder_Feed_IndexController extends Mage_Core_Controller_Front_Action
         echo 'Test model';
         $doofinder = Mage::getModel('doofinder_feed/cron');
         echo get_class($doofinder);
+        $doofinder->load(1);
     }
 }
