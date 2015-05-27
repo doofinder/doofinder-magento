@@ -21,9 +21,9 @@
             <doofinder_feed_mysql4>
                 <class>Doofinder_Feed_Model_Mysql4</class>
                 <entities>
-                    <doofinder_feed>
-                        <table>doofinder_cron_settings</table>
-                    </doofinder_feed>
+                    <cron>
+                        <table>doofinder_feed_cron</table>
+                    </cron>
                 </entities>
             </doofinder_feed_mysql4>
         </models>
@@ -38,6 +38,15 @@
                     <use>core_read</use>
                 </connection>
             </doofinder_feed_read>
+            <doofinder_feed_setup>
+                <setup>
+                    <module>Doofinder_Feed</module>
+                    <class>Doofinder_Feed_Model_Resource_Mysql4_Setup</class>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </doofinder_feed_setup>
         </resources>
         <blocks>
             <doofinder_feed>

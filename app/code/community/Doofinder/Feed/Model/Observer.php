@@ -50,7 +50,6 @@ class Doofinder_Feed_Model_Observer
      */
     protected $stepSize;
 
-
     public function __construct() {
         $this->enabled = Mage::getStoreConfig('doofinder_cron/settings/enabled', Mage::app()->getStore());
         $this->price = Mage::getStoreConfig('doofinder_cron/settings/minimal_price', Mage::app()->getStore());
@@ -58,6 +57,7 @@ class Doofinder_Feed_Model_Observer
         $this->storeCode = Mage::app()->getStore()->getCode();
         $this->xmlPath = Mage::getStoreConfig('doofinder_cron/settings/name', Mage::app()->getStore());
         $this->stepSize = Mage::getStoreConfig('doofinder_cron/settings/step', Mage::app()->getStore());
+
 
         /*$startTime = Mage::getStoreConfig('doofinder_cron/settings/time', Mage::app()->getStore());
         $frequency = Mage::getStoreConfig('doofinder_cron/settings/frequency', Mage::app()->getStore());
@@ -70,8 +70,10 @@ class Doofinder_Feed_Model_Observer
 
         if ($this->enabled) {
             try {
+                $data = Mage::getModel('doofinder_feed/cron');
 
-                $lastRun = 0;
+                $lastRun = (int)$data->load('offset')->getValue();
+
 
                 $options = array(
                     '_limit_' => $this->stepSize,
