@@ -172,6 +172,7 @@
                 <name>doofinder-default.xml</name>
                 <minimal_price>1</minimal_price>
                 <grouped>1</grouped>
+                <step>5</step>
             </settings>
         </doofinder_cron>
     </default>

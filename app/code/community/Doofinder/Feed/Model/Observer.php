@@ -32,6 +32,24 @@ class Doofinder_Feed_Model_Observer
      */
     protected $storeCode;
 
+    /**
+     * Magento cron start time.
+     * @var array
+     */
+    protected $startTime;
+
+    /**
+     * Magento cron job frequency.
+     * @var array
+     */
+    protected $frequency;
+
+    /**
+     * Step size.
+     * @var int
+     */
+    protected $stepSize;
+
 
     public function __construct() {
         $this->enabled = Mage::getStoreConfig('doofinder_cron/settings/enabled', Mage::app()->getStore());
@@ -39,6 +57,13 @@ class Doofinder_Feed_Model_Observer
         $this->grouped = Mage::getStoreConfig('doofinder_cron/settings/grouped', Mage::app()->getStore());
         $this->storeCode = Mage::app()->getStore()->getCode();
         $this->xmlPath = Mage::getStoreConfig('doofinder_cron/settings/name', Mage::app()->getStore());
+        $this->stepSize = Mage::getStoreConfig('doofinder_cron/settings/step', Mage::app()->getStore());
+
+        $startTime = Mage::getStoreConfig('doofinder_cron/settings/time', Mage::app()->getStore());
+        $frequency = Mage::getStoreConfig('doofinder_cron/settings/frequency', Mage::app()->getStore());
+
+        $this->startTime($this->timeToArray($startTime));
+        $this->frequency($this->timeToArray($frequency));
     }
 
     public function generateFeed()
@@ -47,11 +72,10 @@ class Doofinder_Feed_Model_Observer
         if ($this->enabled) {
             try {
 
-                $stepSize = 5;
                 $lastRun = 0;
 
                 $options = array(
-                    '_limit_' => $stepSize,
+                    '_limit_' => $this->stepSize,
                     '_offset_' => $lastRun,
                     'store_code' => $this->storeCode,
                     'grouped' => $this->_getBoolean($this->grouped),
@@ -66,15 +90,17 @@ class Doofinder_Feed_Model_Observer
                 $dir = Mage::getBaseDir('media').DS.'doofinder';
                 $path = Mage::getBaseDir('media').DS.'doofinder'.DS.$this->xmlPath;
 
+                // If directory doesn't exist create one
                 if (!file_exists($dir)) {
                     $this->_createDirectory($dir);
                 }
 
+                // If file can not be save throw an error
                 if (!$success = file_put_contents($path, $xmlData)) {
-                    throw new Exception("File could not be saved: {$path}");
+                    throw new Exception("File can not be saved: {$path}");
                 }
             } catch (Exception $e) {
-                Mage::log('Exception: '.$e);
+                Mage::errorLog('Exception: '.$e);
             }
         }
     }
@@ -107,7 +133,6 @@ class Doofinder_Feed_Model_Observer
                 return true;
             else
                 return false;
-
         }
 
         $yes = array('true', 'on', 'yes');
@@ -120,5 +145,32 @@ class Doofinder_Feed_Model_Observer
             return false;
 
         return $defaultValue;
+    }
+
+
+    /**
+     * Converts time string into array.
+     * @param string $time
+     * @return array
+     */
+    protected function timeToArray($time = null) {
+        // Declare new time
+        $newTime;
+
+        // Validate $time variable
+        if(!$time || !is_string($time) || substr_count($time, ',') < 2)) {
+            Mage::throwException('Incorrect time string.');
+            return false;
+        }
+
+        list($sec, $min, $hour,) = explode(',', $time);
+
+        $newTime = array(
+            'sec'   =>  $sec,
+            'min'   =>  $min,
+            'hour'  =>  $hour,
+        );
+        Mage::log($newTime);
+        return $newTime;
     }
 }
