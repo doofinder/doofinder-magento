@@ -59,11 +59,10 @@ class Doofinder_Feed_Model_Observer
         $this->xmlPath = Mage::getStoreConfig('doofinder_cron/settings/name', Mage::app()->getStore());
         $this->stepSize = Mage::getStoreConfig('doofinder_cron/settings/step', Mage::app()->getStore());
 
-        $startTime = Mage::getStoreConfig('doofinder_cron/settings/time', Mage::app()->getStore());
+        /*$startTime = Mage::getStoreConfig('doofinder_cron/settings/time', Mage::app()->getStore());
         $frequency = Mage::getStoreConfig('doofinder_cron/settings/frequency', Mage::app()->getStore());
-
-        $this->startTime($this->timeToArray($startTime));
-        $this->frequency($this->timeToArray($frequency));
+        $this->startTime = $this->timeToArray($startTime);
+        $this->frequency = $this->timeToArray($frequency);*/
     }
 
     public function generateFeed()
@@ -156,9 +155,8 @@ class Doofinder_Feed_Model_Observer
     protected function timeToArray($time = null) {
         // Declare new time
         $newTime;
-
         // Validate $time variable
-        if(!$time || !is_string($time) || substr_count($time, ',') < 2)) {
+        if(!$time || !is_string($time) || substr_count($time, ',') < 2) {
             Mage::throwException('Incorrect time string.');
             return false;
         }

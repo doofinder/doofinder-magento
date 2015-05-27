@@ -16,8 +16,24 @@
         <models>
             <doofinder_feed>
                 <class>Doofinder_Feed_Model</class>
+                <resourceModel>doofinder_feed_mysql4</resourceModel>
             </doofinder_feed>
+            <doofinder_feed_mysql4>
+                <class>Doofinder_Feed_Model_Mysql4</class>
+            </doofinder_feed_mysql4>
         </models>
+        <resources>
+            <doofinder_feed_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </doofinder_feed_write>
+            <doofinder_feed_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </doofinder_feed_read>
+        </resources>
         <blocks>
             <doofinder_feed>
                 <class>Doofinder_Feed_Block</class>
