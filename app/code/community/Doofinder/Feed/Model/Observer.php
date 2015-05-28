@@ -40,7 +40,7 @@ class Doofinder_Feed_Model_Observer
 
     /**
      * Magento cron job frequency.
-     * @var array
+     * @var string
      */
     protected $frequency;
 
@@ -50,13 +50,27 @@ class Doofinder_Feed_Model_Observer
      */
     protected $stepSize;
 
+    /**
+     * Start time.
+     * @var int
+     */
+    protected $delay;
+
     public function __construct() {
+        // Enabled
         $this->enabled = Mage::getStoreConfig('doofinder_cron/settings/enabled', Mage::app()->getStore());
+        // Price
         $this->price = Mage::getStoreConfig('doofinder_cron/settings/minimal_price', Mage::app()->getStore());
+        // Grouped
         $this->grouped = Mage::getStoreConfig('doofinder_cron/settings/grouped', Mage::app()->getStore());
+        // Store code
         $this->storeCode = Mage::app()->getStore()->getCode();
+        // Xmlpath
         $this->xmlPath = Mage::getStoreConfig('doofinder_cron/settings/name', Mage::app()->getStore());
+        // Step size
         $this->stepSize = Mage::getStoreConfig('doofinder_cron/settings/step', Mage::app()->getStore());
+        // Frequency
+        $this->frequency = Mage::getStoreConfig('doofinder_cron/settings/frequency', Mage::app()->getStore());
 
 
         /*$startTime = Mage::getStoreConfig('doofinder_cron/settings/time', Mage::app()->getStore());
