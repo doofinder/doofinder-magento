@@ -71,8 +71,9 @@ class Doofinder_Feed_Model_Observer
         if ($this->enabled) {
             try {
                 $data = Mage::getModel('doofinder_feed/cron');
+                $offset = $data->load('offset');
 
-                $lastRun = (int)$data->load('offset')->getValue();
+                $lastRun = (int)$offset->getValue();
 
 
                 $options = array(
@@ -88,17 +89,25 @@ class Doofinder_Feed_Model_Observer
 
                 $generator = Mage::getSingleton('doofinder_feed/generator', $options);
                 $xmlData = $generator->run($options);
-                $dir = Mage::getBaseDir('media').DS.'doofinder';
-                $path = Mage::getBaseDir('media').DS.'doofinder'.DS.$this->xmlPath;
 
-                // If directory doesn't exist create one
-                if (!file_exists($dir)) {
-                    $this->_createDirectory($dir);
-                }
+                if ($xmlData) {
+                    $dir = Mage::getBaseDir('media').DS.'doofinder';
+                    $path = Mage::getBaseDir('media').DS.'doofinder'.DS.$this->xmlPath;
 
-                // If file can not be save throw an error
-                if (!$success = file_put_contents($path, $xmlData)) {
-                    throw new Exception("File can not be saved: {$path}");
+                    // If directory doesn't exist create one
+                    if (!file_exists($dir)) {
+                        $this->_createDirectory($dir);
+                    }
+
+                    // If file can not be save throw an error
+                    if (!$success = file_put_contents($path, $xmlData)) {
+                        throw new Exception("File can not be saved: {$path}");
+                    }
+
+                    $newRun = $lastRun + (int)$this->stepSize;
+                    $offset->setData('value', $newRun)->save();
+                } else {
+                    $offset->setData('value', '0')->save();
                 }
             } catch (Exception $e) {
                 Mage::errorLog('Exception: '.$e);
@@ -163,12 +172,12 @@ class Doofinder_Feed_Model_Observer
             return false;
         }
 
-        list($sec, $min, $hour,) = explode(',', $time);
+        list($min, $day, $month,) = explode(',', $time);
 
         $newTime = array(
-            'sec'   =>  $sec,
             'min'   =>  $min,
-            'hour'  =>  $hour,
+            'day'   =>  $day,
+            'month'  =>  $month,
         );
         Mage::log($newTime);
         return $newTime;
