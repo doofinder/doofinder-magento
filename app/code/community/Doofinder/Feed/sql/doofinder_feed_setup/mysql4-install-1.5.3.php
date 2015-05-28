@@ -35,6 +35,10 @@ if (!$tableExists) {
     ));
 
     $installer->getConnection()->insert($installer->getTable('doofinder_feed/cron'), array(
+        'name'      => 'status',
+        'value'     => '',
+    ));
+    $installer->getConnection()->insert($installer->getTable('doofinder_feed/cron'), array(
         'name'      => 'message',
         'value'     => '',
     ));

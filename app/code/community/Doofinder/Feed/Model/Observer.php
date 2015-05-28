@@ -2,129 +2,71 @@
 
 class Doofinder_Feed_Model_Observer
 {
-    /**
-     * Xml file name.
-     * @var string
-     */
-    protected $xmlPath;
 
-    /**
-     * Crontab enabled settings.
-     * @var bool
-     */
-    protected $enabled;
-
-    /**
-     * Crontab grouped settings.
-     * @var bool
-     */
-    protected $grouped;
-
-    /**
-     * Crontab minimial price settings.
-     * @var bool
-     */
-    protected $price;
-
-    /**
-     * Magento store code.
-     * @var string
-     */
-    protected $storeCode;
-
-    /**
-     * Magento cron start time.
-     * @var array
-     */
-    protected $startTime;
-
-    /**
-     * Magento cron job frequency.
-     * @var string
-     */
-    protected $frequency;
-
-    /**
-     * Step size.
-     * @var int
-     */
-    protected $stepSize;
-
-    /**
-     * Start time.
-     * @var int
-     */
-    protected $delay;
-
-    public function __construct() {
-        // Enabled
-        $this->enabled = Mage::getStoreConfig('doofinder_cron/settings/enabled', Mage::app()->getStore());
-        // Price
-        $this->price = Mage::getStoreConfig('doofinder_cron/settings/minimal_price', Mage::app()->getStore());
-        // Grouped
-        $this->grouped = Mage::getStoreConfig('doofinder_cron/settings/grouped', Mage::app()->getStore());
-        // Store code
-        $this->storeCode = Mage::app()->getStore()->getCode();
-        // Xmlpath
-        $this->xmlPath = Mage::getStoreConfig('doofinder_cron/settings/name', Mage::app()->getStore());
-        // Step size
-        $this->stepSize = Mage::getStoreConfig('doofinder_cron/settings/step', Mage::app()->getStore());
-        // Frequency
-        $this->frequency = Mage::getStoreConfig('doofinder_cron/settings/frequency', Mage::app()->getStore());
-
-
-        /*$startTime = Mage::getStoreConfig('doofinder_cron/settings/time', Mage::app()->getStore());
-        $frequency = Mage::getStoreConfig('doofinder_cron/settings/frequency', Mage::app()->getStore());
-        $this->startTime = $this->timeToArray($startTime);
-        $this->frequency = $this->timeToArray($frequency);*/
-    }
 
     public function generateFeed()
     {
+        $stores = Mage::app()->getStores();
+        foreach ($stores as $store) {
+            // Get store code
+            $storeCode = $store->getCode();
 
-        if ($this->enabled) {
-            try {
-                $data = Mage::getModel('doofinder_feed/cron');
-                $offset = $data->load('offset');
+            // Get store config
+            $config = $this->getStoreConfig($storeCode);
+            if ($config['enabled']) {
+                try {
+                    $data = Mage::getModel('doofinder_feed/cron');
+                    $offset = $data->load('offset');
 
-                $lastRun = (int)$offset->getValue();
+                    $lastRun = (int)$offset->getValue();
 
 
-                $options = array(
-                    '_limit_' => $this->stepSize,
-                    '_offset_' => $lastRun,
-                    'store_code' => $this->storeCode,
-                    'grouped' => $this->_getBoolean($this->grouped),
-                    // Calculate the minimal price with the tier prices
-                    'minimal_price' => $this->_getBoolean($this->price),
-                    // Not logged in by default
-                    'customer_group_id' => 0,
-                );
+                    $options = array(
+                        '_limit_' => $config['stepSize'],
+                        '_offset_' => $lastRun,
+                        'store_code' => $config['storeCode'],
+                        'grouped' => $this->_getBoolean($config['grouped']),
+                        // Calculate the minimal price with the tier prices
+                        'minimal_price' => $this->_getBoolean($config['price']),
+                        // Not logged in by default
+                        'customer_group_id' => 0,
+                    );
 
-                $generator = Mage::getSingleton('doofinder_feed/generator', $options);
-                $xmlData = $generator->run($options);
+                    $generator = Mage::getSingleton('doofinder_feed/generator', $options);
+                    Mage::log($generator->getProductCount());
+                    $xmlData = $generator->run();
 
-                if ($xmlData) {
-                    $dir = Mage::getBaseDir('media').DS.'doofinder';
-                    $path = Mage::getBaseDir('media').DS.'doofinder'.DS.$this->xmlPath;
+                    // Set paths
+                    $path = Mage::getBaseDir('media').DS.'doofinder'.DS.$config['xmlName'];
+                    $tmpPath = $path.'.tmp';
 
-                    // If directory doesn't exist create one
-                    if (!file_exists($dir)) {
-                        $this->_createDirectory($dir);
+                    if ($xmlData) {
+                        $dir = Mage::getBaseDir('media').DS.'doofinder';
+
+                        // If directory doesn't exist create one
+                        if (!file_exists($dir)) {
+                            $this->_createDirectory($dir);
+                        }
+
+                        // If file can not be save throw an error
+                        if (!$success = file_put_contents($tmpPath, $xmlData, FILE_APPEND)) {
+                            throw new Exception("File can not be saved: {$tmpPath}");
+                        }
+
+                        $newRun = $lastRun + (int)$config['stepSize'];
+                        $offset->setData('value', $newRun)->save();
+                    } else {
+                        $offset->setData('value', '0')->save();
+
+                        if (!rename($tmpPath, $path)) {
+                            throw new Exception("Cannot convert {$tmpPath} to {$path}");
+                        }
+
                     }
-
-                    // If file can not be save throw an error
-                    if (!$success = file_put_contents($path, $xmlData)) {
-                        throw new Exception("File can not be saved: {$path}");
-                    }
-
-                    $newRun = $lastRun + (int)$this->stepSize;
-                    $offset->setData('value', $newRun)->save();
-                } else {
-                    $offset->setData('value', '0')->save();
+                } catch (Exception $e) {
+                    Mage::logError('Exception: '.$e);
+                    unset($tmpPath);
                 }
-            } catch (Exception $e) {
-                Mage::errorLog('Exception: '.$e);
             }
         }
     }
@@ -196,4 +138,32 @@ class Doofinder_Feed_Model_Observer
         Mage::log($newTime);
         return $newTime;
     }
+
+    /**
+     * Process xml filename
+     * @param string $name
+     * @return bool
+     */
+    private function processXmlName($name = 'doofinder-{store_code}.xml', $code = 'default') {
+        $pattern = '/\{\s*store_code\s*\}/';
+
+        $newName = preg_replace($pattern, $code, $name);
+        Mage::log($newName);
+        return $newName;
+    }
+
+    private  function getStoreConfig($storeCode = 'default') {
+        $xmlName = Mage::getStoreConfig('doofinder_cron/settings/name', $storeCode);
+        $config = array(
+            'enabled'   =>  Mage::getStoreConfig('doofinder_cron/settings/enabled', $storeCode),
+            'price'     =>  Mage::getStoreConfig('doofinder_cron/settings/minimal_price', $storeCode),
+            'grouped'   =>  Mage::getStoreConfig('doofinder_cron/settings/grouped', $storeCode),
+            'stepSize'  =>  Mage::getStoreConfig('doofinder_cron/settings/step', $storeCode),
+            'frequency' =>  Mage::getStoreConfig('doofinder_cron/settings/frequency', $storeCode),
+            'storeCode' =>  $storeCode,
+            'xmlName'   =>  $this->processXmlName($xmlName, $storeCode),
+        );
+        return $config;
+    }
+
 }

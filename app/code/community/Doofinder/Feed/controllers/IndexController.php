@@ -27,5 +27,10 @@ class Doofinder_Feed_IndexController extends Mage_Core_Controller_Front_Action
         $data = Mage::getModel('doofinder_feed/cron');
         $lastRun = (int)$data->load('offset')->getValue();
         echo $lastRun;
+        $stores = Mage::app()->getStores();
+
+        foreach($stores as $store) {
+            var_dump($store->getCode());
+        }
     }
 }
