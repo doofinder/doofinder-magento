@@ -1,25 +1,21 @@
 <?php
 
-class Doofinder_Feed_Model_Observer
+class Doofinder_Feed_Model_Observers_Feed
 {
 
-    public function __construct() {
-
-    }
 
     public function generateFeed($observer)
 
     {
-        Mage::log('observer');
-        Mage::log($observer);
-
+        Mage::log($observer->getData());
         $stores = Mage::app()->getStores();
+        $helper = Mage::helper('doofinder_feed');
         foreach ($stores as $store) {
             // Get store code
             $storeCode = $store->getCode();
 
             // Get store config
-            $config = $this->getStoreConfig($storeCode);
+            $config = $helper->getStoreConfig($storeCode);
             if ($config['enabled']) {
                 try {
                     // Get data model for store cron
@@ -35,8 +31,8 @@ class Doofinder_Feed_Model_Observer
 
                     // Set options for cron generator
                     $options = array(
-                        '_limit_' => $config['stepSize'],
-                        '_offset_' => $offset,
+                        '_limit_' => (int)$config['stepSize'],
+                        '_offset_' => (int)$offset,
                         'store_code' => $config['storeCode'],
                         'grouped' => $this->_getBoolean($config['grouped']),
                         // Calculate the minimal price with the tier prices
@@ -44,8 +40,9 @@ class Doofinder_Feed_Model_Observer
                         // Not logged in by default
                         'customer_group_id' => 0,
                     );
+                    Mage::log($options);
                     $generator = Mage::getSingleton('doofinder_feed/generator', $options);
-                    $xmlData = $generator->run();
+                    $xmlData = $generator->run($options);
 
 
 
@@ -76,7 +73,7 @@ class Doofinder_Feed_Model_Observer
                     }
 
                 } catch (Exception $e) {
-                    Mage::logError('Exception: '.$e);
+                    Mage::logException('Exception: '.$e);
                     unset($tmpPath);
                 }
             }
@@ -151,31 +148,7 @@ class Doofinder_Feed_Model_Observer
         return $newTime;
     }
 
-    /**
-     * Process xml filename
-     * @param string $name
-     * @return bool
-     */
-    private function processXmlName($name = 'doofinder-{store_code}.xml', $code = 'default') {
-        $pattern = '/\{\s*store_code\s*\}/';
 
-        $newName = preg_replace($pattern, $code, $name);
-        Mage::log($newName);
-        return $newName;
-    }
 
-    private  function getStoreConfig($storeCode = 'default') {
-        $xmlName = Mage::getStoreConfig('doofinder_cron/settings/name', $storeCode);
-        $config = array(
-            'enabled'   =>  Mage::getStoreConfig('doofinder_cron/settings/enabled', $storeCode),
-            'price'     =>  Mage::getStoreConfig('doofinder_cron/settings/minimal_price', $storeCode),
-            'grouped'   =>  Mage::getStoreConfig('doofinder_cron/settings/grouped', $storeCode),
-            'stepSize'  =>  Mage::getStoreConfig('doofinder_cron/settings/step', $storeCode),
-            'frequency' =>  Mage::getStoreConfig('doofinder_cron/settings/frequency', $storeCode),
-            'storeCode' =>  $storeCode,
-            'xmlName'   =>  $this->processXmlName($xmlName, $storeCode),
-        );
-        return $config;
-    }
 
 }

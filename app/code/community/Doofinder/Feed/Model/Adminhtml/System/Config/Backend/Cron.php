@@ -5,6 +5,8 @@ class Doofinder_Feed_Model_Adminhtml_System_Config_Backend_Cron extends Mage_Cor
     const CRON_STRING_PATH = 'crontab/jobs/doofinder_feed_generate/schedule/cron_expr';
 
     protected function _afterSave() {
+        var_dump('test');
+        die;
         $time = $this->getData('groups/settings/fields/time/value');
         $frequency = $this->getData('groups/settings/fields/frequency/value');
         $frequencyDaily = Mage_Adminhtml_Model_System_Config_Source_Cron_Frequency::CRON_DAILY;
@@ -20,9 +22,15 @@ class Doofinder_Feed_Model_Adminhtml_System_Config_Backend_Cron extends Mage_Cor
             '*',                                                # Month of the Year
             ($frequency == $frequencyWeekly) ? '1' : '*',       # Day of the Week
         );
-        $cronExprString = join(' ', $cronExprArray);
 
-        var_dump($cronExprString);
+        $cronExprArray = array(
+            '*/1',
+            '*',
+            '*',
+            '*',
+            '*',
+        );
+        $cronExprString = join(' ', $cronExprArray);
 
         try {
             Mage::getModel('core/config_data')

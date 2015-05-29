@@ -376,4 +376,31 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
         return $prices;
     }
+
+    public  function getStoreConfig($storeCode = 'default') {
+        $xmlName = Mage::getStoreConfig('doofinder_cron/settings/name', $storeCode);
+        $config = array(
+            'enabled'   =>  Mage::getStoreConfig('doofinder_cron/settings/enabled', $storeCode),
+            'price'     =>  Mage::getStoreConfig('doofinder_cron/settings/minimal_price', $storeCode),
+            'grouped'   =>  Mage::getStoreConfig('doofinder_cron/settings/grouped', $storeCode),
+            'stepSize'  =>  Mage::getStoreConfig('doofinder_cron/settings/step', $storeCode),
+            'frequency' =>  Mage::getStoreConfig('doofinder_cron/settings/frequency', $storeCode),
+            'storeCode' =>  $storeCode,
+            'xmlName'   =>  $this->_processXmlName($xmlName, $storeCode),
+        );
+        return $config;
+    }
+
+    /**
+     * Process xml filename
+     * @param string $name
+     * @return bool
+     */
+    private function _processXmlName($name = 'doofinder-{store_code}.xml', $code = 'default') {
+        $pattern = '/\{\s*store_code\s*\}/';
+
+        $newName = preg_replace($pattern, $code, $name);
+        Mage::log($newName);
+        return $newName;
+    }
 }
