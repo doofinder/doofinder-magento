@@ -27,6 +27,11 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
     private $minTierPrice = null;
 
+    const CRON_DAILY     =    Mage_Adminhtml_Model_System_Config_Source_Cron_Frequency::CRON_DAILY;
+    const CRON_WEEKLY    =    Mage_Adminhtml_Model_System_Config_Source_Cron_Frequency::CRON_WEEKLY;
+    const CRON_MONTHLY   =    Mage_Adminhtml_Model_System_Config_Source_Cron_Frequency::CRON_MONTHLY;
+
+
     /**
      * $product         => Product instance
      * $oStore          => Store instance
@@ -377,7 +382,12 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         return $prices;
     }
 
-    public  function getStoreConfig($storeCode = 'default') {
+    /**
+     * Gets store config for cron settings.
+     * @param string $storeCode
+     * @return array
+     */
+    public function getStoreConfig($storeCode = 'default') {
         $xmlName = Mage::getStoreConfig('doofinder_cron/settings/name', $storeCode);
         $config = array(
             'enabled'   =>  Mage::getStoreConfig('doofinder_cron/settings/enabled', $storeCode),
@@ -385,6 +395,7 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
             'grouped'   =>  Mage::getStoreConfig('doofinder_cron/settings/grouped', $storeCode),
             'stepSize'  =>  Mage::getStoreConfig('doofinder_cron/settings/step', $storeCode),
             'frequency' =>  Mage::getStoreConfig('doofinder_cron/settings/frequency', $storeCode),
+            'time'      =>  explode(',', Mage::getStoreConfig('doofinder_cron/settings/time', $storeCode)),
             'storeCode' =>  $storeCode,
             'xmlName'   =>  $this->_processXmlName($xmlName, $storeCode),
         );
@@ -401,6 +412,38 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
         $newName = preg_replace($pattern, $code, $name);
         Mage::log($newName);
+
         return $newName;
+    }
+
+    /**
+     * Create cron expr string
+     * @param string $time
+     * @return mixed
+     */
+    private function _getCronExpr($time = null, $frequency = null) {
+
+        if (!$time) return false;
+        $time = explode(',', $time);
+
+        $cronExprArray = array(
+            intval($time[1]),
+            intval($time[0]),
+            ($frequency == self::CRON_MONTHLY) ? '1' : '*',
+            '*',
+            ($frequency == self::CRON_WEEKLY) ? '1' : '*',
+        );
+        $cronExprString = join(' ', $cronExprArray);
+
+        return $cronExprString;
+    }
+
+    public function getScheduledAt($time = null, $frequency = null) {
+
+        $week   = $frequency == self::CRON_WEEKLY ? 7 : 0;
+        $month  = $frequency == self::CRON_MONTHLY ? 1 : 0;
+        $day    = $frequency == self::CRON_DAILY ? 1 : $week;
+        $timescheduled = strftime("%Y-%m-%d %H:%M:%S", mktime($time[0], $time[1], $time[2], date("m") + $month, date("d") + $day, date("Y")));
+        return $timescheduled;
     }
 }
