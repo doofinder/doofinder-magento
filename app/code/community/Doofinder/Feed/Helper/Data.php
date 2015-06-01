@@ -411,8 +411,6 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         $pattern = '/\{\s*store_code\s*\}/';
 
         $newName = preg_replace($pattern, $code, $name);
-        Mage::log($newName);
-
         return $newName;
     }
 

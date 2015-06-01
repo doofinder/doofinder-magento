@@ -7,6 +7,7 @@ class Doofinder_Feed_Model_Observers_Feed
     public function generateFeed($observer)
 
     {
+        Mage::log('Generate feed');
         Mage::log($observer->getData());
         $stores = Mage::app()->getStores();
         $helper = Mage::helper('doofinder_feed');

@@ -1,44 +1,29 @@
 <?php
 
-echo 'Install doofinder feed table and init data.';
+echo 'Doofinder table';
 
 $installer = $this;
 
 $installer->startSetup();
 
-
-// Create table
-$tableExists = $installer->getConnection()
-    ->isTableExists($installer->getTable('doofinder_feed/cron'));
-
-
-if (!$tableExists) {
-    $table = $installer->getConnection()
-        ->newTable($installer->getTable('doofinder_feed/cron'))
-        ->addColumn('store_id', Varien_Db_Ddl_Table::TYPE_INTEGER, null, array(
-            'primary'   => true,
+$installer->getConnection()
+    ->addColumn($installer->getTable('cron/schedule'),
+        'website_id',
+        array(
+            'type'      => Varien_Db_Ddl_Table::TYPE_INTEGER,
             'nullable'  => false,
-        ), 'Store Id')
-        ->addColumn('store_code', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255, array(
+            'comment'   => 'Website Id',
+        )
+    );
+$installer->getConnection()
+    ->addColumn($installer->getTable('cron/schedule'),
+        'store_code',
+        array(
+            'type'      => Varien_Db_Ddl_Table::TYPE_TEXT,
             'nullable'  => false,
-            'default'   => 'default',
-        ), 'Store Code')
-        ->addColumn('error_stack', Varien_Db_Ddl_Table::TYPE_INTEGER, null, array(
-            'nullable'  => false,
-            'default'   => 0,
-        ), 'Error Stack')
-        ->addColumn('offset', Varien_Db_Ddl_Table::TYPE_INTEGER, null, array(
-            'nullable'  => false,
-            'default'   => 0,
-        ), 'Offset')
-        ->addColumn('message', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255, array(
-            'nullable'  => true,
-        ), 'Message')
-        ->addColumn('status', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255, array(
-            'nullable'  => true,
-        ), 'Status');
+            'comment'   => 'Store Code',
+            'length'    => 255,
+        )
+    );
 
-    $installer->getConnection()->createTable($table);
-
-}
 $installer->endSetup();

@@ -23,13 +23,8 @@ class Doofinder_Feed_IndexController extends Mage_Core_Controller_Front_Action
     }
 
     public function testAction() {
-        echo 'Test model';
-        $data = Mage::getModel('doofinder_feed/cron');
-        $lastRun = (int)$data->load('default')->getValue();
-        $stores = Mage::app()->getStores();
-
-        foreach($stores as $store) {
-            var_dump($store->getCode());
-        }
+        $observer = Mage::getModel('cron/observer');
+        $observer->generate();
+        die;
     }
 }

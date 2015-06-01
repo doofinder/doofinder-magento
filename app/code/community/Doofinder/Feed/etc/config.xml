@@ -221,6 +221,14 @@
                     <model>doofinder_feed/observer::generateFeed</model>
                 </run>
             </doofinder_feed_generate>
+            <doofinder_feed_generate>
+                <schedule>
+                    <cron_expr>*/1 * * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>doofinder_feed/observer::generateFeed</model>
+                </run>
+            </doofinder_feed_generate>
         </jobs>
     </crontab>
 
