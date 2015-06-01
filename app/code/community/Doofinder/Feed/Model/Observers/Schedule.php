@@ -10,11 +10,12 @@ class Doofinder_Feed_Model_Observers_Schedule {
     const JOB_CODE          = 'doofinder_feed_generate';
 
     public function saveNewSchedule() {
+        Mage::log('Saving new schedule: ' .date('c', time()));
         $this->_scheduleFeeds(true);
     }
 
     public function regenerateSchedule() {
-        Mage::log('Regenerating Schedule');
+        Mage::log('Regenerating Schedule: '.date('c', time()));
         $this->_scheduleFeeds();
     }
 

@@ -3,6 +3,10 @@
 class Doofinder_Feed_Model_Observers_Feed
 {
 
+    private $config;
+
+    private $storeCode;
+
 
     public function generateFeed($observer)
 
@@ -11,72 +15,77 @@ class Doofinder_Feed_Model_Observers_Feed
         Mage::log($observer->getData());
         $stores = Mage::app()->getStores();
         $helper = Mage::helper('doofinder_feed');
-        foreach ($stores as $store) {
-            // Get store code
-            $storeCode = $store->getCode();
 
-            // Get store config
-            $config = $helper->getStoreConfig($storeCode);
-            if ($config['enabled']) {
-                try {
-                    // Get data model for store cron
-                    $dataModel = Mage::getModel('doofinder_feed/cron');
-                    $data = $dataModel->load($storeCode);
+        // Get store code
+        $this->storeCode = isset($observer->getStoreCode());
 
-                    // Get current offset
-                    $offset = $data->getOffset();
+        // Get store config
+        $this->config = $helper->getStoreConfig($this->storeCode);
+        Mage::log($this->config);
+        if ($this->config['enabled']) {
+            try {
+                // Get data model for store cron
+                $dataModel = Mage::getModel('cron/schedule');
+                $data = $dataModel->load($observer->getScheduleId());
 
-                    // Set paths
-                    $path = Mage::getBaseDir('media').DS.'doofinder'.DS.$config['xmlName'];
-                    $tmpPath = $path.'.tmp';
+                // Get current offset
+                $offset = intval($data->getOffset());
 
-                    // Set options for cron generator
-                    $options = array(
-                        '_limit_' => (int)$config['stepSize'],
-                        '_offset_' => (int)$offset,
-                        'store_code' => $config['storeCode'],
-                        'grouped' => $this->_getBoolean($config['grouped']),
-                        // Calculate the minimal price with the tier prices
-                        'minimal_price' => $this->_getBoolean($config['price']),
-                        // Not logged in by default
-                        'customer_group_id' => 0,
-                    );
-                    Mage::log($options);
-                    $generator = Mage::getSingleton('doofinder_feed/generator', $options);
-                    $xmlData = $generator->run($options);
+                // Get step size
+                $stepSize = intval($this->config['stepSize']);
+
+                // Set paths
+                $path = Mage::getBaseDir('media').DS.'doofinder'.DS.$this->config['xmlName'];
+                $tmpPath = $path.'.tmp';
+
+                // Get job code
+                $jobCode = Doofinder_Feed_Model_Observers_Schedule::JOB_CODE;
+
+                // Set options for cron generator
+                $options = array(
+                    '_limit_' => $stepSize,
+                    '_offset_' => $offset,
+                    'store_code' => $this->config['storeCode'],
+                    'grouped' => $this->_getBoolean($this->config['grouped']),
+                    // Calculate the minimal price with the tier prices
+                    'minimal_price' => $this->_getBoolean($this->config['price']),
+                    // Not logged in by default
+                    'customer_group_id' => 0,
+                );
+
+                Mage::log($options);
+                $generator = Mage::getSingleton('doofinder_feed/generator', $options);
+                $xmlData = $generator->run($options);
 
 
+                // If there is new data append to xml.tmp else convert into xml
+                if ($xmlData) {
+                    $dir = Mage::getBaseDir('media').DS.'doofinder';
 
-
-                    if ($xmlData) {
-                        $dir = Mage::getBaseDir('media').DS.'doofinder';
-
-                        // If directory doesn't exist create one
-                        if (!file_exists($dir)) {
-                            $this->_createDirectory($dir);
-                        }
-
-                        // If file can not be save throw an error
-                        if (!$success = file_put_contents($tmpPath, $xmlData, FILE_APPEND)) {
-                            throw new Exception("File can not be saved: {$tmpPath}");
-                        }
-
-                        $newOffset = $offset + $config['stepSize'];
-                        $data->setOffset($newOffset)->save();
-
-                    } else {
-                        $data->setOffset(0)->save();
-
-                        if (!rename($tmpPath, $path)) {
-                            throw new Exception("Cannot convert {$tmpPath} to {$path}");
-                        }
-
+                    // If directory doesn't exist create one
+                    if (!file_exists($dir)) {
+                        $this->_createDirectory($dir);
                     }
 
-                } catch (Exception $e) {
-                    Mage::logException('Exception: '.$e);
-                    unset($tmpPath);
+                    // If file can not be save throw an error
+                    if (!$success = file_put_contents($tmpPath, $xmlData, FILE_APPEND)) {
+                        Mage::throwException("File can not be saved: {$tmpPath}");
+                    }
+
+                    $this->_createNewSchedule($jobCode);
+
+
+                } else {
+
+                    if (!rename($tmpPath, $path)) {
+                        throw new Exception("Cannot convert {$tmpPath} to {$path}");
+                    }
+
                 }
+
+            } catch (Exception $e) {
+                Mage::logException('Exception: '.$e);
+                unset($tmpPath);
             }
         }
     }
@@ -90,7 +99,7 @@ class Doofinder_Feed_Model_Observers_Feed
         if (!$dir) return false;
 
         if(!mkdir($dir, 0777, true)) {
-            throw new Exception('Could not create directory: '.$dir);
+           Mage::throwException('Could not create directory: '.$dir);
         }
 
         return true;
@@ -145,11 +154,33 @@ class Doofinder_Feed_Model_Observers_Feed
             'day'   =>  $day,
             'month'  =>  $month,
         );
-        Mage::log($newTime);
         return $newTime;
     }
 
+    /**
+     * Creates new schedule entry.
+     * @param string $jobCode
+     */
 
+    private function _createNewSchedule($jobCode = Doofinder_Feed_Model_Observers_Schedule::JOB_CODE) {
+
+        $delayInMin = intval($this->config['stepDelay']);
+        $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
+        $timescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
+
+        $offset = intval($this->config['stepSize']);
+        $newOffset = $offset + $delayInMin;
+        $newSchedule = Mage::getModel('cron/schedule');
+        $newSchedule->setCreatedAt($timecreated)
+            ->setJobCode($jobCode)
+            ->setScheduledAt($timescheduled)
+            ->setExecutedAt(null)
+            ->setFinishedAt(null)
+            ->setStatus(Mage_Cron_Model_Schedule::STATUS_PENDING)
+            ->setStoreCode($this->storeCode)
+            ->setOffset($newOffset)
+            ->save();
+    }
 
 
 }
