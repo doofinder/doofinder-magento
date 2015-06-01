@@ -17,11 +17,11 @@ class Doofinder_Feed_Model_Observers_Feed
         $helper = Mage::helper('doofinder_feed');
 
         // Get store code
-        $this->storeCode = isset($observer->getStoreCode());
+        $this->storeCode = $observer->getStoreCode();
 
         // Get store config
         $this->config = $helper->getStoreConfig($this->storeCode);
-        Mage::log($this->config);
+
         if ($this->config['enabled']) {
             try {
                 // Get data model for store cron
@@ -30,6 +30,7 @@ class Doofinder_Feed_Model_Observers_Feed
 
                 // Get current offset
                 $offset = intval($data->getOffset());
+                Mage::log('OFFSET = ' . $offset);
 
                 // Get step size
                 $stepSize = intval($this->config['stepSize']);
@@ -72,7 +73,7 @@ class Doofinder_Feed_Model_Observers_Feed
                         Mage::throwException("File can not be saved: {$tmpPath}");
                     }
 
-                    $this->_createNewSchedule($jobCode);
+                    $this->_createNewSchedule($jobCode, $offset);
 
 
                 } else {
@@ -162,14 +163,13 @@ class Doofinder_Feed_Model_Observers_Feed
      * @param string $jobCode
      */
 
-    private function _createNewSchedule($jobCode = Doofinder_Feed_Model_Observers_Schedule::JOB_CODE) {
+    private function _createNewSchedule($jobCode = Doofinder_Feed_Model_Observers_Schedule::JOB_CODE, $offset = null) {
 
         $delayInMin = intval($this->config['stepDelay']);
         $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
         $timescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
 
-        $offset = intval($this->config['stepSize']);
-        $newOffset = $offset + $delayInMin;
+        $newOffset = $offset + $this->config['stepSize'];
         $newSchedule = Mage::getModel('cron/schedule');
         $newSchedule->setCreatedAt($timecreated)
             ->setJobCode($jobCode)
@@ -180,6 +180,9 @@ class Doofinder_Feed_Model_Observers_Feed
             ->setStoreCode($this->storeCode)
             ->setOffset($newOffset)
             ->save();
+
+        Mage::log($newSchedule->getData());
+
     }
 
 
