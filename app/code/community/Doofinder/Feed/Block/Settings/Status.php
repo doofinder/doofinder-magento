@@ -29,4 +29,3 @@ class Doofinder_Feed_Block_Settings_Status extends Mage_Adminhtml_Block_System_C
         return $html;
     }
 }
-?>

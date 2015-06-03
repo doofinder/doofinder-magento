@@ -37,6 +37,8 @@ class Doofinder_Feed_Model_Observers_Schedule {
             if ($resetSchedule) {
                 Mage::log('Resetting schedule.');
                 $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
+                //$timescheduled   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i")+1, date("s"), date("m"), date("d"), date("Y")));
+
                 $timescheduled = $helper->getScheduledAt($config['time'], $config['frequency']);
                 $jobCode = self::JOB_CODE;
 
@@ -69,7 +71,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
 
     }
 
-    public function regenerateSchedule($observer) {
+    public function regenerateSchedule() {
         Mage::log('Regenerating Schedule: '.date('c', time()));
         // Get store
         $stores = Mage::app()->getStores();
@@ -80,7 +82,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
             if ($store->getIsActive()) {
                 $config = $helper->getStoreConfig($store->getCode());
 
-                Mage::log('Resetting schedule.');
+                Mage::log('Resetting schedule for '.$store->getCode());
                 $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
                 $timescheduled = $helper->getScheduledAt($config['time'], $config['frequency']);
                 $jobCode = self::JOB_CODE;
@@ -95,7 +97,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
                         ->load();
 
                     // If pending entry for store not exists add new
-                    if (!$entry->count()) {
+                    if (!$entry->getSize()) {
                         $schedule = Mage::getModel('cron/schedule');
                         $schedule->setJobCode($jobCode)
                             ->setCreatedAt($timecreated)

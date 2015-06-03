@@ -88,7 +88,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             {
                 $this->_iBatchSize = $this->_batchProcessProducts(
                     $this->getData('_offset_'),
-                    $this->getData('_limit_'));
+                    $this->getData('_limit_')
+                );
             }
 
             $this->_closeFeed();
@@ -429,9 +430,10 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     {
         $this->_oXmlWriter = new XMLWriter();
         $this->_oXmlWriter->openMemory();
-
+        Mage::log('Init feed:' . $this->getData('_offset_'));
         if ($this->getData('_offset_') === 0)
         {
+            Mage::log('New feed');
             $this->_oXmlWriter->startDocument('1.0', 'UTF-8');
 
             // Output the parent rss tag

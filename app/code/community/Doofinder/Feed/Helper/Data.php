@@ -111,6 +111,7 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
     protected function _cleanPrices($prices)
     {
+        if (!isset($prices['price'])) return $prices;
         if ( isset($prices['sale_price']['excluding_tax']) &&
             $prices['price']['excluding_tax'] <= $prices['sale_price']['excluding_tax'] )
         {

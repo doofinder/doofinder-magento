@@ -21,10 +21,4 @@ class Doofinder_Feed_IndexController extends Mage_Core_Controller_Front_Action
     {
         $this->_redirect('/');
     }
-
-    public function testAction() {
-        $observer = Mage::getModel('cron/observer');
-        $observer->generate();
-        die;
-    }
 }

@@ -11,13 +11,12 @@ class Doofinder_Feed_Model_Observers_Feed
     public function generateFeed($observer)
 
     {
-        Mage::log('Generate feed');
-        Mage::log($observer->getData());
         $stores = Mage::app()->getStores();
         $helper = Mage::helper('doofinder_feed');
 
         // Get store code
         $this->storeCode = $observer->getStoreCode();
+        Mage::log('Generate feed for '.$this->storeCode);
 
         // Get store config
         $this->config = $helper->getStoreConfig($this->storeCode);
@@ -30,7 +29,6 @@ class Doofinder_Feed_Model_Observers_Feed
 
                 // Get current offset
                 $offset = intval($data->getOffset());
-                Mage::log('OFFSET = ' . $offset);
 
                 // Get step size
                 $stepSize = intval($this->config['stepSize']);
@@ -54,8 +52,7 @@ class Doofinder_Feed_Model_Observers_Feed
                     'customer_group_id' => 0,
                 );
 
-                Mage::log($options);
-                $generator = Mage::getSingleton('doofinder_feed/generator', $options);
+                $generator = Mage::getModel('doofinder_feed/generator', $options);
                 $xmlData = $generator->run($options);
 
 
@@ -69,19 +66,27 @@ class Doofinder_Feed_Model_Observers_Feed
                     }
 
                     // If file can not be save throw an error
-                    if (!$success = file_put_contents($tmpPath, $xmlData, FILE_APPEND)) {
+                    if (!$success = file_put_contents($tmpPath, $xmlData, FILE_APPEND | LOCK_EX)) {
                         Mage::throwException("File can not be saved: {$tmpPath}");
                     }
 
-                    $this->_createNewSchedule($jobCode, $offset);
+                    $_productCount = $generator->getProductCount();
 
+                    $exceed = ($offset + $stepSize) >= $_productCount ? true : false;
+
+                    if (!$exceed) {
+                        $this->_createNewSchedule($jobCode, $offset);
+                    } else {
+
+                        if (!rename($tmpPath, $path)) {
+                            throw new Exception("Cannot convert {$tmpPath} to {$path}");
+                        }
+                    }
 
                 } else {
-
                     if (!rename($tmpPath, $path)) {
                         throw new Exception("Cannot convert {$tmpPath} to {$path}");
                     }
-
                 }
 
             } catch (Exception $e) {
@@ -180,7 +185,7 @@ class Doofinder_Feed_Model_Observers_Feed
             ->setStoreCode($this->storeCode)
             ->setOffset($newOffset)
             ->save();
-
+        Mage::log('New Schedule:');
         Mage::log($newSchedule->getData());
 
     }

@@ -29,4 +29,3 @@ class Doofinder_Feed_Block_Settings_Messages extends Mage_Adminhtml_Block_System
         return $html;
     }
 }
-?>
