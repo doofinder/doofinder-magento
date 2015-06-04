@@ -57,6 +57,10 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         $this->getResponse()->setBody($response);
     }
 
+
+    /**
+     * Ajax action for backend generate html button
+     */
     public function generateAction() {
 
         $this->_setJSONHeaders();

@@ -29,7 +29,7 @@ class Doofinder_Feed_Block_Settings_Buttons_Generate extends Mage_Adminhtml_Bloc
                 });
             }
         </script>
-        <span id=\"generate-message\">test</span>";
+        <span id=\"generate-message\"></span>";
 
 
         $html = $this->getLayout()->createBlock('adminhtml/widget_button')

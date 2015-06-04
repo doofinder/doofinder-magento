@@ -13,6 +13,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
         Mage::log('Saving new schedule: ' .date('c', time()));
         // Get store code
         $storeCode = $observer->getStore() ? $observer->getStore() : 'default';
+
         // Get store
         $store = Mage::app()->getStore($storeCode);
 
@@ -37,22 +38,23 @@ class Doofinder_Feed_Model_Observers_Schedule {
             if ($resetSchedule) {
                 Mage::log('Resetting schedule.');
                 $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
-                //$timescheduled   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i")+1, date("s"), date("m"), date("d"), date("Y")));
 
                 $timescheduled = $helper->getScheduledAt($config['time'], $config['frequency']);
                 $jobCode = self::JOB_CODE;
 
                 try {
                     // Check if entry exists and is pending
-                    $entry = Mage::getModel('cron/schedule')
+                    // Temporarily disabled until process model implementation
+
+                    /*$entry = Mage::getModel('cron/schedule')
                         ->getCollection()
                         ->addFieldToFilter('job_code', self::JOB_CODE)
                         ->addFieldToFilter('status', self::STATUS_PENDING)
                         ->addFieldToFilter('store_code', $store->getCode())
-                        ->load();
+                        ->load();*/
 
                     // If pending entry for store not exists add new
-                    if (!$entry->count()) {
+                    #if (!$entry->count()) {
                         $schedule = Mage::getModel('cron/schedule');
                         $schedule->setJobCode($jobCode)
                             ->setCreatedAt($timecreated)
@@ -62,7 +64,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
                             ->setStoreCode($store->getCode())
                             ->save();
 
-                    }
+                    #}
                 } catch (Exception $e) {
                          throw new Exception(Mage::helper('cron')->__('Unable to save Cron expression'));
                 }
