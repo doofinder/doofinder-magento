@@ -6,7 +6,6 @@
             <version>1.5.5</version>
         </Doofinder_Feed>
     </modules>
-
     <global>
         <helpers>
             <doofinder_feed>
