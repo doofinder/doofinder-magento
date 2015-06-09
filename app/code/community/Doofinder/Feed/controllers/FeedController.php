@@ -1,3 +1,4 @@
+
 <?php
 /**
  * This file is part of Doofinder_Feed.
@@ -214,6 +215,21 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         if ( is_numeric($value) )
             return (int)($value *= 1);
         return $defaultValue;
+    }
+
+    /**
+     * Creates directory.
+     * @param string $dir
+     * @return bool
+     */
+    protected function _createDirectory($dir = null) {
+        if (!$dir) return false;
+
+        if(!mkdir($dir, 0777, true)) {
+           Mage::throwException('Could not create directory: '.$dir);
+        }
+
+        return true;
     }
 
     /*
