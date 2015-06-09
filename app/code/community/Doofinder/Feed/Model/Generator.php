@@ -173,6 +173,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         Doofinder_Feed_Model_Map_Product_Abstract $productMap)
     {
         $iDumped = 0;
+        $displayPrice = $this->getDisplayPrice();
+        Mage::log($displayPrice);
 
         try
         {
@@ -226,12 +228,18 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
                 foreach ($data as $field => $value)
                 {
+
                     if (!is_array($value))
                     {
                         $value = trim($value);
                     }
 
                     if ($field != 'description' && empty($value)) {
+                        continue;
+                    }
+
+                    if (!$displayPrice && $field === 'price') {
+
                         continue;
                     }
 
@@ -244,6 +252,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
                         $value = implode(self::VALUE_SEPARATOR, array_filter($value));
                     }
+
+
 
                     $written = @$this->_oXmlWriter->writeCData($value);
                     if ( ! $written )

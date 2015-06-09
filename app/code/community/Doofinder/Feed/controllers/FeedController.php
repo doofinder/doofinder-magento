@@ -46,8 +46,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             '_offset_' => $this->_getInteger('offset', 0),
             'store_code' => $this->_getStoreCode(),
             'grouped' => $this->_getBoolean('grouped', true),
-            // Calculate the minimal price with the tier prices
-            'minimal_price' => $this->_getBoolean('minimal_price', false),
+            'display_price' => $params['display_price'],
             // Not logged in by default
             'customer_group_id' => $this->_getInteger('customer_group', 0),
         );
@@ -66,19 +65,20 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 
         $this->_setJSONHeaders();
 
+
+
         $params = $this->getRequest()->getParams();
         $options = array(
             '_limit_' => $this->_getInteger('limit', null),
             '_offset_' => $this->_getInteger('offset', 0),
             'store_code' => $params['store_code'],
-            'grouped' => $this->_getBoolean($params['grouped'], true),
-            // Calculate the minimal price with the tier prices
-            'minimal_price' => $this->_getBoolean($params['minimal_price'], false),
+            'grouped' => $params['grouped'],
+            'display_price' => $params['display_price'],
             // Not logged in by default
             'customer_group_id' => $this->_getInteger('customer_group', 0),
         );
 
-        $generator = Mage::getSingleton('doofinder_feed/generator', $options);
+        $generator = Mage::getModel('doofinder_feed/generator', $options);
         $xmlData = $generator->run();
 
         if ($xmlData) {

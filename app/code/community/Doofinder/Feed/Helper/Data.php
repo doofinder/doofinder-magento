@@ -392,7 +392,7 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         $xmlName = Mage::getStoreConfig('doofinder_cron/settings/name', $storeCode);
         $config = array(
             'enabled'   =>  Mage::getStoreConfig('doofinder_cron/settings/enabled', $storeCode),
-            'price'     =>  Mage::getStoreConfig('doofinder_cron/settings/minimal_price', $storeCode),
+            'display_price'     =>  Mage::getStoreConfig('doofinder_cron/settings/display_price', $storeCode),
             'grouped'   =>  Mage::getStoreConfig('doofinder_cron/settings/grouped', $storeCode),
             'stepSize'  =>  Mage::getStoreConfig('doofinder_cron/settings/step', $storeCode),
             'stepDelay' =>  Mage::getStoreConfig('doofinder_cron/settings/delay', $storeCode),

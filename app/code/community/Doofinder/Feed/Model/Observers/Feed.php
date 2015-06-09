@@ -46,14 +46,13 @@ class Doofinder_Feed_Model_Observers_Feed
                     '_offset_' => $offset,
                     'store_code' => $this->config['storeCode'],
                     'grouped' => $this->_getBoolean($this->config['grouped']),
-                    // Calculate the minimal price with the tier prices
-                    'minimal_price' => $this->_getBoolean($this->config['price']),
+                    'display_price' => $this->_getBoolean($this->config['display_price']),
                     // Not logged in by default
                     'customer_group_id' => 0,
                 );
 
                 $generator = Mage::getModel('doofinder_feed/generator', $options);
-                $xmlData = $generator->run($options);
+                $xmlData = $generator->run();
 
 
                 // If there is new data append to xml.tmp else convert into xml
