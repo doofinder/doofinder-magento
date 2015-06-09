@@ -11,9 +11,16 @@ class Doofinder_Feed_Block_Settings_Buttons_Generate extends Mage_Adminhtml_Bloc
         $grouped = Mage::getStoreConfig('doofinder_cron/settings/grouped', $storeCode);
 
         $script = "<script type=\"text/javascript\">
+            function changeHandler() {
+                $('generate-message').update('Save changes before you generate feed.');
+                $(this).setStyle({
+                    border: '1px solid rgb(21, 125, 21)'
+                })
+            }
+            $$('.value input, .value select').invoke('observe', 'change', changeHandler);
+
             function generateFeed(displayPrice, grouped, storeCode){
                 var params = 'store_code=' + storeCode + '&display_price=' + displayPrice + '&grouped=' + grouped;
-                console.log($this->getUrl('doofinder/feed/generate'));
                 var reloadurl = '{$this->getUrl('doofinder/feed/generate')}';
                 var test = new Ajax.Request(reloadurl, {
                     method: 'get',
@@ -31,7 +38,7 @@ class Doofinder_Feed_Block_Settings_Buttons_Generate extends Mage_Adminhtml_Bloc
                 });
             }
         </script>
-        <span id=\"generate-message\"></span>";
+        <span style=\"display: block; margin-top: 2px;\"id=\"generate-message\"></span>";
 
 
         $html = $this->getLayout()->createBlock('adminhtml/widget_button')
