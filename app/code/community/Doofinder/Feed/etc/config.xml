@@ -230,7 +230,7 @@
             </doofinder_feed_generate>
             <doofinder_feed_schedule>
                 <schedule>
-                    <cron_expr>* */12 * * *</cron_expr>
+                    <cron_expr>1 */12 * * *</cron_expr>
                 </schedule>
                 <run>
                     <model>doofinder_feed/observers_schedule::regenerateSchedule</model>
