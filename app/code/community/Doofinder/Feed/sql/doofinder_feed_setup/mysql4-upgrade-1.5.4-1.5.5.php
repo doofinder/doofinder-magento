@@ -1,6 +1,5 @@
 <?php
 
-echo 'Doofinder table update - add offset';
 $installer = $this;
 
 $installer->startSetup();

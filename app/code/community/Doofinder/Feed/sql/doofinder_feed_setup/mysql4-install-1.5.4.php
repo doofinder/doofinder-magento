@@ -1,7 +1,5 @@
 <?php
 
-echo 'Doofinder table';
-
 $installer = $this;
 
 $installer->startSetup();
