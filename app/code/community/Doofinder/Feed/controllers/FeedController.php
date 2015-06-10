@@ -47,7 +47,8 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             'store_code' => $this->_getStoreCode(),
             'grouped' => $this->_getBoolean('grouped', true),
             'display_price' => $params['display_price'],
-            // Not logged in by default
+            // Calculate the minimal price with the tier prices
+            'minimal_price' => $this->_getBoolean('minimal_price', false),
             'customer_group_id' => $this->_getInteger('customer_group', 0),
         );
         $this->_setXMLHeaders();
@@ -74,6 +75,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             'store_code' => $params['store_code'],
             'grouped' => $params['grouped'],
             'display_price' => $params['display_price'],
+            'minimal_price' => $this->_getBoolean('minimal_price', false),
             // Not logged in by default
             'customer_group_id' => $this->_getInteger('customer_group', 0),
         );
@@ -105,13 +107,21 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
     {
         $this->_setJSONHeaders();
 
+        $helper = Mage::helper('doofinder_feed');
+
         $tools = Mage::getModel('doofinder_feed/tools');
 
         $storeCodes = array_keys(Mage::app()->getStores(false, true));
         $storesConfiguration = array();
+        $generatedFeeds = array();
+        // Get file spath
+        $filesUrl = Mage::getUrl('media/doofinder');
+        $filesPath = Mage::getBaseDir('media').DS.'doofinder'.DS;
 
         foreach ($storeCodes as $code)
         {
+            $settings = $helper->getStoreConfig($code);
+
             $oStore = Mage::app()->getStore($code);
             $L = Mage::getStoreConfig('general/locale/code', $oStore->getId());
             $storesConfiguration[$code] = array(
@@ -120,6 +130,15 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
                 'prices' => true,
                 'taxes' => true
             );
+
+            // Check if feed file exists
+            $filepath = $filesPath.$settings['xmlName'];
+            $fileurl = $filesUrl.$settings['xmlName'];
+
+            if ($this->_feedExists($filepath)) {
+                $generatedFeeds[$code] = $fileurl;
+            }
+
         }
 
         $config = array(
@@ -138,12 +157,24 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
                     'prices_incl_taxes' => true,
                     'customer_group_id' => 0,
                 ),
-                'configuration' => $storesConfiguration
+                'configuration' => $storesConfiguration,
+                'generated_feeds' => $generatedFeeds,
             ),
         );
 
         $response = Mage::helper('core')->jsonEncode($config);
         $this->getResponse()->setBody($response);
+    }
+    /**
+     * Check if feed on filepath exists.
+     * @param string $filepath
+     * @return bool
+     */
+    protected function _feedExists($filepath = null) {
+        if (file_exists($filepath)) {
+            return true;
+        }
+        return false;
     }
 
     protected function _dumpMessage($s_level, $s_message, $a_extra=array())

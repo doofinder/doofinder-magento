@@ -47,6 +47,7 @@ class Doofinder_Feed_Model_Observers_Feed
                     'store_code' => $this->config['storeCode'],
                     'grouped' => $this->_getBoolean($this->config['grouped']),
                     'display_price' => $this->_getBoolean($this->config['display_price']),
+                    'minimal_price' => $this->_getBoolean('minimal_price', false),
                     // Not logged in by default
                     'customer_group_id' => 0,
                 );
