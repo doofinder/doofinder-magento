@@ -1,5 +1,5 @@
 <?php
-class Doofinder_Feed_Block_Settings_Messages extends Mage_Adminhtml_Block_System_Config_Form_Field
+class Doofinder_Feed_Block_Settings_Panel_Message extends Mage_Adminhtml_Block_System_Config_Form_Field
 {
     /**
      * Error prefix
@@ -13,11 +13,6 @@ class Doofinder_Feed_Block_Settings_Messages extends Mage_Adminhtml_Block_System
 
         $msg = Mage::getModel('doofinder_feed/cron')->load('message')->getValue();
         $class = 'feed-message ';
-
-        // Set default message
-        if (!$msg) {
-            $msg = 'Currently there are no messages.';
-        }
 
         // Mark message as an error
         if (strpos($msg, self::ERROR_PREFIX) !== false) {
