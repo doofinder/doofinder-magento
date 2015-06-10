@@ -34,7 +34,10 @@ $table = $installer->getConnection()
         ), 'Next Iteration')
     ->addColumn('last_feed_name', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255, array(
         'length'    => 255,
-        ), 'Last Feed Name');
+        ), 'Last Feed Name')
+    ->addColumn('offset', Varien_Db_Ddl_Table::TYPE_INTEGER, null, array(
+        'default'    => 0,
+        ), 'Offset');
 
 $installer->getConnection()->createTable($table);
 
