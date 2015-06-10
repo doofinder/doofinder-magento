@@ -27,6 +27,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
         $status = array(
             self::STATUS_SUCCESS,
             self::STATUS_MISSED,
+            self::STATUS_PENDING,
         );
 
         $this->clearScheduleTable($scheduleCollection, $status);
