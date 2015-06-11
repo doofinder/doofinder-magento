@@ -55,11 +55,11 @@
         <events>
             <admin_system_config_changed_section_doofinder_cron>
                 <observers>
-                    <mymodule>
+                    <doofinder_feed>
                         <type>singleton</type>
                         <class>doofinder_feed/observers_schedule</class>
                         <method>saveNewSchedule</method>
-                    </mymodule>
+                    </doofinder_feed>
                 </observers>
             </admin_system_config_changed_section_doofinder_cron>
         </events>
@@ -213,6 +213,7 @@
                 <minimal_price>1</minimal_price>
                 <grouped>1</grouped>
                 <step>5</step>
+                <reset>0</reset>
             </settings>
         </doofinder_cron>
     </default>

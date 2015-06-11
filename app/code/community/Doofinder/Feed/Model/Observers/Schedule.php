@@ -12,16 +12,19 @@ class Doofinder_Feed_Model_Observers_Schedule {
     public function saveNewSchedule($observer) {
         Mage::log('Saving new schedule: ' .date('c', time()));
         // Get store code
-        $storeCode = $observer->getStore() ? $observer->getStore() : 'default';
+        $storeCode = $observer->getStore();
+
+        // Do nothing if there is no store code
+        if (!$storeCode) return;
 
         // Get store
         $store = Mage::app()->getStore($storeCode);
-
         $helper = Mage::helper('doofinder_feed');
 
         $scheduleCollection = Mage::getModel('cron/schedule')
             ->getCollection()
             ->addFieldToFilter('job_code', self::JOB_CODE)
+            ->addFieldToFilter('store_code', $storeCode)
             ->load();
 
         $status = array(
@@ -34,9 +37,10 @@ class Doofinder_Feed_Model_Observers_Schedule {
 
         if ($store->getIsActive()) {
             $config = $helper->getStoreConfig($storeCode);
-
             $resetSchedule = $config['reset'];
-            if ($resetSchedule) {
+            $isEnabled = $config['enabled'];
+
+            if ($resetSchedule && $isEnabled) {
                 Mage::log('Resetting schedule.');
                 $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
 
@@ -84,6 +88,9 @@ class Doofinder_Feed_Model_Observers_Schedule {
         foreach ($stores as $store) {
             if ($store->getIsActive()) {
                 $config = $helper->getStoreConfig($store->getCode());
+
+                // Skip if feed is disabled
+                if (!$config['enabled']) continue;
 
                 Mage::log('Resetting schedule for '.$store->getCode());
                 $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));

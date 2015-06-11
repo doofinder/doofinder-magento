@@ -22,13 +22,4 @@ class Doofinder_Feed_IndexController extends Mage_Core_Controller_Front_Action
         $this->_redirect('/');
     }
 
-    public function testAction() {
-
-
-        $model = Mage::getModel('doofinder_feed/cron')->getCollection();
-
-        $model->load('default', 'store_code');
-        var_dump($model->getData());
-
-    }
 }
