@@ -2,12 +2,7 @@
 
 class Doofinder_Feed_Model_Observers_Schedule {
 
-    const STATUS_PENDING    = Mage_Cron_Model_Schedule::STATUS_PENDING;
-    const STATUS_RUNNING    = Mage_Cron_Model_Schedule::STATUS_RUNNING;
-    const STATUS_SUCCESS    = Mage_Cron_Model_Schedule::STATUS_SUCCESS;
-    const STATUS_MISSED     = Mage_Cron_Model_Schedule::STATUS_MISSED;
-    const STATUS_ERROR      = Mage_Cron_Model_Schedule::STATUS_ERROR;
-    const JOB_CODE          = 'doofinder_feed_generate';
+
 
     public function saveNewSchedule($observer) {
         Mage::log('Saving new schedule: ' .date('c', time()));
@@ -27,24 +22,28 @@ class Doofinder_Feed_Model_Observers_Schedule {
         $resetSchedule = (bool)$config['reset'];
         $isEnabled = (bool)$config['enabled'];
         // Register process if not exists
+
         if (!$this->_isProcessRegistered($storeCode)) {
-            $status = $resetSchedule ? $helper::STATUS_PENDING : $helper::STATUS_ENABLED;
+            $status = $isEnabled? $helper::STATUS_ENABLED : $helper::STATUS_DISABLED;
+            if ($resetSchedule) {
+                $status = $helper::STATUS_PENDING;
+            }
             $this->_registerProcess($storeCode, $status);
         }
 
         $scheduleCollection = Mage::getModel('cron/schedule')
             ->getCollection()
-            ->addFieldToFilter('job_code', self::JOB_CODE)
+            ->addFieldToFilter('job_code', $helper::JOB_CODE)
             ->addFieldToFilter('store_code', $storeCode)
             ->load();
 
         $excludedStatuses = array(
-            self::STATUS_SUCCESS,
-            self::STATUS_MISSED,
-            self::STATUS_PENDING,
+            $helper::STATUS_SUCCESS,
+            $helper::STATUS_MISSED,
+            $helper::STATUS_PENDING,
         );
 
-        $this->_clearScheduleTable($scheduleCollection, $excludedStatuses);
+        $this->clearScheduleTable($scheduleCollection, $excludedStatuses);
 
         if ($store->getIsActive()) {
 
@@ -54,7 +53,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
                 $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
 
                 $timescheduled = $helper->getScheduledAt($config['time'], $config['frequency']);
-                $jobCode = self::JOB_CODE;
+                $jobCode = $helper::JOB_CODE;
 
                 try {
                     // Check if entry exists and is pending
@@ -62,25 +61,32 @@ class Doofinder_Feed_Model_Observers_Schedule {
 
                     /*$entry = Mage::getModel('cron/schedule')
                         ->getCollection()
-                        ->addFieldToFilter('job_code', self::JOB_CODE)
-                        ->addFieldToFilter('status', self::STATUS_PENDING)
+                        ->addFieldToFilter('job_code', $helper::JOB_CODE)
+                        ->addFieldToFilter('status', $helper::STATUS_PENDING)
                         ->addFieldToFilter('store_code', $store->getCode())
                         ->load();*/
 
                     // If pending entry for store not exists add new
                     #if (!$entry->count()) {
-                        $schedule = Mage::getModel('cron/schedule');
-                        $schedule->setJobCode($jobCode)
-                            ->setCreatedAt($timecreated)
-                            ->setScheduledAt($timescheduled)
-                            ->setStatus(Mage_Cron_Model_Schedule::STATUS_PENDING)
-                            ->setWebsiteId(intval($store->getWebsiteId()))
-                            ->setStoreCode($store->getCode())
-                            ->save();
+                    $process = Mage::getModel('doofinder_feed/cron')->load($storeCode, 'store_code');
+                    $process->setStatus($helper::STATUS_PENDING)
+                        ->setComplete('0%')
+                        ->setNextRun($timescheduled)
+                        ->setNextIteration($timescheduled)
+                        ->save();
+                    $schedule = Mage::getModel('cron/schedule');
+                    $schedule->setJobCode($jobCode)
+                        ->setCreatedAt($timecreated)
+                        ->setScheduledAt($timescheduled)
+                        ->setStatus($helper::STATUS_PENDING)
+                        ->setWebsiteId(intval($store->getWebsiteId()))
+                        ->setStoreCode($store->getCode())
+                        ->save();
 
                     #}
                 } catch (Exception $e) {
-                         throw new Exception(Mage::helper('cron')->__('Unable to save Cron expression'));
+
+                    throw new Exception(Mage::helper('cron')->__('Unable to save Cron expression'));
                 }
             }
         }
@@ -109,14 +115,14 @@ class Doofinder_Feed_Model_Observers_Schedule {
                 Mage::log('Resetting schedule for '.$store->getCode());
                 $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
                 $timescheduled = $helper->getScheduledAt($config['time'], $config['frequency']);
-                $jobCode = self::JOB_CODE;
+                $jobCode = $helper::JOB_CODE;
 
                 try {
                     // Check if entry exists and is pending
                     $entry = Mage::getModel('cron/schedule')
                         ->getCollection()
-                        ->addFieldToFilter('job_code', self::JOB_CODE)
-                        ->addFieldToFilter('status', self::STATUS_PENDING)
+                        ->addFieldToFilter('job_code', $helper::JOB_CODE)
+                        ->addFieldToFilter('status', $helper::STATUS_PENDING)
                         ->addFieldToFilter('store_code', $store->getCode())
                         ->load();
 
@@ -126,7 +132,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
                         $schedule->setJobCode($jobCode)
                             ->setCreatedAt($timecreated)
                             ->setScheduledAt($timescheduled)
-                            ->setStatus(Mage_Cron_Model_Schedule::STATUS_PENDING)
+                            ->setStatus($helper::STATUS_PENDING)
                             ->setWebsiteId(intval($store->getWebsiteId()))
                             ->setStoreCode($store->getCode())
                             ->save();
@@ -146,10 +152,10 @@ class Doofinder_Feed_Model_Observers_Schedule {
      * @param Mage_Cron_Model_Resource_Schedule_Collection $scheduleCollection
      * @param array $status
      */
-    private function _clearScheduleTable(Mage_Cron_Model_Resource_Schedule_Collection $scheduleCollection, $status = array()) {
-
+    public function clearScheduleTable(Mage_Cron_Model_Resource_Schedule_Collection $scheduleCollection, $status = array()) {
+        $helper = Mage::helper('doofinder_feed');
         foreach ($scheduleCollection as $job) {
-            if ($job->getJobCode() === self::JOB_CODE && in_array($job->getStatus(), $status) ) {
+            if ($job->getJobCode() === $helper::JOB_CODE && in_array($job->getStatus(), $status) ) {
                 Mage::getModel('cron/schedule')->load($job->getScheduleId())->delete();
             }
         }

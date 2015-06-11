@@ -34,11 +34,14 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * Panel info messages.
      */
-
-    const STATUS_PENDING = 'Pending...';
-    const STATUS_ENABLED = 'Enabled. Not pending.';
-    const STATUS_DISABLED = 'Disabled.';
-    const STATUS_GENERATING = 'Generating...';
+    const STATUS_DISABLED    = 'disabled';
+    const STATUS_ENABLED    = 'enabled. not pending.';
+    const STATUS_PENDING    = Mage_Cron_Model_Schedule::STATUS_PENDING;
+    const STATUS_RUNNING    = Mage_Cron_Model_Schedule::STATUS_RUNNING;
+    const STATUS_SUCCESS    = Mage_Cron_Model_Schedule::STATUS_SUCCESS;
+    const STATUS_MISSED     = Mage_Cron_Model_Schedule::STATUS_MISSED;
+    const STATUS_ERROR      = Mage_Cron_Model_Schedule::STATUS_ERROR;
+    const JOB_CODE          = 'doofinder_feed_generate';
 
     const MSG_EMPTY = "Currently there is no message.";
 
