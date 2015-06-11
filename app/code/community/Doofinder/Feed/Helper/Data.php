@@ -31,6 +31,17 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
     const CRON_WEEKLY    =    Mage_Adminhtml_Model_System_Config_Source_Cron_Frequency::CRON_WEEKLY;
     const CRON_MONTHLY   =    Mage_Adminhtml_Model_System_Config_Source_Cron_Frequency::CRON_MONTHLY;
 
+    /**
+     * Panel info messages.
+     */
+
+    const STATUS_PENDING = 'Pending...';
+    const STATUS_ENABLED = 'Enabled. Not pending.';
+    const STATUS_DISABLED = 'Disabled.';
+    const STATUS_GENERATING = 'Generating...';
+
+    const MSG_EMPTY = "Currently there is no message.";
+
 
     /**
      * $product         => Product instance

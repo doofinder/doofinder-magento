@@ -17,9 +17,20 @@ class Doofinder_Feed_Model_Observers_Schedule {
         // Do nothing if there is no store code
         if (!$storeCode) return;
 
+
+
         // Get store
         $store = Mage::app()->getStore($storeCode);
         $helper = Mage::helper('doofinder_feed');
+        $config = $helper->getStoreConfig($storeCode);
+
+        $resetSchedule = (bool)$config['reset'];
+        $isEnabled = (bool)$config['enabled'];
+        // Register process if not exists
+        if (!$this->_isProcessRegistered($storeCode)) {
+            $status = $resetSchedule ? $helper::STATUS_PENDING : $helper::STATUS_ENABLED;
+            $this->_registerProcess($storeCode, $status);
+        }
 
         $scheduleCollection = Mage::getModel('cron/schedule')
             ->getCollection()
@@ -27,18 +38,16 @@ class Doofinder_Feed_Model_Observers_Schedule {
             ->addFieldToFilter('store_code', $storeCode)
             ->load();
 
-        $status = array(
+        $excludedStatuses = array(
             self::STATUS_SUCCESS,
             self::STATUS_MISSED,
             self::STATUS_PENDING,
         );
 
-        $this->clearScheduleTable($scheduleCollection, $status);
+        $this->_clearScheduleTable($scheduleCollection, $excludedStatuses);
 
         if ($store->getIsActive()) {
-            $config = $helper->getStoreConfig($storeCode);
-            $resetSchedule = $config['reset'];
-            $isEnabled = $config['enabled'];
+
 
             if ($resetSchedule && $isEnabled) {
                 Mage::log('Resetting schedule.');
@@ -92,6 +101,11 @@ class Doofinder_Feed_Model_Observers_Schedule {
                 // Skip if feed is disabled
                 if (!$config['enabled']) continue;
 
+                // Register process if not exists
+                if (!$this->_isProcessRegistered($store->getCode())) {
+                    $this->_registerProcess($store->getCode());
+                }
+
                 Mage::log('Resetting schedule for '.$store->getCode());
                 $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
                 $timescheduled = $helper->getScheduledAt($config['time'], $config['frequency']);
@@ -127,14 +141,51 @@ class Doofinder_Feed_Model_Observers_Schedule {
 
 
 
-
-    protected function clearScheduleTable(Mage_Cron_Model_Resource_Schedule_Collection $scheduleCollection, $status = array()) {
+    /**
+     * Clears shedule table
+     * @param Mage_Cron_Model_Resource_Schedule_Collection $scheduleCollection
+     * @param array $status
+     */
+    private function _clearScheduleTable(Mage_Cron_Model_Resource_Schedule_Collection $scheduleCollection, $status = array()) {
 
         foreach ($scheduleCollection as $job) {
             if ($job->getJobCode() === self::JOB_CODE && in_array($job->getStatus(), $status) ) {
                 Mage::getModel('cron/schedule')->load($job->getScheduleId())->delete();
             }
         }
+    }
+
+    /**
+     * Checks if process is registered in doofinder cron table
+     * @param string $store_code
+     * @return bool
+     */
+    private function _isProcessRegistered($store_code = 'default') {
+        $process = Mage::getModel('doofinder_feed/cron')->load($store_code, 'store_code');
+        if (empty($process->getData())) {
+            return false;
+        }
+        return true;
+    }
+
+    private function _registerProcess($store_code = 'default', $status = null) {
+        $model = Mage::getModel('doofinder_feed/cron');
+        $helper = Mage::helper('doofinder_feed');
+        $config = $helper->getStoreConfig($store_code);
+        if (empty($status)) {
+            $status = $config['enabled'] ? $helper::STATUS_ENABLED : $helper::STATUS_DISABLED;
+        }
+
+        $data = array(
+            'store_code'    =>  $store_code,
+            'status'        =>  $status,
+            'message'       =>  $helper::MSG_EMPTY,
+            'complete'      =>  '-',
+            'next_run'      =>  '-',
+            'next_iteration'=>  '-',
+            'last_feed_name'=>  'None',
+        );
+        $model->setData($data)->save();
     }
 
 }

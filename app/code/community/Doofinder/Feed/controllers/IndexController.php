@@ -22,4 +22,8 @@ class Doofinder_Feed_IndexController extends Mage_Core_Controller_Front_Action
         $this->_redirect('/');
     }
 
+    public function testAction() {
+        $test = Mage::getSingleton('Doofinder_Feed_Model_Observers_Schedule');
+        var_dump($test->_isProcessRegistered('asdas'));
+    }
 }

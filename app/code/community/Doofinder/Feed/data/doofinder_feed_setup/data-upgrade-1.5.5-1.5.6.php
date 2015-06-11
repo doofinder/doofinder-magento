@@ -5,13 +5,15 @@ $stores = Mage::getModel('core/store')->getCollection()
     ->addFieldToFilter('code', array('neq' => 'admin'))
     ->load();
 $data = array();
+
+$helper = Mage::helper('doofinder_feed');
 foreach ($stores as $store) {
     $code = $store->getCode();
     $model = Mage::getModel('doofinder_feed/cron');
     $data = array(
         'store_code'    =>  $code,
-        'status'        =>  'Disabled',
-        'message'       =>  'Currently there is no message',
+        'status'        =>  $helper::STATUS_DISABLED,
+        'message'       =>  $helper::MSG_EMPTY,
         'complete'      =>  '-',
         'next_run'      =>  '-',
         'next_iteration'=>  '-',
