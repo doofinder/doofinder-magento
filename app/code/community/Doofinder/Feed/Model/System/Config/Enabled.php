@@ -16,9 +16,11 @@ class Doofinder_Feed_Model_System_Config_Enabled extends Mage_Core_Model_Config_
             }
             $helper = Mage::helper('doofinder_feed');
 
-            $enabled = (bool)$this->getValue();
+            $enabled = $this->getValue();
             if ($enabled) {
-                $processModel->setStatus($helper::STATUS_ENABLED)->save();
+                if (Mage::getStoreConfig('doofinder_cron/settings/enabled', $storeCode) == "0") {
+                    $processModel->setStatus($helper::STATUS_ENABLED)->save();
+                }
             } else {
                 // Reset process data
                 $processModel->resetData($storeCode);

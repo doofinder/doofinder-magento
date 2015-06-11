@@ -24,7 +24,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
         // Register process if not exists
 
         if (!$this->_isProcessRegistered($storeCode)) {
-            $status = $isEnabled? $helper::STATUS_ENABLED : $helper::STATUS_DISABLED;
+            $status = $isEnabled? $helper::STATUS_WAITING : $helper::STATUS_DISABLED;
             if ($resetSchedule) {
                 $status = $helper::STATUS_PENDING;
             }
@@ -102,38 +102,52 @@ class Doofinder_Feed_Model_Observers_Schedule {
 
         foreach ($stores as $store) {
             if ($store->getIsActive()) {
-                $config = $helper->getStoreConfig($store->getCode());
+
+                $store_code = $store->getCode();
+                $config = $helper->getStoreConfig($store_code);
 
                 // Skip if feed is disabled
                 if (!$config['enabled']) continue;
 
                 // Register process if not exists
-                if (!$this->_isProcessRegistered($store->getCode())) {
-                    $this->_registerProcess($store->getCode());
+                if (!$this->_isProcessRegistered($store_code)) {
+                    $this->_registerProcess($store_code);
                 }
 
-                Mage::log('Resetting schedule for '.$store->getCode());
+
+                Mage::log('Resetting schedule for '.$store_code);
                 $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
                 $timescheduled = $helper->getScheduledAt($config['time'], $config['frequency']);
                 $jobCode = $helper::JOB_CODE;
 
                 try {
-                    // Check if entry exists and is pending
-                    $entry = Mage::getModel('cron/schedule')
-                        ->getCollection()
-                        ->addFieldToFilter('job_code', $helper::JOB_CODE)
-                        ->addFieldToFilter('status', $helper::STATUS_PENDING)
-                        ->addFieldToFilter('store_code', $store->getCode())
-                        ->load();
+                    // Check if process is running
+                    $process = Mage::getModel('doofinder_feed/cron')->load($store_code, 'store_code');
+
+                    $status = $process->getStatus();
+                    $skipStatus = array(
+                        $helper::STATUS_PENDING,
+                        $helper::STATUS_RUNNING,
+                        $helper::STATUS_DISABLED,
+                    );
+
 
                     // If pending entry for store not exists add new
-                    if (!$entry->getSize()) {
+                    if (!(in_array($status, $skipStatus))) {
+
+                        $process->setStatus($helper::STATUS_PENDING)
+                            ->setComplete('0%')
+                            ->setNextRun($timescheduled)
+                            ->setNextIteration($timescheduled)
+                            ->setOffset(0)
+                            ->save();
+
                         $schedule = Mage::getModel('cron/schedule');
                         $schedule->setJobCode($jobCode)
                             ->setCreatedAt($timecreated)
                             ->setScheduledAt($timescheduled)
-                            ->setStatus($helper::STATUS_PENDING)
-                            ->setWebsiteId(intval($store->getWebsiteId()))
+                            //->setStatus($helper::STATUS_PENDING)
+                            //->setWebsiteId(intval($store->getWebsiteId()))
                             ->setStoreCode($store->getCode())
                             ->save();
 
@@ -179,7 +193,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
         $helper = Mage::helper('doofinder_feed');
         $config = $helper->getStoreConfig($store_code);
         if (empty($status)) {
-            $status = $config['enabled'] ? $helper::STATUS_ENABLED : $helper::STATUS_DISABLED;
+            $status = $config['enabled'] ? $helper::STATUS_WAITING : $helper::STATUS_DISABLED;
         }
 
         $data = array(
