@@ -1,9 +1,6 @@
 <?php
 
 class Doofinder_Feed_Model_Observers_Schedule {
-
-
-
     public function saveNewSchedule($observer) {
         Mage::log('Saving new schedule: ' .date('c', time()));
         // Get store code
@@ -13,12 +10,10 @@ class Doofinder_Feed_Model_Observers_Schedule {
         if (!$storeCode) return;
 
 
-
         // Get store
         $store = Mage::app()->getStore($storeCode);
         $helper = Mage::helper('doofinder_feed');
         $config = $helper->getStoreConfig($storeCode);
-
         $resetSchedule = (bool)$config['reset'];
         $isEnabled = (bool)$config['enabled'];
         // Register process if not exists
@@ -31,23 +26,33 @@ class Doofinder_Feed_Model_Observers_Schedule {
             $this->_registerProcess($storeCode, $status);
         }
 
-        $scheduleCollection = Mage::getModel('cron/schedule')
-            ->getCollection()
-            ->addFieldToFilter('job_code', $helper::JOB_CODE)
-            ->addFieldToFilter('store_code', $storeCode)
-            ->load();
+        $processModel = Mage::getModel('doofinder_feed/cron')->load($storeCode, 'store_code');
 
-        $excludedStatuses = array(
-            $helper::STATUS_SUCCESS,
-            $helper::STATUS_MISSED,
-            $helper::STATUS_PENDING,
-        );
+        if ($isEnabled && $processModel->getStatus() == $helper::STATUS_DISABLED) {
+            $processModel->setStatus($helper::STATUS_WAITING)->save();
+            return true;
+        } else if (!$isEnabled && $processModel->getStatus() != $helper::STATUS_DISABLED) {
+            $processModel->resetData($storeCode);
+            // Clear cron table
+            $scheduleCollection = Mage::getModel('cron/schedule')
+                ->getCollection()
+                ->addFieldToFilter('job_code', $helper::JOB_CODE)
+                ->addFieldToFilter('store_code', $storeCode)
+                ->load();
 
-        $this->clearScheduleTable($scheduleCollection, $excludedStatuses);
+            $excludedStatuses = array(
+                $helper::STATUS_MISSED,
+                $helper::STATUS_PENDING,
+                $helper::STATUS_RUNNING,
+                $helper::STATUS_SUCCESS,
+                $helper::STATUS_WAITING,
+            );
+            $this->clearScheduleTable($scheduleCollection, $excludedStatuses);
+        }
+
+
 
         if ($store->getIsActive()) {
-
-
             if ($resetSchedule && $isEnabled) {
                 Mage::log('Resetting schedule.');
                 $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
@@ -56,18 +61,19 @@ class Doofinder_Feed_Model_Observers_Schedule {
                 $jobCode = $helper::JOB_CODE;
 
                 try {
-                    // Check if entry exists and is pending
-                    // Temporarily disabled until process model implementation
-
-                    /*$entry = Mage::getModel('cron/schedule')
+                    $scheduleCollection = Mage::getModel('cron/schedule')
                         ->getCollection()
                         ->addFieldToFilter('job_code', $helper::JOB_CODE)
-                        ->addFieldToFilter('status', $helper::STATUS_PENDING)
-                        ->addFieldToFilter('store_code', $store->getCode())
-                        ->load();*/
+                        ->addFieldToFilter('store_code', $storeCode)
+                        ->load();
 
-                    // If pending entry for store not exists add new
-                    #if (!$entry->count()) {
+                    $excludedStatuses = array(
+                        $helper::STATUS_SUCCESS,
+                        $helper::STATUS_MISSED,
+                        $helper::STATUS_PENDING,
+                    );
+
+                    $this->clearScheduleTable($scheduleCollection, $excludedStatuses);
 
                     $schedule = Mage::getModel('cron/schedule');
                     $schedule->setJobCode($jobCode)
@@ -88,8 +94,6 @@ class Doofinder_Feed_Model_Observers_Schedule {
                         ->setNextRun($timescheduled)
                         ->setNextIteration($timescheduled)
                         ->save();
-
-                    #}
                 } catch (Exception $e) {
 
                     throw new Exception(Mage::helper('cron')->__('Unable to save Cron expression'));
