@@ -65,7 +65,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $this->_loadAdditionalAttributes();
         $this->_iProductCount = $this->getProductCount();
 
-
         if ($this->getData('_offset_') >= $this->_iProductCount)  // offset is 0-based
         {
             return "";
@@ -174,7 +173,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     {
         $iDumped = 0;
         $displayPrice = $this->getDisplayPrice();
-        Mage::log($displayPrice);
 
         try
         {
@@ -440,10 +438,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     {
         $this->_oXmlWriter = new XMLWriter();
         $this->_oXmlWriter->openMemory();
-        Mage::log('Init feed:' . $this->getData('_offset_'));
         if ($this->getData('_offset_') === 0)
         {
-            Mage::log('New feed');
             $this->_oXmlWriter->startDocument('1.0', 'UTF-8');
 
             // Output the parent rss tag
