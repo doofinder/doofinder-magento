@@ -46,7 +46,6 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             '_offset_' => $this->_getInteger('offset', 0),
             'store_code' => $this->_getStoreCode(),
             'grouped' => $this->_getBoolean('grouped', true),
-            'display_price' => $params['display_price'],
             // Calculate the minimal price with the tier prices
             'minimal_price' => $this->_getBoolean('minimal_price', false),
             'customer_group_id' => $this->_getInteger('customer_group', 0),
@@ -55,6 +54,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 
         $generator = Mage::getSingleton('doofinder_feed/generator', $options);
         $response = $generator->run();
+        ob_end_clean();
         $this->getResponse()->setBody($response);
     }
 
