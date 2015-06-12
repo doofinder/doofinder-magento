@@ -45,6 +45,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             '_limit_' => $this->_getInteger('limit', null),
             '_offset_' => $this->_getInteger('offset', 0),
             'store_code' => $this->_getStoreCode(),
+            'display_price' => $this->_getBoolean('display_price', true),
             'grouped' => $this->_getBoolean('grouped', true),
             // Calculate the minimal price with the tier prices
             'minimal_price' => $this->_getBoolean('minimal_price', false),
@@ -74,7 +75,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             '_offset_' => $this->_getInteger('offset', 0),
             'store_code' => $params['store_code'],
             'grouped' => $params['grouped'],
-            'display_price' => $params['display_price'],
+            'display_price' => $this->_getBoolean('display_price', true),
             'minimal_price' => $this->_getBoolean('minimal_price', false),
             // Not logged in by default
             'customer_group_id' => $this->_getInteger('customer_group', 0),
