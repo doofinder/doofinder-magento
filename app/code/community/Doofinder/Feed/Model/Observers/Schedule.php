@@ -68,12 +68,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
 
                     // If pending entry for store not exists add new
                     #if (!$entry->count()) {
-                    $process = Mage::getModel('doofinder_feed/cron')->load($storeCode, 'store_code');
-                    $process->setStatus($helper::STATUS_PENDING)
-                        ->setComplete('0%')
-                        ->setNextRun($timescheduled)
-                        ->setNextIteration($timescheduled)
-                        ->save();
+
                     $schedule = Mage::getModel('cron/schedule');
                     $schedule->setJobCode($jobCode)
                         ->setCreatedAt($timecreated)
@@ -81,6 +76,17 @@ class Doofinder_Feed_Model_Observers_Schedule {
                         ->setStatus($helper::STATUS_PENDING)
                         ->setWebsiteId(intval($store->getWebsiteId()))
                         ->setStoreCode($store->getCode())
+                        ->save();
+
+                    $id = $schedule->getId();
+
+                    $process = Mage::getModel('doofinder_feed/cron')->load($storeCode, 'store_code');
+                    $process->setStatus($helper::STATUS_PENDING)
+                        ->setOffset(0)
+                        ->setScheduleId($id)
+                        ->setComplete('0%')
+                        ->setNextRun($timescheduled)
+                        ->setNextIteration($timescheduled)
                         ->save();
 
                     #}
@@ -135,20 +141,21 @@ class Doofinder_Feed_Model_Observers_Schedule {
                     // If pending entry for store not exists add new
                     if (!(in_array($status, $skipStatus))) {
 
+                        $schedule = Mage::getModel('cron/schedule');
+                        $schedule->setJobCode($jobCode)
+                            ->setCreatedAt($timecreated)
+                            ->setScheduledAt($timescheduled)
+                            ->setStoreCode($store->getCode())
+                            ->save();
+
+                        $id = $schedule->getId();
+
                         $process->setStatus($helper::STATUS_PENDING)
                             ->setComplete('0%')
                             ->setNextRun($timescheduled)
                             ->setNextIteration($timescheduled)
                             ->setOffset(0)
-                            ->save();
-
-                        $schedule = Mage::getModel('cron/schedule');
-                        $schedule->setJobCode($jobCode)
-                            ->setCreatedAt($timecreated)
-                            ->setScheduledAt($timescheduled)
-                            //->setStatus($helper::STATUS_PENDING)
-                            //->setWebsiteId(intval($store->getWebsiteId()))
-                            ->setStoreCode($store->getCode())
+                            ->setScheduleId($id)
                             ->save();
 
                     }

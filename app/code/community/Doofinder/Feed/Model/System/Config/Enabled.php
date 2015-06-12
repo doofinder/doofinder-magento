@@ -19,7 +19,7 @@ class Doofinder_Feed_Model_System_Config_Enabled extends Mage_Core_Model_Config_
             $enabled = $this->getValue();
             if ($enabled) {
                 if (Mage::getStoreConfig('doofinder_cron/settings/enabled', $storeCode) == "0") {
-                    $processModel->setStatus($helper::STATUS_ENABLED)->save();
+                    $processModel->setStatus($helper::STATUS_WAITING)->save();
                 }
             } else {
                 // Reset process data
@@ -37,6 +37,7 @@ class Doofinder_Feed_Model_System_Config_Enabled extends Mage_Core_Model_Config_
                     $helper::STATUS_PENDING,
                     $helper::STATUS_RUNNING,
                     $helper::STATUS_SUCCESS,
+                    $helper::STATUS_WAITING,
                 );
                 $schedule->clearScheduleTable($scheduleCollection, $excludedStatuses);
 
