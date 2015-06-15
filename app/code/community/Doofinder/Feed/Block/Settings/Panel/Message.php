@@ -3,7 +3,7 @@ class Doofinder_Feed_Block_Settings_Panel_Message extends Mage_Adminhtml_Block_S
 {
     /**
      * Error prefix
-     * @var stirng
+     * @var string
      */
     const ERROR_PREFIX = "#error#";
 

@@ -49,7 +49,6 @@ class Doofinder_Feed_Model_Observers_Schedule {
             if ($resetSchedule && $isEnabled) {
                 Mage::log('Resetting schedule.');
                 $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
-
                 $timescheduled = $helper->getScheduledAt($config['time'], $config['frequency']);
                 $jobCode = $helper::JOB_CODE;
 
@@ -73,13 +72,14 @@ class Doofinder_Feed_Model_Observers_Schedule {
 
                     $id = $schedule->getId();
 
+                    $processTimescheduled = $helper->getScheduledAt($config['time'], $config['frequency'], false);
                     $process = Mage::getModel('doofinder_feed/cron')->load($storeCode, 'store_code');
                     $process->setStatus($helper::STATUS_PENDING)
                         ->setOffset(0)
                         ->setScheduleId($id)
                         ->setComplete('0%')
-                        ->setNextRun($timescheduled)
-                        ->setNextIteration($timescheduled)
+                        ->setNextRun($processTimescheduled)
+                        ->setNextIteration($processTimescheduled)
                         ->save();
                 } catch (Exception $e) {
 
@@ -141,10 +141,11 @@ class Doofinder_Feed_Model_Observers_Schedule {
 
                         $id = $schedule->getId();
 
+                        $processTimescheduled = $helper->getScheduledAt($config['time'], $config['frequency'], false);
                         $process->setStatus($helper::STATUS_PENDING)
                             ->setComplete('0%')
-                            ->setNextRun($timescheduled)
-                            ->setNextIteration($timescheduled)
+                            ->setNextRun($processTimescheduled)
+                            ->setNextIteration($processTimescheduled)
                             ->setOffset(0)
                             ->setScheduleId($id)
                             ->save();

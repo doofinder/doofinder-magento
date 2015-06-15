@@ -453,15 +453,25 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         return $cronExprString;
     }
 
-    public function getScheduledAt($time = null, $frequency = null) {
+    public function getScheduledAt($time = null, $frequency = null, $timezoneOffset = true) {
 
         $week   = $frequency == self::CRON_WEEKLY ? 7 : 0;
         $month  = $frequency == self::CRON_MONTHLY ? 1 : 0;
         $day    = $frequency == self::CRON_DAILY ? 1 : $week;
+        $offset = $this->getTimezoneOffset();
+        if ($timezoneOffset) {
+            $timescheduled = strftime("%Y-%m-%d %H:%M:%S", mktime($time[0] - $offset, $time[1], $time[2], date("m") + $month, date("d") + $day, date("Y")));
+        } else {
+            $timescheduled = strftime("%Y-%m-%d %H:%M:%S", mktime($time[0], $time[1], $time[2], date("m") + $month, date("d") + $day, date("Y")));
+        }
+
+        return $timescheduled;
+    }
+
+    public function getTimezoneOffset() {
         $timezone = Mage::getStoreConfig('general/locale/timezone');
         date_default_timezone_set($timezone);
         $offset = (date('Z') / 60 / 60);
-        $timescheduled = strftime("%Y-%m-%d %H:%M:%S", mktime($time[0] - $offset, $time[1], $time[2], date("m") + $month, date("d") + $day, date("Y")));
-        return $timescheduled;
+        return $offset;
     }
 }
