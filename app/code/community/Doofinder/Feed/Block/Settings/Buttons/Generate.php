@@ -50,4 +50,5 @@ class Doofinder_Feed_Block_Settings_Buttons_Generate extends Mage_Adminhtml_Bloc
                     ->toHtml();
         return $html;
     }
+
 }
