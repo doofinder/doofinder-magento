@@ -444,7 +444,10 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         $week   = $frequency == self::CRON_WEEKLY ? 7 : 0;
         $month  = $frequency == self::CRON_MONTHLY ? 1 : 0;
         $day    = $frequency == self::CRON_DAILY ? 1 : $week;
-        $timescheduled = strftime("%Y-%m-%d %H:%M:%S", mktime($time[0], $time[1], $time[2], date("m") + $month, date("d") + $day, date("Y")));
+        $timezone = Mage::getStoreConfig('general/locale/timezone');
+        date_default_timezone_set($timezone);
+        $offset = (date('Z') / 60 / 60);
+        $timescheduled = strftime("%Y-%m-%d %H:%M:%S", mktime($time[0] - $offset, $time[1], $time[2], date("m") + $month, date("d") + $day, date("Y")));
         return $timescheduled;
     }
 }
