@@ -40,14 +40,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
                 ->addFieldToFilter('store_code', $storeCode)
                 ->load();
 
-            $excludedStatuses = array(
-                $helper::STATUS_MISSED,
-                $helper::STATUS_PENDING,
-                $helper::STATUS_RUNNING,
-                $helper::STATUS_SUCCESS,
-                $helper::STATUS_WAITING,
-            );
-            $this->clearScheduleTable($scheduleCollection, $excludedStatuses);
+            $this->clearScheduleTable($scheduleCollection);
         }
 
 
@@ -67,13 +60,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
                         ->addFieldToFilter('store_code', $storeCode)
                         ->load();
 
-                    $excludedStatuses = array(
-                        $helper::STATUS_SUCCESS,
-                        $helper::STATUS_MISSED,
-                        $helper::STATUS_PENDING,
-                    );
-
-                    $this->clearScheduleTable($scheduleCollection, $excludedStatuses);
+                    $this->clearScheduleTable($scheduleCollection);
 
                     $schedule = Mage::getModel('cron/schedule');
                     $schedule->setJobCode($jobCode)
@@ -104,7 +91,6 @@ class Doofinder_Feed_Model_Observers_Schedule {
     }
 
     public function regenerateSchedule() {
-        Mage::log('Regenerating Schedule: '.date('c', time()));
         // Get store
         $stores = Mage::app()->getStores();
 
@@ -116,23 +102,24 @@ class Doofinder_Feed_Model_Observers_Schedule {
                 $store_code = $store->getCode();
                 $config = $helper->getStoreConfig($store_code);
 
-                // Skip if feed is disabled
-                if (!$config['enabled']) continue;
-
-                // Register process if not exists
+                // Always register process if not exists
                 if (!$this->_isProcessRegistered($store_code)) {
                     $this->_registerProcess($store_code);
                 }
 
+                // Skip rest if feed is disabled
+                if (!$config['enabled']) continue;
 
-                Mage::log('Resetting schedule for '.$store_code);
+
+                $process = Mage::getModel('doofinder_feed/cron')->load($store_code, 'store_code');
+
                 $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
                 $timescheduled = $helper->getScheduledAt($config['time'], $config['frequency']);
                 $jobCode = $helper::JOB_CODE;
 
+
                 try {
                     // Check if process is running
-                    $process = Mage::getModel('doofinder_feed/cron')->load($store_code, 'store_code');
 
                     $status = $process->getStatus();
                     $skipStatus = array(
@@ -144,7 +131,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
 
                     // If pending entry for store not exists add new
                     if (!(in_array($status, $skipStatus))) {
-
+                        Mage::log('Regenerating Schedule: '.date('c', time()));
                         $schedule = Mage::getModel('cron/schedule');
                         $schedule->setJobCode($jobCode)
                             ->setCreatedAt($timecreated)
@@ -180,7 +167,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
     public function clearScheduleTable(Mage_Cron_Model_Resource_Schedule_Collection $scheduleCollection, $status = array()) {
         $helper = Mage::helper('doofinder_feed');
         foreach ($scheduleCollection as $job) {
-            if ($job->getJobCode() === $helper::JOB_CODE && in_array($job->getStatus(), $status) ) {
+            if ($job->getJobCode() === $helper::JOB_CODE && !in_array($job->getStatus(), $status) ) {
                 Mage::getModel('cron/schedule')->load($job->getScheduleId())->delete();
             }
         }
