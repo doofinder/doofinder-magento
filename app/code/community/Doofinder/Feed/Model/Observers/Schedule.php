@@ -26,21 +26,33 @@ class Doofinder_Feed_Model_Observers_Schedule {
             $this->_registerProcess($storeCode, $status);
         }
 
-        $processModel = Mage::getModel('doofinder_feed/cron')->load($storeCode, 'store_code');
+        $process = Mage::getModel('doofinder_feed/cron')->load($storeCode, 'store_code');
 
-        if ($isEnabled && $processModel->getStatus() == $helper::STATUS_DISABLED) {
-            $processModel->setStatus($helper::STATUS_WAITING)->save();
+        if ($isEnabled && $process->getStatus() == $helper::STATUS_DISABLED) {
+            // Set waiting status
+            $process->modeWaiting();
+            // Remove tmp xml
+            $this->_removeTmpXml($storeCode);
             return true;
-        } else if (!$isEnabled && $processModel->getStatus() != $helper::STATUS_DISABLED) {
-            $processModel->resetData($storeCode);
+        } else if (!$isEnabled && $process->getStatus() != $helper::STATUS_DISABLED) {
+            // Remove last scheduled task
+            $lastId = $process->getScheduleId();
+            $this->_removeLastSchedule($lastId);
+
+            // Disable process
+            $process->modeDisabled($storeCode);
+
+            // Remove tmp xml
+            $this->_removeTmpXml($storeCode);
             // Clear cron table
             $scheduleCollection = Mage::getModel('cron/schedule')
                 ->getCollection()
+                ->addFieldToFilter('schedule_id', $process->getScheduleId())
                 ->addFieldToFilter('job_code', $helper::JOB_CODE)
-                ->addFieldToFilter('store_code', $storeCode)
                 ->load();
 
             $this->clearScheduleTable($scheduleCollection);
+
         }
 
 
@@ -55,8 +67,8 @@ class Doofinder_Feed_Model_Observers_Schedule {
                 try {
                     $scheduleCollection = Mage::getModel('cron/schedule')
                         ->getCollection()
+                        ->addFieldToFilter('schedule_id', $process->getScheduleId())
                         ->addFieldToFilter('job_code', $helper::JOB_CODE)
-                        ->addFieldToFilter('store_code', $storeCode)
                         ->load();
 
                     $this->clearScheduleTable($scheduleCollection);
@@ -67,7 +79,6 @@ class Doofinder_Feed_Model_Observers_Schedule {
                         ->setScheduledAt($timescheduled)
                         ->setStatus($helper::STATUS_PENDING)
                         ->setWebsiteId(intval($store->getWebsiteId()))
-                        ->setStoreCode($store->getCode())
                         ->save();
 
                     $id = $schedule->getId();
@@ -80,10 +91,13 @@ class Doofinder_Feed_Model_Observers_Schedule {
                         ->setComplete('0%')
                         ->setNextRun($processTimescheduled)
                         ->setNextIteration($processTimescheduled)
+                        ->setMessage($helper::MSG_PENDING)
                         ->save();
-                } catch (Exception $e) {
 
-                    throw new Exception(Mage::helper('cron')->__('Unable to save Cron expression'));
+                    // Remove tmp xml
+                    $this->_removeTmpXml($storeCode);
+                } catch (Exception $e) {
+                    Mage::getSingleton('core/session')->addError('Error: '.$e);
                 }
             }
         }
@@ -141,6 +155,12 @@ class Doofinder_Feed_Model_Observers_Schedule {
 
                         $id = $schedule->getId();
 
+                        // Delete last scheduled entry if exists
+                        $lastId = $process->getScheduleId();
+
+                        $this->_removeLastSchedule($lastId);
+
+
                         $processTimescheduled = $helper->getScheduledAt($config['time'], $config['frequency'], false);
                         $process->setStatus($helper::STATUS_PENDING)
                             ->setComplete('0%')
@@ -148,6 +168,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
                             ->setNextIteration($processTimescheduled)
                             ->setOffset(0)
                             ->setScheduleId($id)
+                            ->setMessage($helper::MSG_PENDING)
                             ->save();
 
                     }
@@ -205,6 +226,43 @@ class Doofinder_Feed_Model_Observers_Schedule {
             'last_feed_name'=>  'None',
         );
         $model->setData($data)->save();
+    }
+
+    /**
+     * Remove tmp xml file.
+     * @param string $store_code
+     * @return bool
+     */
+    private function _removeTmpXml($store_code = null) {
+        if (empty($store_code)) {
+            return false;
+        }
+        $helper = Mage::helper('doofinder_feed');
+        $config = $helper->getStoreConfig($store_code);
+        $filePath = Mage::getBaseDir('media').DS.'doofinder'.DS.$config['xmlName'].'.tmp';
+        if (file_exists($filePath)) {
+            unlink($filePath);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Remove last scheduled entry in cron_schedule table.
+     * @param int $lastId
+     * @return bool
+     */
+    private function _removeLastSchedule($lastId = null) {
+        if (empty($lastId)) {
+            return false;
+        }
+
+        $lastSchedule = Mage::getModel('cron/schedule')->load($lastId);
+        if ($lastSchedule->getData()) {
+            $lastSchedule->delete();
+            return true;
+        }
+
     }
 
 }

@@ -9,7 +9,7 @@ class Doofinder_Feed_Model_Cron extends Mage_Core_Model_Abstract {
     }
 
 
-    public function resetData() {
+    public function modeDisabled() {
         $helper = Mage::helper('doofinder_feed');
         $this->setStatus($helper::STATUS_DISABLED)
             ->setOffset(0)
@@ -17,8 +17,17 @@ class Doofinder_Feed_Model_Cron extends Mage_Core_Model_Abstract {
             ->setComplete('-')
             ->setNextRun('-')
             ->setNextIteration('-')
+            ->setMessage($helper::MSG_DISABLED)
             ->save();
     }
+
+    public function modeWaiting() {
+        $helper = Mage::helper('doofinder_feed');
+        $this->setStatus($helper::STATUS_WAITING)
+            ->setMessage($helper::MSG_WAITING)
+            ->save();
+    }
+
 
 }
 
