@@ -55,6 +55,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 
         $generator = Mage::getSingleton('doofinder_feed/generator', $options);
         $response = $generator->run();
+
         ob_end_clean();
         $this->getResponse()->setBody($response);
     }

@@ -16,9 +16,20 @@ class Doofinder_Feed_Model_Observers_Feed
         $stores = Mage::app()->getStores();
         $helper = Mage::helper('doofinder_feed');
 
+
+        // Get doofinder proces smodel
+        $process = Mage::getModel('doofinder_feed/cron')->load($observer->getScheduleId(), 'schedule_id');
+        Mage::log($process->getData());
+        if (!$process->getData()) {
+            return;
+        }
+
+        $scheduleId = $process->getScheduleId();
+
         // Get store code
-        $this->storeCode = 'test';#$observer->getStoreCode();
+        $this->storeCode = $process->getStoreCode();
         Mage::log('Generate feed for '.$this->storeCode);
+
 
         // Get store config
         $this->config = $helper->getStoreConfig($this->storeCode);
@@ -28,10 +39,7 @@ class Doofinder_Feed_Model_Observers_Feed
                 // Get data model for store cron
                 $dataModel = Mage::getModel('cron/schedule');
 
-                // Get doofinder proces smodel
-                $process = Mage::getModel('doofinder_feed/cron')->load($this->storeCode, 'store_code');
 
-                $scheduleId = $process->getScheduleId();
                 // Get store cron data
                 $data = $dataModel->load($scheduleId);
 
@@ -184,9 +192,9 @@ class Doofinder_Feed_Model_Observers_Feed
         // Set new schedule time
         $timezoneOffset = $helper->getTimezoneOffset();
         $delayInMin = intval($this->config['stepDelay']);
-        $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H") - $timezoneOffset, date("i"), date("s"), date("m"), date("d"), date("Y")));
-        $localTimescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
-        $timescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H") - $timezoneOffset, date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
+        $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
+        $localTimescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H") + $timezoneOffset, date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
+        $timescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
 
 
         $offset = intval($process->getOffset());
@@ -241,6 +249,8 @@ class Doofinder_Feed_Model_Observers_Feed
 
         $process->addData($data)->save();
     }
+
+
 
 
 }

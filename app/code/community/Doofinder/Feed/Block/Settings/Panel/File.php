@@ -18,9 +18,12 @@ class Doofinder_Feed_Block_Settings_Panel_File extends Mage_Adminhtml_Block_Syst
         $lastGeneratedName = $process->getLastFeedName();
 
         $html = '';
-        if ($lastGeneratedName) {
-            $path = Mage::getBaseUrl('media').DS.'doofinder'.DS.$lastGeneratedName;
-            $html = "<a href='{$path}' target='_blank'>Get {$lastGeneratedName}</a>";
+        $fileUrl = Mage::getBaseUrl('media').'doofinder'.DS.$lastGeneratedName;
+        $fileDir = Mage::getBaseDir('media').DS.'doofinder'.DS.$lastGeneratedName;
+        if ($lastGeneratedName && file_exists($fileDir)) {
+            $html = "<a href='{$fileUrl}' target='_blank'>Get {$lastGeneratedName}</a>";
+        } else {
+            $html = "<p>Currently there is no file to preview.</p>";
         }
 
         return $html;

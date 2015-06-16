@@ -33,7 +33,6 @@ class Doofinder_Feed_Model_Observers_Schedule {
             $process->modeWaiting();
             // Remove tmp xml
             $this->_removeTmpXml($storeCode);
-            return true;
         } else if (!$isEnabled && $process->getStatus() != $helper::STATUS_DISABLED) {
             // Remove last scheduled task
             $lastId = $process->getScheduleId();
@@ -59,7 +58,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
 
         if ($store->getIsActive()) {
             if ($resetSchedule && $isEnabled) {
-                Mage::log('Resetting schedule.');
+                Mage::log("Resetting schedule for {$storeCode}");
                 $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
                 $timescheduled = $helper->getScheduledAt($config['time'], $config['frequency']);
                 $jobCode = $helper::JOB_CODE;
@@ -241,8 +240,14 @@ class Doofinder_Feed_Model_Observers_Schedule {
         $config = $helper->getStoreConfig($store_code);
         $filePath = Mage::getBaseDir('media').DS.'doofinder'.DS.$config['xmlName'].'.tmp';
         if (file_exists($filePath)) {
-            unlink($filePath);
-            return true;
+            $success = unlink($filePath);
+            if ($success) {
+                Mage::getSingleton('core/session')->addSuccess("Temporary xml file: {$filePath} has beed removed.");
+                return true;
+            } else {
+                Mage::getSingleton('core/session')->addError("Could not remove {$filePath}; This can lead to some errors. Remove this file manually.");
+                return false;
+            }
         }
         return false;
     }

@@ -473,8 +473,12 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
     public function getTimezoneOffset() {
         $timezone = Mage::getStoreConfig('general/locale/timezone');
+        $backTimezone = date_default_timezone_get();
+        // Set relative timezone
         date_default_timezone_set($timezone);
         $offset = (date('Z') / 60 / 60);
+        // Revoke server timezone
+        date_default_timezone_set($backTimezone);
         return $offset;
     }
 }
