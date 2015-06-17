@@ -201,7 +201,8 @@ class Doofinder_Feed_Model_Observers_Schedule {
      */
     private function _isProcessRegistered($store_code = 'default') {
         $process = Mage::getModel('doofinder_feed/cron')->load($store_code, 'store_code');
-        if (empty($process->getData())) {
+        $data = $process->getData();
+        if (empty($data)) {
             return false;
         }
         return true;
