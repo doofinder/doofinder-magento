@@ -211,8 +211,9 @@
             <settings>
                 <enabled>0</enabled>
                 <name>doofinder-{store_code}.xml</name>
-                <minimal_price>1</minimal_price>
+                <display_price>1</display_price>
                 <grouped>1</grouped>
+                <delay>1</delay>
                 <step>5</step>
                 <reset>0</reset>
             </settings>
