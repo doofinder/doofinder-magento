@@ -23,6 +23,10 @@ class Doofinder_Feed_IndexController extends Mage_Core_Controller_Front_Action
     }
 
     public function testAction() {
+        $allStores = Mage::app()->getStores();
+        foreach ($allStores as $store) {
+            var_dump($store->getCode());
+        }
 
     }
 }

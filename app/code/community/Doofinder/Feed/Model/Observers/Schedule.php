@@ -4,99 +4,110 @@ class Doofinder_Feed_Model_Observers_Schedule {
     public function saveNewSchedule($observer) {
         Mage::log('Saving new schedule: ' .date('c', time()));
         // Get store code
-        $storeCode = $observer->getStore();
+        $currentStoreCode = $observer->getStore();
 
-        // Do nothing if there is no store code
-        if (!$storeCode) return;
+        // Stores array holding all store codes
+        $codes = array();
 
-
-        // Get store
-        $store = Mage::app()->getStore($storeCode);
-        $helper = Mage::helper('doofinder_feed');
-        $config = $helper->getStoreConfig($storeCode);
-        $resetSchedule = (bool)$config['reset'];
-        $isEnabled = (bool)$config['enabled'];
-        // Register process if not exists
-
-        if (!$this->_isProcessRegistered($storeCode)) {
-            $status = $isEnabled? $helper::STATUS_WAITING : $helper::STATUS_DISABLED;
-            if ($resetSchedule) {
-                $status = $helper::STATUS_PENDING;
+        // Create stores codes array
+        if ($currentStoreCode) {
+            $codes[] = $currentStoreCode;
+        } else {
+            $stores = Mage::app()->getStores();
+            foreach ($stores as $store) {
+                $codes[] = $store->getCode();
             }
-            $this->_registerProcess($storeCode, $status);
-        }
-
-        $process = Mage::getModel('doofinder_feed/cron')->load($storeCode, 'store_code');
-
-        if ($isEnabled && $process->getStatus() == $helper::STATUS_DISABLED) {
-            // Set waiting status
-            $process->modeWaiting();
-            // Remove tmp xml
-            $this->_removeTmpXml($storeCode);
-        } else if (!$isEnabled && $process->getStatus() != $helper::STATUS_DISABLED) {
-            // Remove last scheduled task
-            $lastId = $process->getScheduleId();
-            $this->_removeLastSchedule($lastId);
-
-            // Disable process
-            $process->modeDisabled($storeCode);
-
-            // Remove tmp xml
-            $this->_removeTmpXml($storeCode);
-            // Clear cron table
-            $scheduleCollection = Mage::getModel('cron/schedule')
-                ->getCollection()
-                ->addFieldToFilter('schedule_id', $process->getScheduleId())
-                ->addFieldToFilter('job_code', $helper::JOB_CODE)
-                ->load();
-
-            $this->clearScheduleTable($scheduleCollection);
 
         }
+        foreach ($codes as $storeCode) {
+            // Get store
+            $store = Mage::app()->getStore($storeCode);
+            $helper = Mage::helper('doofinder_feed');
+            $config = $helper->getStoreConfig($storeCode);
+            $resetSchedule = (bool)$config['reset'];
+            $isEnabled = (bool)$config['enabled'];
+            // Register process if not exists
+
+            if (!$this->_isProcessRegistered($storeCode)) {
+                $status = $isEnabled? $helper::STATUS_WAITING : $helper::STATUS_DISABLED;
+                if ($resetSchedule) {
+                    $status = $helper::STATUS_PENDING;
+                }
+                $this->_registerProcess($storeCode, $status);
+            }
+
+            $process = Mage::getModel('doofinder_feed/cron')->load($storeCode, 'store_code');
+
+            if ($isEnabled && $process->getStatus() == $helper::STATUS_DISABLED) {
+                // Set waiting status
+                $process->modeWaiting();
+                // Remove tmp xml
+                $this->_removeTmpXml($storeCode);
+            } else if (!$isEnabled && $process->getStatus() != $helper::STATUS_DISABLED) {
+                // Remove last scheduled task
+                $lastId = $process->getScheduleId();
+                $this->_removeLastSchedule($lastId);
+
+                // Disable process
+                $process->modeDisabled($storeCode);
+
+                // Remove tmp xml
+                $this->_removeTmpXml($storeCode);
+                // Clear cron table
+                $scheduleCollection = Mage::getModel('cron/schedule')
+                    ->getCollection()
+                    ->addFieldToFilter('schedule_id', $process->getScheduleId())
+                    ->addFieldToFilter('job_code', $helper::JOB_CODE)
+                    ->load();
+
+                $this->clearScheduleTable($scheduleCollection);
+
+            }
 
 
 
-        if ($store->getIsActive()) {
-            if ($resetSchedule && $isEnabled) {
-                Mage::log("Resetting schedule for {$storeCode}");
-                $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
-                $timescheduled = $helper->getScheduledAt($config['time'], $config['frequency']);
-                $jobCode = $helper::JOB_CODE;
+            if ($store->getIsActive()) {
+                if ($resetSchedule && $isEnabled) {
+                    Mage::log("Resetting schedule for {$storeCode}");
+                    $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
+                    $timescheduled = $helper->getScheduledAt($config['time'], $config['frequency']);
+                    $jobCode = $helper::JOB_CODE;
 
-                try {
-                    $scheduleCollection = Mage::getModel('cron/schedule')
-                        ->getCollection()
-                        ->addFieldToFilter('schedule_id', $process->getScheduleId())
-                        ->addFieldToFilter('job_code', $helper::JOB_CODE)
-                        ->load();
+                    try {
+                        $scheduleCollection = Mage::getModel('cron/schedule')
+                            ->getCollection()
+                            ->addFieldToFilter('schedule_id', $process->getScheduleId())
+                            ->addFieldToFilter('job_code', $helper::JOB_CODE)
+                            ->load();
 
-                    $this->clearScheduleTable($scheduleCollection);
+                        $this->clearScheduleTable($scheduleCollection);
 
-                    $schedule = Mage::getModel('cron/schedule');
-                    $schedule->setJobCode($jobCode)
-                        ->setCreatedAt($timecreated)
-                        ->setScheduledAt($timescheduled)
-                        ->setStatus($helper::STATUS_PENDING)
-                        ->setWebsiteId(intval($store->getWebsiteId()))
-                        ->save();
+                        $schedule = Mage::getModel('cron/schedule');
+                        $schedule->setJobCode($jobCode)
+                            ->setCreatedAt($timecreated)
+                            ->setScheduledAt($timescheduled)
+                            ->setStatus($helper::STATUS_PENDING)
+                            ->setWebsiteId(intval($store->getWebsiteId()))
+                            ->save();
 
-                    $id = $schedule->getId();
+                        $id = $schedule->getId();
 
-                    $processTimescheduled = $helper->getScheduledAt($config['time'], $config['frequency'], false);
-                    $process = Mage::getModel('doofinder_feed/cron')->load($storeCode, 'store_code');
-                    $process->setStatus($helper::STATUS_PENDING)
-                        ->setOffset(0)
-                        ->setScheduleId($id)
-                        ->setComplete('0%')
-                        ->setNextRun($processTimescheduled)
-                        ->setNextIteration($processTimescheduled)
-                        ->setMessage($helper::MSG_PENDING)
-                        ->save();
+                        $processTimescheduled = $helper->getScheduledAt($config['time'], $config['frequency'], false);
+                        $process = Mage::getModel('doofinder_feed/cron')->load($storeCode, 'store_code');
+                        $process->setStatus($helper::STATUS_PENDING)
+                            ->setOffset(0)
+                            ->setScheduleId($id)
+                            ->setComplete('0%')
+                            ->setNextRun($processTimescheduled)
+                            ->setNextIteration($processTimescheduled)
+                            ->setMessage($helper::MSG_PENDING)
+                            ->save();
 
-                    // Remove tmp xml
-                    $this->_removeTmpXml($storeCode);
-                } catch (Exception $e) {
-                    Mage::getSingleton('core/session')->addError('Error: '.$e);
+                        // Remove tmp xml
+                        $this->_removeTmpXml($storeCode);
+                    } catch (Exception $e) {
+                        Mage::getSingleton('core/session')->addError('Error: '.$e);
+                    }
                 }
             }
         }

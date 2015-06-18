@@ -44,9 +44,9 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
     const JOB_CODE          = 'doofinder_feed_generate';
 
     const MSG_EMPTY = "Currently there is no message.";
-    const MSG_PENDING = "New feed proces has been scheduled. Waiting to run.";
-    const MSG_DISABLED = "Feed generator for this view is currently disabled.";
-    const MSG_WAITING = "Waiting for new schedule.";
+    const MSG_PENDING = "The new process of generating the feed has been registered and it's waiting to be activated.";
+    const MSG_DISABLED = "The feed generator for this view is currently disabled.";
+    const MSG_WAITING = "Waiting for registering the new process of generating the feed.";
 
 
     /**
