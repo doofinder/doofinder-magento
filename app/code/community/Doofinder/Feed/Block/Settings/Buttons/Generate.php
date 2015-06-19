@@ -7,8 +7,8 @@ class Doofinder_Feed_Block_Settings_Buttons_Generate extends Mage_Adminhtml_Bloc
         $this->setElement($element);
 
         $storeCode = Mage::app()->getRequest()->getParam('store');
-        $display_price = Mage::getStoreConfig('doofinder_cron/settings/display_price', $storeCode);
-        $grouped = Mage::getStoreConfig('doofinder_cron/settings/grouped', $storeCode);
+        $display_price = Mage::getStoreConfig('doofinder_cron/feed_settings/display_price', $storeCode);
+        $grouped = Mage::getStoreConfig('doofinder_cron/feed_settings/grouped', $storeCode);
 
         $script = "<script type=\"text/javascript\">
             function changeHandler() {
