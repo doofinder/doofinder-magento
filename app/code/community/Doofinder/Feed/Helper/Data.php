@@ -405,19 +405,19 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
      * @param string $storeCode
      * @return array
      */
-    public function getStoreConfig($storeCode = 'default') {
-        $xmlName = Mage::getStoreConfig('doofinder_cron/settings/name', $storeCode);
+    public function getStoreConfig($storeCode = '') {
+        $xmlName = Mage::getStoreConfig('doofinder_cron/schedule_settings/name', $storeCode);
         $config = array(
-            'enabled'   =>  Mage::getStoreConfig('doofinder_cron/settings/enabled', $storeCode),
-            'display_price'     =>  Mage::getStoreConfig('doofinder_cron/settings/display_price', $storeCode),
-            'grouped'   =>  Mage::getStoreConfig('doofinder_cron/settings/grouped', $storeCode),
-            'stepSize'  =>  Mage::getStoreConfig('doofinder_cron/settings/step', $storeCode),
-            'stepDelay' =>  Mage::getStoreConfig('doofinder_cron/settings/delay', $storeCode),
-            'frequency' =>  Mage::getStoreConfig('doofinder_cron/settings/frequency', $storeCode),
-            'time'      =>  explode(',', Mage::getStoreConfig('doofinder_cron/settings/time', $storeCode)),
+            'enabled'   =>  Mage::getStoreConfig('doofinder_cron/schedule_settings/enabled', $storeCode),
+            'display_price'     =>  Mage::getStoreConfig('doofinder_cron/feed_settings/display_price', $storeCode),
+            'grouped'   =>  Mage::getStoreConfig('doofinder_cron/feed_settings/grouped', $storeCode),
+            'stepSize'  =>  Mage::getStoreConfig('doofinder_cron/schedule_settings/step', $storeCode),
+            'stepDelay' =>  Mage::getStoreConfig('doofinder_cron/schedule_settings/delay', $storeCode),
+            'frequency' =>  Mage::getStoreConfig('doofinder_cron/schedule_settings/frequency', $storeCode),
+            'time'      =>  explode(',', Mage::getStoreConfig('doofinder_cron/schedule_settings/time', $storeCode)),
             'storeCode' =>  $storeCode,
             'xmlName'   =>  $this->_processXmlName($xmlName, $storeCode),
-            'reset'     =>  Mage::getStoreConfig('doofinder_cron/settings/reset', $storeCode),
+            'reset'     =>  Mage::getStoreConfig('doofinder_cron/schedule_settings/reset', $storeCode),
         );
         return $config;
     }

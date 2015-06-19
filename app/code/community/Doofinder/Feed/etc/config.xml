@@ -66,6 +66,13 @@
     </global>
 
     <adminhtml>
+        <layout>
+            <updates>
+                <doofinder_feed>
+                    <file>doofinder.xml</file>
+                </doofinder_feed>
+            </updates>
+        </layout>
         <acl>
             <resources>
                 <admin>
@@ -208,15 +215,18 @@
             </feed>
         </doofinder>
         <doofinder_cron>
-            <settings>
+            <schedule_settings>
                 <enabled>0</enabled>
                 <name>doofinder-{store_code}.xml</name>
-                <display_price>1</display_price>
-                <grouped>1</grouped>
-                <delay>1</delay>
+
+                <delay>5</delay>
                 <step>5</step>
                 <reset>0</reset>
-            </settings>
+            </schedule_settings>
+            <feed_settings>
+                <display_price>1</display_price>
+                <grouped>1</grouped>
+            </feed_settings>
         </doofinder_cron>
     </default>
 

@@ -1,0 +1,7 @@
+<layout>
+    <default>
+        <reference name="head">
+            <action method="addJs"><script>test.js</script></action>
+        </reference>
+    </default>
+</layout>
