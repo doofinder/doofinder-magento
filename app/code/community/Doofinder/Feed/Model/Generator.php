@@ -57,7 +57,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             return;
 
         Doofinder_Feed_Model_Map_Product_Configurable::setGrouped($this->getData('grouped'));
-
         // Some config
         $this->_oRootCategory = $this->getRootCategory();
 
@@ -72,7 +71,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         else
         {
             $this->_initFeed();
-
             if (! $this->getData('_limit_'))
             {
                 $this->_iBatchSize = false;
@@ -90,7 +88,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                     $this->getData('_limit_')
                 );
             }
-
             $this->_closeFeed();
             return $this->_response;
         }
@@ -124,8 +121,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $product->setData($row)
             ->setStoreId($this->getStoreId())
             ->setCustomerGroupId($this->getData('customer_group_id'));
-        $product->getResource()->load($product, $row['entity_id']);
 
+        $product->getResource()->load($product, $row['entity_id']);
         $map->setGenerator($this)
             ->setProduct($product)
             ->setFieldsMap($this->_getFieldsMap())
@@ -147,17 +144,16 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected function _batchProcessProducts($offset, $limit)
     {
+
         $batchSize = min($this->_iProductCount - $offset, $limit);
 
         if ($batchSize > 0)
         {
             $collection = $this->_getProductCollection($offset, $batchSize);
-
             Mage::getSingleton('core/resource_iterator')->walk(
                 $collection->getSelect(),
                 array(array($this, 'addProductToFeed'))
             );
-
             $this->_flushFeed();
         }
         else

@@ -69,7 +69,6 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         $this->_setJSONHeaders();
 
 
-
         $params = $this->getRequest()->getParams();
         $options = array(
             '_limit_' => $this->_getInteger('limit', null),
