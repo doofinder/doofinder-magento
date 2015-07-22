@@ -120,19 +120,6 @@
                             <show_in_store>1</show_in_store>
                         </name>
 
-
-                        <reset translate="label">
-                            <label>Reset schedule on save</label>
-                            <frontend_type>select</frontend_type>
-                            <comment>Reset the tasks calendar on save</comment>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <backend_model>doofinder_feed/system_config_reset</backend_model>
-                            <sort_order>9</sort_order>
-                            <show_in_default>0</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </reset>
-
                         <generate translate="label">
                             <frontend_type>button</frontend_type>
                             <frontend_model>doofinder_feed/settings_buttons_generate</frontend_model>
@@ -141,6 +128,15 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
                         </generate>
+
+                        <reschedule translate="label">
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>doofinder_feed/settings_buttons_reschedule</frontend_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </reschedule>
                     </fields>
                 </schedule_settings>
                 <panel translate="label">

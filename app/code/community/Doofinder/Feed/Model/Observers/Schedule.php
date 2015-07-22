@@ -24,7 +24,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
             $store = Mage::app()->getStore($storeCode);
             $helper = Mage::helper('doofinder_feed');
             $config = $helper->getStoreConfig($storeCode);
-            $resetSchedule = (bool)$config['reset'];
+            $resetSchedule = (bool)Mage::app()->getRequest()->getParam('reset');
             $isEnabled = (bool)$config['enabled'];
             // Register process if not exists
 
