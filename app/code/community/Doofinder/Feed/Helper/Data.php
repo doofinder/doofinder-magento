@@ -268,29 +268,26 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
     protected function _getGroupedProductPrice($product)
     {
-        $prices = array();
-
         $weeeHelper = Mage::helper('weee');
         $taxHelper = Mage::helper('tax');
         $coreHelper = Mage::helper('core');
 
-        $sub_prices = array();
-        $sub_sale_prices = array();
+        $minimal_prices = array(
+            'price' => array(
+                'including_tax' => 0,
+                'excluding_tax' => 0
+            ),
+            'sale_price' => array(
+                'including_tax' => 0,
+                'excluding_tax' => 0
+            )
+        );
 
         $childrenIds = $product->getTypeInstance()->getChildrenIds($product->getId());
         $childrenIds = $childrenIds[Mage_Catalog_Model_Product_Link::LINK_TYPE_GROUPED];
 
         if (empty($childrenIds) || !is_array($childrenIds)) {
-            return array(
-                'price' => array(
-                    'including_tax' => 0,
-                    'excluding_tax' => 0
-                ),
-                'sale_price' => array(
-                    'including_tax' => 0,
-                    'excluding_tax' => 0
-                )
-            );
+            return $minimal_prices;
         }
 
         $collection = Mage::getModel('catalog/product')->getCollection();
@@ -301,37 +298,16 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
         foreach($collection as $product)
         {
-            $sub_product_price = $this->collectProductPrices($product, $this->store, $this->currencyConvert, true, $this->groupConfigurables);
+            $sub_prices = $this->collectProductPrices($product, $this->store, $this->currencyConvert, $this->useMinimalPrice, $this->groupConfigurables);
 
-            if (! empty($sub_product_price['price']['excluding_tax']))
-            {
-                $sub_prices[] = $sub_product_price['price']['excluding_tax'];
-
-                if (! empty($sub_product_price['sale_price']['excluding_tax']))
-                {
-                    $sub_sale_prices[] = $sub_product_price['sale_price']['excluding_tax'];
-                }
+            if (! empty($sub_prices['price']['excluding_tax'])) {
+                if ($minimal_prices['price']['excluding_tax'] === 0 ||
+                    $minimal_prices['price']['excluding_tax'] > $sub_prices['price']['excluding_tax'])
+                    $minimal_prices = $sub_prices;
             }
-
         }
 
-        asort($sub_prices);
-        asort($sub_sale_prices);
-
-        $minPriceValue = array_shift($sub_prices);
-        $minSalePriceValue = array_shift($sub_sale_prices);
-
-        if ( $minPriceValue )
-        {
-            $prices['price_type'] = 'minimal';
-
-            $prices['price']['excluding_tax'] = $taxHelper->getPrice($product, $minPriceValue, false, null, null, null, $this->store, null);
-            $prices['price']['including_tax'] = $taxHelper->getPrice($product, $minPriceValue, true, null, null, null, $this->store, null);
-            $prices['sale_price']['excluding_tax'] = $taxHelper->getPrice($product, $minSalePriceValue, false, null, null, null, $this->store, null);
-            $prices['sale_price']['including_tax'] = $taxHelper->getPrice($product, $minSalePriceValue, true, null, null, null, $this->store, null);
-        }
-
-        return $prices;
+        return $minimal_prices;
     }
 
     protected function _getBundleProductPrice($product)
