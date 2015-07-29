@@ -87,7 +87,7 @@ class Doofinder_Feed_Model_Map_Product_Configurable
             $masterData = current($masterData);
 
             // Only add the master data is we don't group products
-            if (!$grouped)
+            if ($grouped)
                 $rows[] = $masterData;
         }
 
@@ -101,7 +101,7 @@ class Doofinder_Feed_Model_Map_Product_Configurable
                 $row = current($row);
 
                 // We can group multiple configurable products into the master product
-                if ($grouped)
+                if (!$grouped)
                 {
                     foreach ($row as $name => $value)
                     {
@@ -120,7 +120,7 @@ class Doofinder_Feed_Model_Map_Product_Configurable
             }
         }
 
-        if ($grouped)
+        if (!$grouped)
             $rows[] = $masterData; // Add the complete master data object
 
         return $rows;

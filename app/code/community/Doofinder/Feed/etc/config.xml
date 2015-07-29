@@ -3,10 +3,9 @@
 
     <modules>
         <Doofinder_Feed>
-            <version>1.5.3</version>
+            <version>1.5.4</version>
         </Doofinder_Feed>
     </modules>
-
     <global>
         <helpers>
             <doofinder_feed>
@@ -16,11 +15,84 @@
         <models>
             <doofinder_feed>
                 <class>Doofinder_Feed_Model</class>
+                <resourceModel>doofinder_feed_mysql4</resourceModel>
             </doofinder_feed>
+            <doofinder_feed_mysql4>
+                <class>Doofinder_Feed_Model_Mysql4</class>
+                <entities>
+                    <cron>
+                        <table>doofinder_feed</table>
+                    </cron>
+                </entities>
+            </doofinder_feed_mysql4>
         </models>
+        <resources>
+            <doofinder_feed_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </doofinder_feed_write>
+            <doofinder_feed_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </doofinder_feed_read>
+            <doofinder_feed_setup>
+                <setup>
+                    <module>Doofinder_Feed</module>
+                    <class>Doofinder_Feed_Model_Resource_Mysql4_Setup</class>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </doofinder_feed_setup>
+        </resources>
+        <blocks>
+            <doofinder_feed>
+                <class>Doofinder_Feed_Block</class>
+            </doofinder_feed>
+        </blocks>
+        <events>
+            <admin_system_config_changed_section_doofinder_cron>
+                <observers>
+                    <doofinder_feed>
+                        <type>singleton</type>
+                        <class>doofinder_feed/observers_schedule</class>
+                        <method>saveNewSchedule</method>
+                    </doofinder_feed>
+                </observers>
+            </admin_system_config_changed_section_doofinder_cron>
+        </events>
     </global>
 
-    <admin></admin>
+    <adminhtml>
+        <layout>
+            <updates>
+                <doofinder_feed>
+                    <file>doofinder.xml</file>
+                </doofinder_feed>
+            </updates>
+        </layout>
+        <acl>
+            <resources>
+                <admin>
+                    <children>
+                        <system>
+                            <children>
+                                <config>
+                                    <children>
+                                        <doofinder_cron>
+                                            <title>Cron Options</title>
+                                        </doofinder_cron>
+                                    </children>
+                                </config>
+                            </children>
+                        </system>
+                    </children>
+                </admin>
+            </resources>
+        </acl>
+    </adminhtml>
 
     <install></install>
 
@@ -142,11 +214,43 @@
 
             </feed>
         </doofinder>
+        <doofinder_cron>
+            <schedule_settings>
+                <enabled>0</enabled>
+                <name>doofinder-{store_code}.xml</name>
+
+                <delay>5</delay>
+                <step>5</step>
+                <reset>0</reset>
+            </schedule_settings>
+            <feed_settings>
+                <display_price>1</display_price>
+                <grouped>1</grouped>
+            </feed_settings>
+        </doofinder_cron>
     </default>
 
     <stores></stores>
 
     <websites></websites>
+
+    <crontab>
+        <jobs>
+            <doofinder_feed_generate>
+                <run>
+                    <model>doofinder_feed/observers_feed::generateFeed</model>
+                </run>
+            </doofinder_feed_generate>
+            <doofinder_feed_schedule>
+                <schedule>
+                    <cron_expr>1 */12 * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>doofinder_feed/observers_schedule::regenerateSchedule</model>
+                </run>
+            </doofinder_feed_schedule>
+        </jobs>
+    </crontab>
 
     <phpunit>
         <suite>

@@ -57,14 +57,12 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             return;
 
         Doofinder_Feed_Model_Map_Product_Configurable::setGrouped($this->getData('grouped'));
-
         // Some config
         $this->_oRootCategory = $this->getRootCategory();
 
         // Generate Feed
         $this->_loadAdditionalAttributes();
         $this->_iProductCount = $this->getProductCount();
-
 
         if ($this->getData('_offset_') >= $this->_iProductCount)  // offset is 0-based
         {
@@ -73,7 +71,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         else
         {
             $this->_initFeed();
-
             if (! $this->getData('_limit_'))
             {
                 $this->_iBatchSize = false;
@@ -88,9 +85,9 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             {
                 $this->_iBatchSize = $this->_batchProcessProducts(
                     $this->getData('_offset_'),
-                    $this->getData('_limit_'));
+                    $this->getData('_limit_')
+                );
             }
-
             $this->_closeFeed();
             return $this->_response;
         }
@@ -124,8 +121,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $product->setData($row)
             ->setStoreId($this->getStoreId())
             ->setCustomerGroupId($this->getData('customer_group_id'));
-        $product->getResource()->load($product, $row['entity_id']);
 
+        $product->getResource()->load($product, $row['entity_id']);
         $map->setGenerator($this)
             ->setProduct($product)
             ->setFieldsMap($this->_getFieldsMap())
@@ -147,17 +144,16 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected function _batchProcessProducts($offset, $limit)
     {
+
         $batchSize = min($this->_iProductCount - $offset, $limit);
 
         if ($batchSize > 0)
         {
             $collection = $this->_getProductCollection($offset, $batchSize);
-
             Mage::getSingleton('core/resource_iterator')->walk(
                 $collection->getSelect(),
                 array(array($this, 'addProductToFeed'))
             );
-
             $this->_flushFeed();
         }
         else
@@ -172,6 +168,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         Doofinder_Feed_Model_Map_Product_Abstract $productMap)
     {
         $iDumped = 0;
+        $displayPrice = $this->getDisplayPrice();
 
         try
         {
@@ -225,12 +222,18 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
                 foreach ($data as $field => $value)
                 {
+
                     if (!is_array($value))
                     {
                         $value = trim($value);
                     }
 
                     if ($field != 'description' && empty($value)) {
+                        continue;
+                    }
+
+                    if (!$displayPrice && $field === 'price') {
+
                         continue;
                     }
 
@@ -243,6 +246,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
                         $value = implode(self::VALUE_SEPARATOR, array_filter($value));
                     }
+
+
 
                     $written = @$this->_oXmlWriter->writeCData($value);
                     if ( ! $written )
@@ -429,7 +434,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     {
         $this->_oXmlWriter = new XMLWriter();
         $this->_oXmlWriter->openMemory();
-
         if ($this->getData('_offset_') === 0)
         {
             $this->_oXmlWriter->startDocument('1.0', 'UTF-8');

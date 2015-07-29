@@ -245,8 +245,10 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
                 $priceKey = 'excluding_tax';
             }
 
+            $priceType = isset($datum['price_type']) ? $datum['price_type'] : false;
+
             $prices = array(
-                'price_type' => $datum['price_type'],
+                'price_type' => $priceType,
             );
 
             foreach ( $datum as $priceType => $data ) {

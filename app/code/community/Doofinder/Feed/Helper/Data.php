@@ -27,6 +27,28 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
     private $minTierPrice = null;
 
+    const CRON_DAILY     =    Mage_Adminhtml_Model_System_Config_Source_Cron_Frequency::CRON_DAILY;
+    const CRON_WEEKLY    =    Mage_Adminhtml_Model_System_Config_Source_Cron_Frequency::CRON_WEEKLY;
+    const CRON_MONTHLY   =    Mage_Adminhtml_Model_System_Config_Source_Cron_Frequency::CRON_MONTHLY;
+
+    /**
+     * Panel info messages.
+     */
+    const STATUS_DISABLED    = 'Disabled';
+    const STATUS_PENDING    = Mage_Cron_Model_Schedule::STATUS_PENDING;
+    const STATUS_RUNNING    = Mage_Cron_Model_Schedule::STATUS_RUNNING;
+    const STATUS_SUCCESS    = Mage_Cron_Model_Schedule::STATUS_SUCCESS;
+    const STATUS_MISSED     = Mage_Cron_Model_Schedule::STATUS_MISSED;
+    const STATUS_WAITING     = 'Waiting...';
+    const STATUS_ERROR      = Mage_Cron_Model_Schedule::STATUS_ERROR;
+    const JOB_CODE          = 'doofinder_feed_generate';
+
+    const MSG_EMPTY = "Currently there is no message.";
+    const MSG_PENDING = "The new process of generating the feed has been registered and it's waiting to be activated.";
+    const MSG_DISABLED = "The feed generator for this view is currently disabled.";
+    const MSG_WAITING = "Waiting for registering the new process of generating the feed.";
+
+
     /**
      * $product         => Product instance
      * $oStore          => Store instance
@@ -106,6 +128,7 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
     protected function _cleanPrices($prices)
     {
+        if (!isset($prices['price'])) return $prices;
         if ( isset($prices['sale_price']['excluding_tax']) &&
             $prices['price']['excluding_tax'] <= $prices['sale_price']['excluding_tax'] )
         {
@@ -245,29 +268,26 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
     protected function _getGroupedProductPrice($product)
     {
-        $prices = array();
-
         $weeeHelper = Mage::helper('weee');
         $taxHelper = Mage::helper('tax');
         $coreHelper = Mage::helper('core');
 
-        $sub_prices = array();
-        $sub_sale_prices = array();
+        $minimal_prices = array(
+            'price' => array(
+                'including_tax' => 0,
+                'excluding_tax' => 0
+            ),
+            'sale_price' => array(
+                'including_tax' => 0,
+                'excluding_tax' => 0
+            )
+        );
 
         $childrenIds = $product->getTypeInstance()->getChildrenIds($product->getId());
         $childrenIds = $childrenIds[Mage_Catalog_Model_Product_Link::LINK_TYPE_GROUPED];
 
         if (empty($childrenIds) || !is_array($childrenIds)) {
-            return array(
-                'price' => array(
-                    'including_tax' => 0,
-                    'excluding_tax' => 0
-                ),
-                'sale_price' => array(
-                    'including_tax' => 0,
-                    'excluding_tax' => 0
-                )
-            );
+            return $minimal_prices;
         }
 
         $collection = Mage::getModel('catalog/product')->getCollection();
@@ -278,37 +298,16 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
         foreach($collection as $product)
         {
-            $sub_product_price = $this->collectProductPrices($product, $this->store, $this->currencyConvert, true, $this->groupConfigurables);
+            $sub_prices = $this->collectProductPrices($product, $this->store, $this->currencyConvert, $this->useMinimalPrice, $this->groupConfigurables);
 
-            if (! empty($sub_product_price['price']['excluding_tax']))
-            {
-                $sub_prices[] = $sub_product_price['price']['excluding_tax'];
-
-                if (! empty($sub_product_price['sale_price']['excluding_tax']))
-                {
-                    $sub_sale_prices[] = $sub_product_price['sale_price']['excluding_tax'];
-                }
+            if (! empty($sub_prices['price']['excluding_tax'])) {
+                if ($minimal_prices['price']['excluding_tax'] === 0 ||
+                    $minimal_prices['price']['excluding_tax'] > $sub_prices['price']['excluding_tax'])
+                    $minimal_prices = $sub_prices;
             }
-
         }
 
-        asort($sub_prices);
-        asort($sub_sale_prices);
-
-        $minPriceValue = array_shift($sub_prices);
-        $minSalePriceValue = array_shift($sub_sale_prices);
-
-        if ( $minPriceValue )
-        {
-            $prices['price_type'] = 'minimal';
-
-            $prices['price']['excluding_tax'] = $taxHelper->getPrice($product, $minPriceValue, false, null, null, null, $this->store, null);
-            $prices['price']['including_tax'] = $taxHelper->getPrice($product, $minPriceValue, true, null, null, null, $this->store, null);
-            $prices['sale_price']['excluding_tax'] = $taxHelper->getPrice($product, $minSalePriceValue, false, null, null, null, $this->store, null);
-            $prices['sale_price']['including_tax'] = $taxHelper->getPrice($product, $minSalePriceValue, true, null, null, null, $this->store, null);
-        }
-
-        return $prices;
+        return $minimal_prices;
     }
 
     protected function _getBundleProductPrice($product)
@@ -375,5 +374,87 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         return $prices;
+    }
+
+    /**
+     * Gets store config for cron settings.
+     * @param string $storeCode
+     * @return array
+     */
+    public function getStoreConfig($storeCode = '') {
+        $xmlName = Mage::getStoreConfig('doofinder_cron/schedule_settings/name', $storeCode);
+        $config = array(
+            'enabled'   =>  Mage::getStoreConfig('doofinder_cron/schedule_settings/enabled', $storeCode),
+            'display_price'     =>  Mage::getStoreConfig('doofinder_cron/feed_settings/display_price', $storeCode),
+            'grouped'   =>  Mage::getStoreConfig('doofinder_cron/feed_settings/grouped', $storeCode),
+            'stepSize'  =>  Mage::getStoreConfig('doofinder_cron/schedule_settings/step', $storeCode),
+            'stepDelay' =>  Mage::getStoreConfig('doofinder_cron/schedule_settings/delay', $storeCode),
+            'frequency' =>  Mage::getStoreConfig('doofinder_cron/schedule_settings/frequency', $storeCode),
+            'time'      =>  explode(',', Mage::getStoreConfig('doofinder_cron/schedule_settings/time', $storeCode)),
+            'storeCode' =>  $storeCode,
+            'xmlName'   =>  $this->_processXmlName($xmlName, $storeCode),
+            'reset'     =>  Mage::getStoreConfig('doofinder_cron/schedule_settings/reset', $storeCode),
+        );
+        return $config;
+    }
+
+    /**
+     * Process xml filename
+     * @param string $name
+     * @return bool
+     */
+    private function _processXmlName($name = 'doofinder-{store_code}.xml', $code = 'default') {
+        $pattern = '/\{\s*store_code\s*\}/';
+
+        $newName = preg_replace($pattern, $code, $name);
+        return $newName;
+    }
+
+    /**
+     * Create cron expr string
+     * @param string $time
+     * @return mixed
+     */
+    private function _getCronExpr($time = null, $frequency = null) {
+
+        if (!$time) return false;
+        $time = explode(',', $time);
+
+        $cronExprArray = array(
+            intval($time[1]),
+            intval($time[0]),
+            ($frequency == self::CRON_MONTHLY) ? '1' : '*',
+            '*',
+            ($frequency == self::CRON_WEEKLY) ? '1' : '*',
+        );
+        $cronExprString = join(' ', $cronExprArray);
+
+        return $cronExprString;
+    }
+
+    public function getScheduledAt($time = null, $frequency = null, $timezoneOffset = true) {
+
+        $week   = $frequency == self::CRON_WEEKLY ? 7 : 0;
+        $month  = $frequency == self::CRON_MONTHLY ? 1 : 0;
+        $day    = $frequency == self::CRON_DAILY ? 1 : $week;
+        $offset = $this->getTimezoneOffset();
+        if ($timezoneOffset) {
+            $timescheduled = strftime("%Y-%m-%d %H:%M:%S", mktime($time[0] - $offset, $time[1], $time[2], date("m") + $month, date("d") + $day, date("Y")));
+        } else {
+            $timescheduled = strftime("%Y-%m-%d %H:%M:%S", mktime($time[0], $time[1], $time[2], date("m") + $month, date("d") + $day, date("Y")));
+        }
+
+        return $timescheduled;
+    }
+
+    public function getTimezoneOffset() {
+        $timezone = Mage::getStoreConfig('general/locale/timezone');
+        $backTimezone = date_default_timezone_get();
+        // Set relative timezone
+        date_default_timezone_set($timezone);
+        $offset = (date('Z') / 60 / 60);
+        // Revoke server timezone
+        date_default_timezone_set($backTimezone);
+        return $offset;
     }
 }

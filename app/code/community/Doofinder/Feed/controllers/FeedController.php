@@ -1,3 +1,4 @@
+
 <?php
 /**
  * This file is part of Doofinder_Feed.
@@ -44,31 +45,84 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             '_limit_' => $this->_getInteger('limit', null),
             '_offset_' => $this->_getInteger('offset', 0),
             'store_code' => $this->_getStoreCode(),
+            'display_price' => $this->_getBoolean('display_price', true),
             'grouped' => $this->_getBoolean('grouped', true),
             // Calculate the minimal price with the tier prices
+            'minimal_price' => $this->_getBoolean('minimal_price', false),
+            'customer_group_id' => $this->_getInteger('customer_group', 0),
+        );
+        $this->_setXMLHeaders();
+
+        $generator = Mage::getSingleton('doofinder_feed/generator', $options);
+        $response = $generator->run();
+
+        ob_end_clean();
+        $this->getResponse()->setBody($response);
+    }
+
+
+    /**
+     * Ajax action for backend generate html button
+     */
+    public function generateAction() {
+
+        $this->_setJSONHeaders();
+
+
+        $params = $this->getRequest()->getParams();
+        $options = array(
+            '_limit_' => $this->_getInteger('limit', null),
+            '_offset_' => $this->_getInteger('offset', 0),
+            'store_code' => $params['store_code'],
+            'grouped' => $params['grouped'],
+            'display_price' => $this->_getBoolean('display_price', true),
             'minimal_price' => $this->_getBoolean('minimal_price', false),
             // Not logged in by default
             'customer_group_id' => $this->_getInteger('customer_group', 0),
         );
 
-        $this->_setXMLHeaders();
+        $generator = Mage::getModel('doofinder_feed/generator', $options);
+        $xmlData = $generator->run();
 
-        $generator = Mage::getSingleton('doofinder_feed/generator', $options);
-        $response = $generator->run();
-        $this->getResponse()->setBody($response);
+        if ($xmlData) {
+            $dir = Mage::getBaseDir('media').DS.'doofinder';
+            $path = Mage::getBaseDir('media').DS.'doofinder'.DS.'doofinder-'.$params['store_code'].'.xml';
+            // If directory doesn't exist create one
+            if (!file_exists($dir)) {
+                $this->_createDirectory($dir);
+            }
+
+            // If file can not be save throw an error
+            if (!$success = file_put_contents($path, $xmlData, LOCK_EX)) {
+                $this->getResponse()->setBody("File can not be saved: {$path}");
+            }
+            //Mage::getSingleton('core/session')->addMessage('Feed generated and saved.');
+            $this->getResponse()->setBody('Success.');
+
+        } else {
+            $this->getResponse()->setBody('Failure.');
+        }
     }
 
     public function configAction()
     {
         $this->_setJSONHeaders();
 
+        $helper = Mage::helper('doofinder_feed');
+
         $tools = Mage::getModel('doofinder_feed/tools');
 
         $storeCodes = array_keys(Mage::app()->getStores(false, true));
         $storesConfiguration = array();
+        $generatedFeeds = array();
+        // Get file spath
+        $filesUrl = Mage::getUrl('media/doofinder');
+        $filesPath = Mage::getBaseDir('media').DS.'doofinder'.DS;
 
         foreach ($storeCodes as $code)
         {
+            $settings = $helper->getStoreConfig($code);
+
             $oStore = Mage::app()->getStore($code);
             $L = Mage::getStoreConfig('general/locale/code', $oStore->getId());
             $storesConfiguration[$code] = array(
@@ -77,6 +131,15 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
                 'prices' => true,
                 'taxes' => true
             );
+
+            // Check if feed file exists
+            $filepath = $filesPath.$settings['xmlName'];
+            $fileurl = $filesUrl.$settings['xmlName'];
+
+            if ($this->_feedExists($filepath)) {
+                $generatedFeeds[$code] = $fileurl;
+            }
+
         }
 
         $config = array(
@@ -95,12 +158,24 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
                     'prices_incl_taxes' => true,
                     'customer_group_id' => 0,
                 ),
-                'configuration' => $storesConfiguration
+                'configuration' => $storesConfiguration,
+                'generated_feeds' => $generatedFeeds,
             ),
         );
 
         $response = Mage::helper('core')->jsonEncode($config);
         $this->getResponse()->setBody($response);
+    }
+    /**
+     * Check if feed on filepath exists.
+     * @param string $filepath
+     * @return bool
+     */
+    protected function _feedExists($filepath = null) {
+        if (file_exists($filepath)) {
+            return true;
+        }
+        return false;
     }
 
     protected function _dumpMessage($s_level, $s_message, $a_extra=array())
@@ -172,6 +247,21 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         if ( is_numeric($value) )
             return (int)($value *= 1);
         return $defaultValue;
+    }
+
+    /**
+     * Creates directory.
+     * @param string $dir
+     * @return bool
+     */
+    protected function _createDirectory($dir = null) {
+        if (!$dir) return false;
+
+        if(!mkdir($dir, 0777, true)) {
+           Mage::throwException('Could not create directory: '.$dir);
+        }
+
+        return true;
     }
 
     /*
