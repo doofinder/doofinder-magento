@@ -47,6 +47,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected $_response;
 
+    protected $_errors = array();
+
     //
     // public::Export
     //
@@ -63,6 +65,9 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         // Generate Feed
         $this->_loadAdditionalAttributes();
         $this->_iProductCount = $this->getProductCount();
+
+        // Clear errors
+        $this->_errors = array();
 
         if ($this->getData('_offset_') >= $this->_iProductCount)  // offset is 0-based
         {
@@ -108,33 +113,42 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     public function addProductToFeed($args)
     {
-        $row = $args['row'];
+        try
+        {
+            $row = $args['row'];
 
-        $parentEntityId = null;
+            $parentEntityId = null;
 
-        $map = $this->_getProductMapModel($row['type_id'], array());
+            $map = $this->_getProductMapModel($row['type_id'], array());
 
-        if (is_null($map))
-            return false;
+            if (is_null($map)) {
+                Mage::throwException("There is no map definition for product with type {$row['type_id']}");
+            }
 
-        $product = Mage::getModel('catalog/product');
-        $product->setData($row)
-            ->setStoreId($this->getStoreId())
-            ->setCustomerGroupId($this->getData('customer_group_id'));
+            $product = Mage::getModel('catalog/product');
+            $product->setData($row)
+                ->setStoreId($this->getStoreId())
+                ->setCustomerGroupId($this->getData('customer_group_id'));
 
-        $product->getResource()->load($product, $row['entity_id']);
-        $map->setGenerator($this)
-            ->setProduct($product)
-            ->setFieldsMap($this->_getFieldsMap())
-            ->initialize();
+            $product->getResource()->load($product, $row['entity_id']);
+            $map->setGenerator($this)
+                ->setProduct($product)
+                ->setFieldsMap($this->_getFieldsMap())
+                ->initialize();
 
-        if ($map->checkSkipSubmission()->isSkip())
-            return;
+            if ($map->checkSkipSubmission()->isSkip())
+                return;
 
-        if ($this->_addProductToXml($map))
-            $this->_iDumped++;
+            if ($this->_addProductToXml($map))
+                $this->_iDumped++;
 
-        $map->unsetData();
+            $map->unsetData();
+        }
+        catch (Exception $e)
+        {
+            Mage::logException($e);
+            $this->_errors[] = $e->getMessage();
+        }
     }
 
 
@@ -144,7 +158,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected function _batchProcessProducts($offset, $limit)
     {
-
         $batchSize = min($this->_iProductCount - $offset, $limit);
 
         if ($batchSize > 0)
@@ -319,6 +332,11 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     public function getWebsiteId()
     {
         return $this->getStore()->getWebsiteId();
+    }
+
+    public function getErrors()
+    {
+        return $this->_errors;
     }
 
     public function getRootCategory()

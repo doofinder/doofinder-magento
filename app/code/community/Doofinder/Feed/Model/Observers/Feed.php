@@ -70,6 +70,10 @@ class Doofinder_Feed_Model_Observers_Feed
                 $generator = Mage::getModel('doofinder_feed/generator', $options);
                 $xmlData = $generator->run();
 
+                // If there were errors log them
+                if ($errors_count = count($generator->getData('errors'))) {
+                    $process->setErrorStack($process->getErrorStack() + $errors_count);
+                }
 
                 // If there is new data append to xml.tmp else convert into xml
                 if ($xmlData) {
@@ -86,23 +90,15 @@ class Doofinder_Feed_Model_Observers_Feed
                     }
 
                     $this->productCount = $generator->getProductCount();
+                }
 
-                    $exceed = ($offset + $stepSize) >= $this->productCount ? true : false;
-
-
-                    if (!$exceed) {
-                        $this->_createNewSchedule($process);
-                    } else {
-                        if (!rename($tmpPath, $path)) {
-                            $process->setMessage("#error#Cannot convert {$tmpPath} to {$path}");
-                            throw new Exception("Cannot convert {$tmpPath} to {$path}");
-                        }
-                        $this->_endProcess($process);
-                    }
-
+                if (!($offset + $stepSize) >= $this->productCount) {
+                    $this->_createNewSchedule($process);
                 } else {
                     if (!rename($tmpPath, $path)) {
-                        throw new Exception("Cannot convert {$tmpPath} to {$path}");
+                        $process->setMessage("#error#Cannot convert {$tmpPath} to {$path}");
+                        $this->_endProcess($process);
+                        Mage::throwException(("Cannot convert {$tmpPath} to {$path}");
                     }
                 }
 
@@ -238,7 +234,6 @@ class Doofinder_Feed_Model_Observers_Feed
         $data = array(
             'status'    =>  $helper::STATUS_WAITING,
             'message' => 'Last process successfully completed. Now waiting for new schedule.',
-            'error_stack' => 0,
             'complete' => '-',
             'next_run' => '-',
             'next_iteration' => '-',
