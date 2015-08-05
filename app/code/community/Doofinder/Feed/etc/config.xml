@@ -87,6 +87,9 @@
                                         <doofinder_cron>
                                             <title>Cron Options</title>
                                         </doofinder_cron>
+                                        <doofinder_layer>
+                                            <title>Layer Options</title>
+                                        </doofinder_layer>
                                     </children>
                                 </config>
                             </children>
@@ -100,6 +103,13 @@
     <install></install>
 
     <frontend>
+        <layout>
+            <updates>
+                <doofinder_feed>
+                    <file>doofinder.xml</file>
+                </doofinder_feed>
+            </updates>
+        </layout>
         <routers>
             <doofinder_feed>
                 <use>standard</use>
