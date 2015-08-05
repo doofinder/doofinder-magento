@@ -98,7 +98,7 @@ class Doofinder_Feed_Model_Observers_Feed
                     if (!rename($tmpPath, $path)) {
                         $process->setMessage("#error#Cannot convert {$tmpPath} to {$path}");
                         $this->_endProcess($process);
-                        Mage::throwException(("Cannot convert {$tmpPath} to {$path}");
+                        Mage::throwException("Cannot convert {$tmpPath} to {$path}");
                     }
                 }
 

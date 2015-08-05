@@ -49,6 +49,17 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected $_errors = array();
 
+    /**
+     * Log to doofinder generator logfile
+     *
+     * @param string $message
+     * @param integer $level
+     */
+    public function log($message, $level)
+    {
+        Mage::log($message, $level, 'doofinder-generator.log');
+    }
+
     //
     // public::Export
     //
@@ -146,7 +157,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         }
         catch (Exception $e)
         {
-            Mage::logException($e);
+            $this->log('Error processing product (ID: ' . $row['entity_id'] . '): ' . $e->getMessage(), Zend_Log::ERR);
             $this->_errors[] = $e->getMessage();
         }
     }
