@@ -11,6 +11,14 @@ class Doofinder_Feed_Block_Integration extends Mage_Core_Block_Abstract
     {
         $script = Mage::getStoreConfig('doofinder_layer/integration_settings/script', Mage::app()->getStore());
 
-        return $script;
+        if ($script) {
+            $script .= '<script type="text/javascript">';
+            $script .= 'if (typeof Varien.searchForm !== \'undefined\') Varien.searchForm.prototype.initAutocomplete = function() {};';
+            $script .= '</script>';
+
+            return $script;
+        } else {
+            return '';
+        }
     }
 }
