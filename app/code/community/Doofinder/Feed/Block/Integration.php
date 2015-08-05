@@ -9,7 +9,7 @@ class Doofinder_Feed_Block_Integration extends Mage_Core_Block_Abstract
      */
     protected function _toHtml()
     {
-        $script = Mage::getStoreConfig('doofinder_layer/integration_settings/script', Mage::app()->getStore());
+        $script = Mage::getStoreConfig('doofinder_search/layer_settings/script', Mage::app()->getStore());
 
         if ($script) {
             $script .= '<script type="text/javascript">';

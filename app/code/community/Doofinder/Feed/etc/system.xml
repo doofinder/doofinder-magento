@@ -375,8 +375,8 @@
                 </panel>
             </groups>
         </doofinder_cron>
-        <doofinder_layer translate="label" module="doofinder_feed">
-            <label>Doofinder Layer</label>
+        <doofinder_search translate="label" module="doofinder_feed">
+            <label>Search Configuration</label>
             <tab>doofinder_config</tab>
             <frontend_type>text</frontend_type>
             <sort_order>1010</sort_order>
@@ -384,8 +384,8 @@
             <show_in_website>0</show_in_website>
             <show_in_store>1</show_in_store>
             <groups>
-                <integration_settings translate="label">
-                    <label>Integration</label>
+                <layer_settings translate="label">
+                    <label>Doofinder Layer</label>
                     <expanded>true</expanded>
                     <frontend_type>text</frontend_type>
                     <sort_order>10</sort_order>
@@ -410,8 +410,8 @@
                             <show_in_store>1</show_in_store>
                         </script>
                     </fields>
-                </integration_settings>
+                </layer_settings>
             </groups>
-        </doofinder_layer>
+        </doofinder_search>
     </sections>
 </config>

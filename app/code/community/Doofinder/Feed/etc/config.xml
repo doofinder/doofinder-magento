@@ -87,9 +87,9 @@
                                         <doofinder_cron>
                                             <title>Cron Options</title>
                                         </doofinder_cron>
-                                        <doofinder_layer>
-                                            <title>Layer Options</title>
-                                        </doofinder_layer>
+                                        <doofinder_search>
+                                            <title>Search Options</title>
+                                        </doofinder_search>
                                     </children>
                                 </config>
                             </children>
