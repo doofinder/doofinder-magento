@@ -650,11 +650,14 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
 
         $this->_fieldMap = array();
-        $tmp = $cfg = $this->getConfigVar('field_map');
 
-        foreach ($tmp as $key => $mapData)
+        $fields = $this->getConfigVar('fields');
+        $map = Mage::getStoreConfig('doofinder_cron/attributes_mapping', Mage::app()->getStore());
+
+        foreach ($map as $key => $attName)
         {
-            $attName = $mapData['attribute'];
+            if (!isset($fields[$key])) continue;
+
             if (!$this->getConfig()->isDirective($attName,
                                                  $this->getStoreId()))
             {
@@ -662,17 +665,19 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
                 if ($att === false)
                 {
-                    unset($cfg[$key]);
                     continue;
                 }
 
                 $att->setStoreId($this->getStoreId());
                 $this->_attributes[$att->getAttributeCode()] = $att;
             }
-        }
 
-        foreach ($cfg as $mapData)
-            $this->_fieldMap[$mapData['field']] = $mapData;
+            $this->_fieldMap[$key] = array(
+                'label' => $fields[$key]['label'],
+                'attribute' => $attName,
+                'field' => $key,
+            );
+        }
 
         return $this->_fieldMap;
     }
