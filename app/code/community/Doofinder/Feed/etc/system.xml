@@ -197,6 +197,15 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
                         </currency>
+                        <additional translate="label">
+                            <label>Additional</label>
+                            <frontend_model>doofinder_feed/adminhtml_map_additional</frontend_model>
+                            <backend_model>doofinder_feed/system_config_backend_map_additional</backend_model>
+                            <sort_order>16</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </additional>
                     </fields>
                 </attributes_mapping>
 

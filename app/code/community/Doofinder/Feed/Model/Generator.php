@@ -653,6 +653,19 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
         $fields = $this->getConfigVar('fields');
         $map = Mage::getStoreConfig('doofinder_cron/attributes_mapping', Mage::app()->getStore());
+        $additional = unserialize($map['additional']);
+        unset($map['additional']);
+
+        if (!empty($additional['additional_mapping']))
+        {
+            foreach ($additional['additional_mapping'] as $data)
+            {
+                if (isset($map[$data['field']])) continue;
+
+                $fields[$data['field']] = array('label' => $data['label']);
+                $map[$data['field']] = $data['attribute'];
+            }
+        }
 
         foreach ($map as $key => $attName)
         {

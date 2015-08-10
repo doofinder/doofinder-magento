@@ -86,27 +86,6 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
         // $fields['attribute_set'] = $this->_attributeSetModel
         //     ->getAttributeSetName();
 
-        // BEGIN: Export all user attributes
-        $product = $this->getProduct();
-
-        $attrs = Mage::getResourceModel('eav/entity_attribute_collection')
-            ->addFieldToFilter('is_user_defined', 1)
-            ->setEntityTypeFilter($product->getResource()->getTypeId())
-            ->setAttributeSetFilter($product->getAttributeSetId())
-            ->load();
-
-        foreach ($attrs as $attr)
-        {
-            $idx = strtolower(preg_replace('/[^0-9a-z_]+/UiS', '',
-                                           $attr->attribute_code));
-
-            if (preg_match('/^[0-9]/S', $idx))
-                $idx = 'n'.$idx;
-
-            $fields[$idx] = $this->mapDoofinderAttribute($attr);
-        }
-        // END
-
         $i = 0;
         $categories = $this->getGenerator()->getCategories($this->getProduct());
         $fields['categories'] = implode(
