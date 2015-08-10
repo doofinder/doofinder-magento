@@ -33,13 +33,12 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     protected $_store;
     protected $_oRootCategory;
 
-    protected $_iProductCount;
+    protected $_maxProductId;
 
     protected $_attributes = array();
     protected $_categories = array();
     protected $_fieldMap;
 
-    protected $_iBatchSize = 0;
     protected $_iDumped = 0;
     protected $_iSkipped = 0;
 
@@ -48,6 +47,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     protected $_response;
 
     protected $_errors = array();
+
+    protected $_lastProcessedProductId;
 
     /**
      * Log to doofinder generator logfile
@@ -75,38 +76,20 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
         // Generate Feed
         $this->_loadAdditionalAttributes();
-        $this->_iProductCount = $this->getProductCount();
+        $this->_maxProductId = $this->getMaxProductId();
 
         // Clear errors
         $this->_errors = array();
 
-        if ($this->getData('_offset_') >= $this->_iProductCount)  // offset is 0-based
-        {
-            return "";
-        }
-        else
-        {
-            $this->_initFeed();
-            if (! $this->getData('_limit_'))
-            {
-                $this->_iBatchSize = false;
+        // Perform run
+        $this->_initFeed();
+        $this->_batchProcessProducts(
+            $this->getData('_offset_'),
+            $this->getData('_limit_')
+        );
+        $this->_closeFeed();
 
-                // Dump ALL products
-                for ($offset = $this->getData('_offset_');
-                        $offset < $this->_iProductCount;
-                        $offset += self::DEFAULT_BATCH_SIZE)
-                    $this->_batchProcessProducts($offset, self::DEFAULT_BATCH_SIZE);
-            }
-            else
-            {
-                $this->_iBatchSize = $this->_batchProcessProducts(
-                    $this->getData('_offset_'),
-                    $this->getData('_limit_')
-                );
-            }
-            $this->_closeFeed();
-            return $this->_response;
-        }
+        return $this->_response;
     }
 
     public function getSQL()
@@ -121,12 +104,63 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         return $this->_getProductCollection()->getSize();
     }
 
+    public function getMaxProductId()
+    {
+        $collection = $this->_getProductCollection();
+        $collection->getSelect()->limit(1);
+        $collection->getSelect()->order('e.entity_id DESC');
+        $item = $collection->fetchItem();
+
+        return $item->getEntityId();
+    }
+
+    /**
+     * Is the feed done, are there any products
+     * left to process.
+     *
+     * @return boolean
+     */
+    public function isFeedDone()
+    {
+        return $this->_lastProcessedProductId >= $this->_maxProductId;
+    }
+
+    /**
+     * Get the ID of the last processed product.
+     *
+     * @return integer
+     */
+    public function getLastProcessedProductId()
+    {
+        return $this->_lastProcessedProductId;
+    }
+
+    /**
+     * Get generator progress, it is what part
+     * of products has been processed yet.
+     *
+     * @return double
+     */
+    public function getProgress()
+    {
+        $collection = $this->_getProductCollection();
+
+        $all = $collection->getSize();
+
+        $collection = $this->_getProductCollection();
+        $collection->addAttributeToFilter('entity_id', array('lteq' => $this->_lastProcessedProductId));
+        $now = $collection->getSize();
+
+        return $now / $all;
+    }
 
     public function addProductToFeed($args)
     {
         try
         {
             $row = $args['row'];
+
+            $this->_lastProcessedProductId = $row['entity_id'];
 
             $parentEntityId = null;
 
@@ -169,23 +203,14 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected function _batchProcessProducts($offset, $limit)
     {
-        $batchSize = min($this->_iProductCount - $offset, $limit);
+        $collection = $this->_getProductCollection($offset, $limit);
 
-        if ($batchSize > 0)
-        {
-            $collection = $this->_getProductCollection($offset, $batchSize);
-            Mage::getSingleton('core/resource_iterator')->walk(
-                $collection->getSelect(),
-                array(array($this, 'addProductToFeed'))
-            );
-            $this->_flushFeed();
-        }
-        else
-        {
-            $batchSize = 0;
-        }
+        Mage::getSingleton('core/resource_iterator')->walk(
+            $collection->getSelect(),
+            array(array($this, 'addProductToFeed'))
+        );
+        $this->_flushFeed();
 
-        return $batchSize;
     }
 
     protected function _addProductToXml(
@@ -463,7 +488,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     {
         $this->_oXmlWriter = new XMLWriter();
         $this->_oXmlWriter->openMemory();
-        if ($this->getData('_offset_') === 0)
+        if (!$this->getData('_offset_'))
         {
             $this->_oXmlWriter->startDocument('1.0', 'UTF-8');
 
@@ -491,18 +516,16 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected function _closeFeed()
     {
-        if (! $this->getData('_limit_'))
+        if ($this->isFeedDone())
         {
-            $this->_oXmlWriter->endElement(); // Channel
-            $this->_oXmlWriter->endElement(); // RSS
-            $this->_oXmlWriter->endDocument();
+            if (!$this->getData('_offset_'))
+            {
+                $this->_oXmlWriter->endElement(); // Channel
+                $this->_oXmlWriter->endElement(); // RSS
+                $this->_oXmlWriter->endDocument();
 
-            $this->_flushFeed();
-        }
-        else
-        {
-            if ($this->getData('_offset_') < $this->_iProductCount
-                && ($this->getData('_offset_') + $this->getData('_limit_')) >= $this->_iProductCount)
+                $this->_flushFeed();
+            } else
             {
                 $this->_response .= '</channel></rss>';
             }
@@ -586,7 +609,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         }
     }
 
-    protected function _getProductCollection($offset = 0, $limit = null)
+    protected function _getProductCollection($offset = 0, $limit = 0)
     {
         $collection = Mage::getModel('catalog/product')
             ->getCollection()
@@ -601,8 +624,11 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         ));
         $collection->addAttributeToSelect('*');
 
-        if (!is_null($limit))
-            $collection->getSelect()->limit($limit, $offset);
+        if ($limit && $limit > 0)
+            $collection->getSelect()->limit($limit, 0);
+
+        if ($offset)
+            $collection->addAttributeToFilter('entity_id', array('gt' => $offset));
 
         return $collection;
     }

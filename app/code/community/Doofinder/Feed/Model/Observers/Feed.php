@@ -92,7 +92,7 @@ class Doofinder_Feed_Model_Observers_Feed
                     $this->productCount = $generator->getProductCount();
                 }
 
-                if (!($offset + $stepSize) >= $this->productCount) {
+                if (!$process->isFeedDone()) {
                     $this->_createNewSchedule($process);
                 } else {
                     if (!rename($tmpPath, $path)) {
@@ -193,8 +193,7 @@ class Doofinder_Feed_Model_Observers_Feed
         $timescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
 
 
-        $offset = intval($process->getOffset());
-        $newOffset = $offset + $this->config['stepSize'];
+        $newOffset = $process->getLastProcessedProductId();
 
         // Set new schedule in cron_schedule
         $newSchedule = Mage::getModel('cron/schedule');
@@ -207,7 +206,7 @@ class Doofinder_Feed_Model_Observers_Feed
         $schedule_id = $newSchedule->getId();
         $last_schedule_id = $process->getScheduleId();
         $status = $helper::STATUS_RUNNING;
-        $complete = sprintf('%0.1f%%', ($newOffset / $this->productCount) * 100);
+        $complete = sprintf('%0.1f%%', $process->getProgress() * 100);
         $nextRun = '-';
 
 
