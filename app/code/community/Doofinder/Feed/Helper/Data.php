@@ -457,4 +457,53 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         date_default_timezone_set($backTimezone);
         return $offset;
     }
+
+    /**
+     * Get path to feed file.
+     *
+     * @return string
+     */
+    public function getFeedDirectory()
+    {
+        return Mage::getBaseDir('media').DS.'doofinder';
+    }
+
+    /**
+     * Get path to feed file.
+     *
+     * @return string
+     */
+    public function getFeedPath($storeCode)
+    {
+        $config = $this->getStoreConfig($storeCode);
+
+        return $this->getFeedDirectory().DS.$config['xmlName'];
+    }
+
+    /**
+     * Get path to feed file.
+     *
+     * @return string
+     */
+    public function getFeedTemporaryPath($storeCode)
+    {
+        return $this->getFeedPath($storeCode) . '.tmp';
+    }
+
+    /**
+     * Creates feed directory.
+     *
+     * @param string $dir
+     * @return bool
+     */
+    public function createFeedDirectory()
+    {
+        $dir = $this->getFeedDirectory();
+
+        if ((!file_exists($dir) && !mkdir($dir, 0777, true)) || !is_dir($dir)) {
+           Mage::throwException('Could not create directory: '.$dir);
+        }
+
+        return true;
+    }
 }

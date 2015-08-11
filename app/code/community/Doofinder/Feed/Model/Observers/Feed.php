@@ -50,8 +50,8 @@ class Doofinder_Feed_Model_Observers_Feed
                 $stepSize = intval($this->config['stepSize']);
 
                 // Set paths
-                $path = Mage::getBaseDir('media').DS.'doofinder'.DS.$this->config['xmlName'];
-                $tmpPath = $path.'.tmp';
+                $path = $helper->getFeedPath($this->storeCode);
+                $tmpPath = $helper->getFeedTemporaryPath($this->storeCode);
 
                 // Get job code
                 $jobCode = $helper::JOB_CODE;
@@ -81,7 +81,7 @@ class Doofinder_Feed_Model_Observers_Feed
 
                     // If directory doesn't exist create one
                     if (!file_exists($dir)) {
-                        $this->_createDirectory($dir);
+                        $helper->createFeedDirectory($dir);
                     }
 
                     // If file can not be save throw an error
@@ -107,21 +107,6 @@ class Doofinder_Feed_Model_Observers_Feed
                 unset($tmpPath);
             }
         }
-    }
-
-    /**
-     * Creates directory.
-     * @param string $dir
-     * @return bool
-     */
-    protected function _createDirectory($dir = null) {
-        if (!$dir) return false;
-
-        if(!mkdir($dir, 0777, true)) {
-           Mage::throwException('Could not create directory: '.$dir);
-        }
-
-        return true;
     }
 
     /**

@@ -34,12 +34,19 @@ class Doofinder_Feed_Model_Observers_Schedule
             $resetSchedule = (bool) Mage::app()->getRequest()->getParam('reset');
             $isEnabled = (bool) $config['enabled'];
 
+            // Do not process the schedule if it has insufficient file permissions
+            if (!$this->_checkFeedFilePermission($storeCode)) {
+                Mage::getSingleton('adminhtml/session')->addError($helper->__('Insufficient file permissions for store: %s. Check if the feed file is writeable', $store->getName()));
+                continue;
+            }
+
             // Register process if not exists
             if (!$this->_isProcessRegistered($storeCode)) {
                 $status = $isEnabled? $helper::STATUS_WAITING : $helper::STATUS_DISABLED;
                 if ($resetSchedule) {
                     $status = $helper::STATUS_PENDING;
                 }
+
                 $this->_registerProcess($storeCode, $status);
             }
 
@@ -134,6 +141,9 @@ class Doofinder_Feed_Model_Observers_Schedule
 
                 $store_code = $store->getCode();
                 $config = $helper->getStoreConfig($store_code);
+
+                // Do not process the schedule if it has insufficient file permissions
+                if (!$this->_checkFeedFilePermission($storeCode)) continue;
 
                 // Always register process if not exists
                 if (!$this->_isProcessRegistered($store_code)) {
@@ -293,5 +303,27 @@ class Doofinder_Feed_Model_Observers_Schedule
             $lastSchedule->delete();
             return true;
         }
+    }
+
+    /**
+     * Validate file permissions for feed generation.
+     *
+     * @return boolean
+     */
+    protected function _checkFeedFilePermission($storeCode)
+    {
+        $helper = Mage::helper('doofinder_feed');
+
+        try {
+            $helper->createFeedDirectory();
+        } catch (Exception $e) {
+            return false;
+        }
+
+        $dir = $helper->getFeedDirectory();
+        $path = $helper->getFeedPath($storeCode);
+        $tmpPath = $helper->getFeedTemporaryPath($storeCode);
+
+        return is_writeable($dir) && (!file_exists($path) || is_writeable($path)) && (!file_exists($tmpPath) || is_writeable($tmpPath));
     }
 }
