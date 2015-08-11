@@ -1,7 +1,14 @@
 <?php
 
-class Doofinder_Feed_Model_Observers_Schedule {
-    public function saveNewSchedule($observer) {
+class Doofinder_Feed_Model_Observers_Schedule
+{
+    /**
+     * Register missing / reset schedules after configuration saves.
+     *
+     * @param Varien_Event_Observer $observer
+     */
+    public function saveNewSchedule($observer)
+    {
         Mage::log('Saving new schedule: ' .date('c', time()));
         // Get store code
         $currentStoreCode = $observer->getStore();
@@ -17,17 +24,17 @@ class Doofinder_Feed_Model_Observers_Schedule {
             foreach ($stores as $store) {
                 $codes[] = $store->getCode();
             }
-
         }
+
         foreach ($codes as $storeCode) {
             // Get store
             $store = Mage::app()->getStore($storeCode);
             $helper = Mage::helper('doofinder_feed');
             $config = $helper->getStoreConfig($storeCode);
-            $resetSchedule = (bool)Mage::app()->getRequest()->getParam('reset');
-            $isEnabled = (bool)$config['enabled'];
-            // Register process if not exists
+            $resetSchedule = (bool) Mage::app()->getRequest()->getParam('reset');
+            $isEnabled = (bool) $config['enabled'];
 
+            // Register process if not exists
             if (!$this->_isProcessRegistered($storeCode)) {
                 $status = $isEnabled? $helper::STATUS_WAITING : $helper::STATUS_DISABLED;
                 if ($resetSchedule) {
@@ -61,10 +68,7 @@ class Doofinder_Feed_Model_Observers_Schedule {
                     ->load();
 
                 $this->clearScheduleTable($scheduleCollection);
-
             }
-
-
 
             if ($store->getIsActive()) {
                 if ($resetSchedule && $isEnabled) {
@@ -111,10 +115,15 @@ class Doofinder_Feed_Model_Observers_Schedule {
                 }
             }
         }
-
     }
 
-    public function regenerateSchedule() {
+    /**
+     * Regenerate finished shcedules.
+     *
+     * @param Varien_Event_Observer $observer
+     */
+    public function regenerateSchedule()
+    {
         // Get store
         $stores = Mage::app()->getStores();
 
@@ -133,7 +142,6 @@ class Doofinder_Feed_Model_Observers_Schedule {
 
                 // Skip rest if feed is disabled
                 if (!$config['enabled']) continue;
-
 
                 $process = Mage::getModel('doofinder_feed/cron')->load($store_code, 'store_code');
 
@@ -170,7 +178,6 @@ class Doofinder_Feed_Model_Observers_Schedule {
 
                         $this->_removeLastSchedule($lastId);
 
-
                         $processTimescheduled = $helper->getScheduledAt($config['time'], $config['frequency'], false);
                         $process->setStatus($helper::STATUS_PENDING)
                             ->setComplete('0%')
@@ -183,20 +190,20 @@ class Doofinder_Feed_Model_Observers_Schedule {
 
                     }
                 } catch (Exception $e) {
-                         throw new Exception(Mage::helper('cron')->__('Unable to save Cron expression'));
+                    throw new Exception(Mage::helper('cron')->__('Unable to save Cron expression'));
                 }
             }
         }
     }
 
-
-
     /**
-     * Clears shedule table
+     * Clears shedule table.
+     *
      * @param Mage_Cron_Model_Resource_Schedule_Collection $scheduleCollection
      * @param array $status
      */
-    public function clearScheduleTable(Mage_Cron_Model_Resource_Schedule_Collection $scheduleCollection, $status = array()) {
+    public function clearScheduleTable(Mage_Cron_Model_Resource_Schedule_Collection $scheduleCollection, $status = array())
+    {
         $helper = Mage::helper('doofinder_feed');
         foreach ($scheduleCollection as $job) {
             if ($job->getJobCode() === $helper::JOB_CODE && !in_array($job->getStatus(), $status) ) {
@@ -207,10 +214,12 @@ class Doofinder_Feed_Model_Observers_Schedule {
 
     /**
      * Checks if process is registered in doofinder cron table
+     *
      * @param string $store_code
      * @return bool
      */
-    private function _isProcessRegistered($store_code = 'default') {
+    private function _isProcessRegistered($store_code = 'default')
+    {
         $process = Mage::getModel('doofinder_feed/cron')->load($store_code, 'store_code');
         $data = $process->getData();
         if (empty($data)) {
@@ -219,7 +228,8 @@ class Doofinder_Feed_Model_Observers_Schedule {
         return true;
     }
 
-    private function _registerProcess($store_code = 'default', $status = null) {
+    private function _registerProcess($store_code = 'default', $status = null)
+    {
         $model = Mage::getModel('doofinder_feed/cron');
         $helper = Mage::helper('doofinder_feed');
         $config = $helper->getStoreConfig($store_code);
@@ -241,10 +251,12 @@ class Doofinder_Feed_Model_Observers_Schedule {
 
     /**
      * Remove tmp xml file.
+     *
      * @param string $store_code
      * @return bool
      */
-    private function _removeTmpXml($store_code = null) {
+    private function _removeTmpXml($store_code = null)
+    {
         if (empty($store_code)) {
             return false;
         }
@@ -266,10 +278,12 @@ class Doofinder_Feed_Model_Observers_Schedule {
 
     /**
      * Remove last scheduled entry in cron_schedule table.
+     *
      * @param int $lastId
      * @return bool
      */
-    private function _removeLastSchedule($lastId = null) {
+    private function _removeLastSchedule($lastId = null)
+    {
         if (empty($lastId)) {
             return false;
         }
@@ -279,7 +293,5 @@ class Doofinder_Feed_Model_Observers_Schedule {
             $lastSchedule->delete();
             return true;
         }
-
     }
-
 }
