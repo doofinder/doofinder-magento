@@ -11,7 +11,6 @@ class Doofinder_Feed_Model_Observers_Feed
 
 
     public function generateFeed($observer)
-
     {
         $stores = Mage::app()->getStores();
         $helper = Mage::helper('doofinder_feed');
@@ -68,6 +67,7 @@ class Doofinder_Feed_Model_Observers_Feed
                 );
 
                 $generator = Mage::getModel('doofinder_feed/generator', $options);
+
                 $xmlData = $generator->run();
 
                 // If there were errors log them
@@ -92,8 +92,11 @@ class Doofinder_Feed_Model_Observers_Feed
                     $this->productCount = $generator->getProductCount();
                 }
 
-                if (!$process->isFeedDone()) {
-                    $this->_createNewSchedule($process);
+                if (!$generator->isFeedDone()) {
+                    $this->_createNewSchedule($process, array(
+                        'offset' => $generator->getLastProcessedProductId(),
+                        'complete' => sprintf('%0.1f%%', $generator->getProgress() * 100)
+                    ));
                 } else {
                     if (!rename($tmpPath, $path)) {
                         $process->setMessage("#error#Cannot convert {$tmpPath} to {$path}");
@@ -166,7 +169,7 @@ class Doofinder_Feed_Model_Observers_Feed
      * @param Doofinder_Feed_Model_Cron $process
      */
 
-    private function _createNewSchedule(Doofinder_Feed_Model_Cron $process) {
+    private function _createNewSchedule(Doofinder_Feed_Model_Cron $process, array $newData = array()) {
         Mage::log('Creating new schedule');
         $helper = Mage::helper('doofinder_feed');
 
@@ -176,9 +179,6 @@ class Doofinder_Feed_Model_Observers_Feed
         $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
         $localTimescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H") + $timezoneOffset, date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
         $timescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
-
-
-        $newOffset = $process->getLastProcessedProductId();
 
         // Set new schedule in cron_schedule
         $newSchedule = Mage::getModel('cron/schedule');
@@ -191,16 +191,14 @@ class Doofinder_Feed_Model_Observers_Feed
         $schedule_id = $newSchedule->getId();
         $last_schedule_id = $process->getScheduleId();
         $status = $helper::STATUS_RUNNING;
-        $complete = sprintf('%0.1f%%', $process->getProgress() * 100);
         $nextRun = '-';
 
 
         // Set process data and save
-        $process->setStatus($status)
-            ->setComplete($complete)
+        $process->addData($newData)
+            ->setStatus($status)
             ->setNextRun('-')
             ->setNextIteration($localTimescheduled)
-            ->setOffset($newOffset)
             ->setScheduleId($schedule_id)
             ->setMessage($helper::MSG_EMPTY)
             ->save();
