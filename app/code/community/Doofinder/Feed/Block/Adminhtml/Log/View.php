@@ -54,7 +54,7 @@ class Doofinder_Feed_Block_Adminhtml_Log_View extends Mage_Adminhtml_Block_Widge
 
         $this->addColumn('message', array(
             'header'    => Mage::helper('doofinder_feed')->__('Message'),
-            'index'     => 'type',
+            'index'     => 'message',
             'type'  => 'text',
         ));
 
