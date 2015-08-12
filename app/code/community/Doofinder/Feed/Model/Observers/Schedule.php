@@ -9,7 +9,6 @@ class Doofinder_Feed_Model_Observers_Schedule
      */
     public function saveNewSchedule($observer)
     {
-        Mage::log('Saving new schedule: ' .date('c', time()));
         // Get store code
         $currentStoreCode = $observer->getStore();
 
@@ -57,6 +56,8 @@ class Doofinder_Feed_Model_Observers_Schedule
                 $process->modeWaiting();
                 // Remove tmp xml
                 $this->_removeTmpXml($storeCode);
+
+                Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Schedule has been enabled'));
             } else if (!$isEnabled && $process->getStatus() != $helper::STATUS_DISABLED) {
                 // Remove last scheduled task
                 $lastId = $process->getScheduleId();
@@ -75,11 +76,12 @@ class Doofinder_Feed_Model_Observers_Schedule
                     ->load();
 
                 $this->clearScheduleTable($scheduleCollection);
+
+                Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Schedule has been disabled'));
             }
 
             if ($store->getIsActive()) {
                 if ($resetSchedule && $isEnabled) {
-                    Mage::log("Resetting schedule for {$storeCode}");
                     $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
                     $timescheduled = $helper->getScheduledAt($config['time'], $config['frequency']);
                     $jobCode = $helper::JOB_CODE;
@@ -119,6 +121,8 @@ class Doofinder_Feed_Model_Observers_Schedule
                     } catch (Exception $e) {
                         Mage::getSingleton('core/session')->addError('Error: '.$e);
                     }
+
+                    Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Schedule has been reset'));
                 }
             }
         }
@@ -173,7 +177,6 @@ class Doofinder_Feed_Model_Observers_Schedule
 
                     // If pending entry for store not exists add new
                     if (!(in_array($status, $skipStatus))) {
-                        Mage::log('Regenerating Schedule: '.date('c', time()));
                         $schedule = Mage::getModel('cron/schedule');
                         $schedule->setJobCode($jobCode)
                             ->setCreatedAt($timecreated)
@@ -198,6 +201,7 @@ class Doofinder_Feed_Model_Observers_Schedule
                             ->setMessage($helper::MSG_PENDING)
                             ->save();
 
+                        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Schedule has been regenerated'));
                     }
                 } catch (Exception $e) {
                     throw new Exception(Mage::helper('cron')->__('Unable to save Cron expression'));

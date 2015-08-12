@@ -360,6 +360,14 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
                         </error_stack>
+                        <view_log>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>doofinder_feed/settings_buttons_viewLog</frontend_model>
+                            <sort_order>80</sort_order>
+                            <show_in_default>0</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </view_log>
                     </fields>
                 </panel>
             </groups>
