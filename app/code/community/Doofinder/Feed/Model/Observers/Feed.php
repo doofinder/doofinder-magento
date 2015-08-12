@@ -27,8 +27,6 @@ class Doofinder_Feed_Model_Observers_Feed
 
         // Get store code
         $this->storeCode = $process->getStoreCode();
-        Mage::log('Generate feed for '.$this->storeCode);
-
 
         // Get store config
         $this->config = $helper->getStoreConfig($this->storeCode);
@@ -71,9 +69,16 @@ class Doofinder_Feed_Model_Observers_Feed
                 $xmlData = $generator->run();
 
                 // If there were errors log them
-                if ($errors_count = count($generator->getData('errors'))) {
+                if ($errors_count = count($generator->getErrors())) {
                     $process->setErrorStack($process->getErrorStack() + $errors_count);
+
+                    foreach ($generator->getErrors() as $error) {
+                        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::ERROR, $error);
+                    }
                 }
+
+                $message = $helper->__('Processed products with ids in range %d - %d', $offset + 1, $generator->getLastProcessedProductId());
+                Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $message);
 
                 // If there is new data append to xml.tmp else convert into xml
                 if ($xmlData) {
@@ -86,23 +91,32 @@ class Doofinder_Feed_Model_Observers_Feed
 
                     // If file can not be save throw an error
                     if (!$success = file_put_contents($tmpPath, $xmlData, FILE_APPEND | LOCK_EX)) {
+                        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::ERROR, $helper->__("File can not be saved: {$tmpPath}"));
                         Mage::throwException("File can not be saved: {$tmpPath}");
                     }
 
                     $this->productCount = $generator->getProductCount();
+                } else {
+                    Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::WARNING, $helper->__('No data added to feed'));
                 }
 
+                // Set process offset and progress
+                $process->setOffset($generator->getLastProcessedProductId());
+                $process->setComplete(sprintf('%0.1f%%', $generator->getProgress() * 100));
+
                 if (!$generator->isFeedDone()) {
-                    $this->_createNewSchedule($process, array(
-                        'offset' => $generator->getLastProcessedProductId(),
-                        'complete' => sprintf('%0.1f%%', $generator->getProgress() * 100)
-                    ));
+                    $this->_createNewSchedule($process);
                 } else {
+                    Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Feed generation completed'));
+
                     if (!rename($tmpPath, $path)) {
-                        $process->setMessage("#error#Cannot convert {$tmpPath} to {$path}");
-                        $this->_endProcess($process);
-                        Mage::throwException("Cannot convert {$tmpPath} to {$path}");
+                        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::ERROR, $helper->__("Cannot rename {$tmpPath} to {$path}"));
+                        $process->setMessage($helper->__('#error#Cannot convert %s to %s', $tmpPath, $path));
+                    } else {
+                        $process->setMessage($helper->__('Last process successfully completed. Now waiting for new schedule.'));
                     }
+
+                    $this->_endProcess($process);
                 }
 
             } catch (Exception $e) {
@@ -169,8 +183,7 @@ class Doofinder_Feed_Model_Observers_Feed
      * @param Doofinder_Feed_Model_Cron $process
      */
 
-    private function _createNewSchedule(Doofinder_Feed_Model_Cron $process, array $newData = array()) {
-        Mage::log('Creating new schedule');
+    private function _createNewSchedule(Doofinder_Feed_Model_Cron $process) {
         $helper = Mage::helper('doofinder_feed');
 
         // Set new schedule time
@@ -195,8 +208,7 @@ class Doofinder_Feed_Model_Observers_Feed
 
 
         // Set process data and save
-        $process->addData($newData)
-            ->setStatus($status)
+        $process->setStatus($status)
             ->setNextRun('-')
             ->setNextIteration($localTimescheduled)
             ->setScheduleId($schedule_id)
@@ -204,6 +216,8 @@ class Doofinder_Feed_Model_Observers_Feed
             ->save();
 
         $lastSchedule = Mage::getModel('cron/schedule')->load($last_schedule_id)->delete();
+
+        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Scheduling the next step for %s', $timescheduled));
 
     }
     /**
@@ -215,12 +229,9 @@ class Doofinder_Feed_Model_Observers_Feed
         // Prepare data
         $data = array(
             'status'    =>  $helper::STATUS_WAITING,
-            'message' => 'Last process successfully completed. Now waiting for new schedule.',
-            'complete' => '-',
             'next_run' => '-',
             'next_iteration' => '-',
             'last_feed_name' => $this->config['xmlName'],
-            'offset' => 0,
             'schedule_id' => null,
         );
 
