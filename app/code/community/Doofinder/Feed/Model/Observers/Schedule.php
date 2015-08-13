@@ -114,6 +114,7 @@ class Doofinder_Feed_Model_Observers_Schedule
                             ->setNextRun($processTimescheduled)
                             ->setNextIteration($processTimescheduled)
                             ->setMessage($helper::MSG_PENDING)
+                            ->setErrorStack(0)
                             ->save();
 
                         // Remove tmp xml
@@ -199,6 +200,7 @@ class Doofinder_Feed_Model_Observers_Schedule
                             ->setOffset(0)
                             ->setScheduleId($id)
                             ->setMessage($helper::MSG_PENDING)
+                            ->setErrorStack(0)
                             ->save();
 
                         Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Schedule has been regenerated'));

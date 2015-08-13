@@ -56,9 +56,9 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
      * @param string $message
      * @param integer $level
      */
-    public function log($message, $level)
+    public function logError($message)
     {
-        Mage::log($message, $level, 'doofinder-generator.log');
+        $this->_errors[] = $message;
     }
 
     //
@@ -191,8 +191,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         }
         catch (Exception $e)
         {
-            $this->log('Error processing product (ID: ' . $row['entity_id'] . '): ' . $e->getMessage(), Zend_Log::ERR);
-            $this->_errors[] = $e->getMessage();
+            $this->logError('Error processing product (ID: ' . $row['entity_id'] . '): ' . $e->getMessage(), Zend_Log::ERR);
         }
     }
 
@@ -203,6 +202,10 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected function _batchProcessProducts($offset, $limit)
     {
+        // Make sure we have this initialized
+        // in case of an empty collection
+        $this->_lastProcessedProductId = $offset;
+
         $collection = $this->_getProductCollection($offset, $limit);
 
         Mage::getSingleton('core/resource_iterator')->walk(
@@ -723,6 +726,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected function _stopOnException(Exception $e)
     {
-        Mage::log($e->getMessage());
+        Mage::logError($e->getMessage());
     }
 }
