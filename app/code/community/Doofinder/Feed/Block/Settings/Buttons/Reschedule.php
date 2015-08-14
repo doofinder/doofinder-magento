@@ -5,6 +5,7 @@ class Doofinder_Feed_Block_Settings_Buttons_Reschedule extends Mage_Adminhtml_Bl
     protected function _getElementHtml(Varien_Data_Form_Element_Abstract $element)
     {
         $this->setElement($element);
+        $element->setScopeLabel('');
 
         $script = "<script type=\"text/javascript\">
             function saveAndReschedule() {

@@ -7,7 +7,7 @@ class Doofinder_Feed_Block_Settings_Panel_Datetime extends Mage_Adminhtml_Block_
         $this->setElement($element);
         $name = $element->getName();
         $element->setScopeLabel('');
-        $code = Mage::getSingleton('adminhtml/config_data')->getStore();
+        $code = Mage::app()->getRequest()->getParam('store');
         $field = $this->_getField($name);
         $html = '';
         if ($field && $code) {

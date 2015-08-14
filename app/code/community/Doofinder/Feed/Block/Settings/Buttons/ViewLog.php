@@ -5,8 +5,9 @@ class Doofinder_Feed_Block_Settings_Buttons_ViewLog extends Mage_Adminhtml_Block
     protected function _getElementHtml(Varien_Data_Form_Element_Abstract $element)
     {
         $this->setElement($element);
+        $element->setScopeLabel('');
 
-        $process = Mage::getModel('doofinder_feed/cron')->load(Mage::getSingleton('adminhtml/config_data')->getStore(), 'store_code');
+        $process = Mage::getModel('doofinder_feed/cron')->load(Mage::app()->getRequest()->getParam('store'), 'store_code');
 
         $url = Mage::helper("adminhtml")->getUrl('adminhtml/doofinderFeedLog/view/processId/' . $process->getId());
 
