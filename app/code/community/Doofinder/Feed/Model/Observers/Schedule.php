@@ -105,7 +105,7 @@ class Doofinder_Feed_Model_Observers_Schedule
 
                         $id = $schedule->getId();
 
-                        $processTimescheduled = $helper->getScheduledAt($config['time'], $config['frequency'], false);
+                        $processTimescheduled = $helper->getScheduledAt($config['time'], $config['frequency']);
                         $process = Mage::getModel('doofinder_feed/cron')->load($storeCode, 'store_code');
                         $process->setStatus($helper::STATUS_PENDING)
                             ->setOffset(0)
@@ -192,7 +192,7 @@ class Doofinder_Feed_Model_Observers_Schedule
 
                         $this->_removeLastSchedule($lastId);
 
-                        $processTimescheduled = $helper->getScheduledAt($config['time'], $config['frequency'], false);
+                        $processTimescheduled = $helper->getScheduledAt($config['time'], $config['frequency']);
                         $process->setStatus($helper::STATUS_PENDING)
                             ->setComplete('0%')
                             ->setNextRun($processTimescheduled)

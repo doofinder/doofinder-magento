@@ -122,7 +122,7 @@ class Doofinder_Feed_Model_Observers_Feed
             } catch (Exception $e) {
                 Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::ERROR, $e->getMessage());
                 $process->setErrorStack($process->getErrorStack() + 1);
-                $process->setMessage($e->getMessage());
+                $process->setMessage('#error#' . $e->getMessage());
                 $this->_createNewSchedule($process);
             }
         }
