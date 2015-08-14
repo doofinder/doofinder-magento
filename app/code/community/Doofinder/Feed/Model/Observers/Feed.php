@@ -192,7 +192,6 @@ class Doofinder_Feed_Model_Observers_Feed
         $timezoneOffset = $helper->getTimezoneOffset();
         $delayInMin = intval($this->config['stepDelay']);
         $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
-        $localTimescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H") + $timezoneOffset, date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
         $timescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
 
         // Set new schedule in cron_schedule
@@ -212,7 +211,7 @@ class Doofinder_Feed_Model_Observers_Feed
         // Set process data and save
         $process->setStatus($status)
             ->setNextRun('-')
-            ->setNextIteration($localTimescheduled)
+            ->setNextIteration($timescheduled)
             ->setScheduleId($schedule_id)
             ->save();
 

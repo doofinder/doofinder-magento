@@ -192,11 +192,10 @@ class Doofinder_Feed_Model_Observers_Schedule
 
                         $this->_removeLastSchedule($lastId);
 
-                        $processTimescheduled = $helper->getScheduledAt($config['time'], $config['frequency']);
                         $process->setStatus($helper::STATUS_PENDING)
                             ->setComplete('0%')
-                            ->setNextRun($processTimescheduled)
-                            ->setNextIteration($processTimescheduled)
+                            ->setNextRun($timescheduled)
+                            ->setNextIteration($timescheduled)
                             ->setOffset(0)
                             ->setScheduleId($id)
                             ->setMessage($helper::MSG_PENDING)
