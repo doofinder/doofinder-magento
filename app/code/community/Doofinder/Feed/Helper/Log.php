@@ -23,4 +23,18 @@ class Doofinder_Feed_Helper_Log extends Mage_Core_Helper_Abstract
 
         return $this;
     }
+
+    /**
+     * Get available log types
+     *
+     * @return array
+     */
+    function listLogTypes()
+    {
+        return array(
+            static::STATUS => $this->__('Status'),
+            static::WARNING => $this->__('Warning'),
+            static::ERROR => $this->__('Error'),
+        );
+    }
 }

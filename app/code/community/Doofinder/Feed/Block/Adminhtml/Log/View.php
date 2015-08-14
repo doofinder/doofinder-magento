@@ -2,6 +2,9 @@
 
 class Doofinder_Feed_Block_Adminhtml_Log_View extends Mage_Adminhtml_Block_Widget_Grid
 {
+    protected $_defaultSort     = 'id';
+    protected $_defaultDir      = 'desc';
+
     protected $_processId = null;
 
     public function __construct()
@@ -43,13 +46,14 @@ class Doofinder_Feed_Block_Adminhtml_Log_View extends Mage_Adminhtml_Block_Widge
         $this->addColumn('time', array(
             'header'    => Mage::helper('doofinder_feed')->__('Time'),
             'index'     => 'time',
-            'type'  => 'timestamp',
+            'type'  => 'datetime',
         ));
 
         $this->addColumn('type', array(
             'header'    => Mage::helper('doofinder_feed')->__('Type'),
             'index'     => 'type',
-            'type'  => 'string',
+            'type'  => 'options',
+            'options' => Mage::helper('doofinder_feed/log')->listLogTypes(),
         ));
 
         $this->addColumn('message', array(
