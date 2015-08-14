@@ -107,7 +107,7 @@ class Doofinder_Feed_Model_Observers_Feed
                 $process->setComplete(sprintf('%0.1f%%', $generator->getProgress() * 100));
 
                 if (!$generator->isFeedDone()) {
-                    $this->_createNewSchedule($process);
+                    $helper->createNewSchedule($process);
                 } else {
                     Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Feed generation completed'));
 
@@ -123,7 +123,7 @@ class Doofinder_Feed_Model_Observers_Feed
                 Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::ERROR, $e->getMessage());
                 $process->setErrorStack($process->getErrorStack() + 1);
                 $process->setMessage('#error#' . $e->getMessage());
-                $this->_createNewSchedule($process);
+                $helper->createNewSchedule($process);
             }
         }
     }
@@ -180,46 +180,6 @@ class Doofinder_Feed_Model_Observers_Feed
         return $newTime;
     }
 
-    /**
-     * Creates new schedule entry.
-     * @param Doofinder_Feed_Model_Cron $process
-     */
-
-    private function _createNewSchedule(Doofinder_Feed_Model_Cron $process) {
-        $helper = Mage::helper('doofinder_feed');
-
-        // Set new schedule time
-        $timezoneOffset = $helper->getTimezoneOffset();
-        $delayInMin = intval($this->config['stepDelay']);
-        $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
-        $timescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
-
-        // Set new schedule in cron_schedule
-        $newSchedule = Mage::getModel('cron/schedule');
-        $newSchedule->setCreatedAt($timecreated)
-            ->setJobCode($helper::JOB_CODE)
-            ->setScheduledAt($timescheduled)
-            ->save();
-
-        // Prepare new process data
-        $schedule_id = $newSchedule->getId();
-        $last_schedule_id = $process->getScheduleId();
-        $status = $helper::STATUS_RUNNING;
-        $nextRun = '-';
-
-
-        // Set process data and save
-        $process->setStatus($status)
-            ->setNextRun('-')
-            ->setNextIteration($timescheduled)
-            ->setScheduleId($schedule_id)
-            ->save();
-
-        $lastSchedule = Mage::getModel('cron/schedule')->load($last_schedule_id)->delete();
-
-        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Scheduling the next step for %s', $timescheduled));
-
-    }
     /**
      * Concludes process.
      * @param Doofinder_Feed_Model_Cron $process
