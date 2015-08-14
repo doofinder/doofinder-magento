@@ -12,8 +12,13 @@ class Doofinder_Feed_Block_Settings_Panel_Datetime extends Mage_Adminhtml_Block_
         $html = '';
         if ($field && $code) {
             $datetime = Mage::getModel('doofinder_feed/cron')->load($code, 'store_code')->getData($field);
-            $dateTimestamp = Mage::getModel('core/date')->timestamp(strtotime($datetime));
-            $msg = Mage::helper('core')->formatDate(date('Y-m-d  H:i:s', $dateTimestamp), null, true);
+            $msg = $datetime;
+
+            try {
+                $dateTimestamp = Mage::getModel('core/date')->timestamp(strtotime($datetime));
+                $msg = Mage::helper('core')->formatDate(date('Y-m-d  H:i:s', $dateTimestamp), null, true);
+            } catch (Exception $e) {}
+
             $class = 'feed-datetime';
             $html = "<p class='{$class}'>{$msg}</p>";
         }
