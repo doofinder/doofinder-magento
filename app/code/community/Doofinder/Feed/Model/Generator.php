@@ -111,7 +111,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $collection->getSelect()->order('e.entity_id DESC');
         $item = $collection->fetchItem();
 
-        return $item->getEntityId();
+        return $item ? $item->getEntityId() : 0;
     }
 
     /**
