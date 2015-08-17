@@ -13,8 +13,37 @@ class Doofinder_Feed_Model_CatalogSearch_Resource_Fulltext extends Mage_CatalogS
      */
     public function prepareResult($object, $queryText, $query)
     {
-        var_dump('Hello');
-        $query->setIsProcessed(1);
+        if(!Mage::getStoreConfigFlag('doofinder_search/internal_settings/enable', Mage::app()->getStore())) {
+            return parent::prepareResult($object, $queryText, $query);
+        }
+
+        $adapter = $this->_getWriteAdapter();
+
+        if (!$query->getIsProcessed()) {
+            try {
+                $results = Mage::helper('doofinder_feed/search')->performDoofinderSearch($queryText);
+
+                if (!empty($results)) {
+                    $data = array();
+
+                    foreach($results as $product_id) {
+                        $data[] = array(
+                            'query_id'   => $query->getId(),
+                            'product_id' => $product_id,
+                            //'relevance'  => $product['relevance'],
+                        );
+                    }
+
+                    $adapter->insertMultiple($this->getTable('catalogsearch/result'), $data);
+                }
+
+                $query->setIsProcessed(1);
+            } catch (Exception $e) {
+                Mage::logException($e);
+                return parent::prepareResult($object, $queryText, $query);
+            }
+        }
+
         return $this;
     }
 }
