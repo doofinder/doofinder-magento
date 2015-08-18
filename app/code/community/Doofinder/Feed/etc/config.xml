@@ -3,7 +3,7 @@
 
     <modules>
         <Doofinder_Feed>
-            <version>1.5.6</version>
+            <version>1.5.7</version>
         </Doofinder_Feed>
     </modules>
     <global>
@@ -243,6 +243,9 @@
     <crontab>
         <jobs>
             <doofinder_feed_generate>
+                <schedule>
+                    <cron_expr>*/5 * * * *</cron_expr>
+                </schedule>
                 <run>
                     <model>doofinder_feed/observers_feed::generateFeed</model>
                 </run>

@@ -447,16 +447,7 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
         $timescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
 
-        // Set new schedule in cron_schedule
-        $newSchedule = Mage::getModel('cron/schedule');
-        $newSchedule->setCreatedAt($timecreated)
-            ->setJobCode($helper::JOB_CODE)
-            ->setScheduledAt($timescheduled)
-            ->save();
-
         // Prepare new process data
-        $schedule_id = $newSchedule->getId();
-        $last_schedule_id = $process->getScheduleId();
         $status = $helper::STATUS_RUNNING;
         $nextRun = '-';
 
@@ -465,10 +456,7 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         $process->setStatus($status)
             ->setNextRun('-')
             ->setNextIteration($timescheduled)
-            ->setScheduleId($schedule_id)
             ->save();
-
-        $lastSchedule = Mage::getModel('cron/schedule')->load($last_schedule_id)->delete();
 
         Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Scheduling the next step for %s', $timescheduled));
     }
