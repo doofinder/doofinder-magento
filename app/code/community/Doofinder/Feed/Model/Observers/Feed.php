@@ -11,7 +11,6 @@ class Doofinder_Feed_Model_Observers_Feed
 
 
     public function generateFeed($observer)
-
     {
         $stores = Mage::app()->getStores();
         $helper = Mage::helper('doofinder_feed');
@@ -28,14 +27,15 @@ class Doofinder_Feed_Model_Observers_Feed
 
         // Get store code
         $this->storeCode = $process->getStoreCode();
-        Mage::log('Generate feed for '.$this->storeCode);
-
 
         // Get store config
         $this->config = $helper->getStoreConfig($this->storeCode);
 
         if ($this->config['enabled']) {
             try {
+                // Clear out the message
+                $process->setMessage($helper::MSG_EMPTY);
+
                 // Get data model for store cron
                 $dataModel = Mage::getModel('cron/schedule');
 
@@ -50,8 +50,8 @@ class Doofinder_Feed_Model_Observers_Feed
                 $stepSize = intval($this->config['stepSize']);
 
                 // Set paths
-                $path = Mage::getBaseDir('media').DS.'doofinder'.DS.$this->config['xmlName'];
-                $tmpPath = $path.'.tmp';
+                $path = $helper->getFeedPath($this->storeCode);
+                $tmpPath = $helper->getFeedTemporaryPath($this->storeCode);
 
                 // Get job code
                 $jobCode = $helper::JOB_CODE;
@@ -68,8 +68,20 @@ class Doofinder_Feed_Model_Observers_Feed
                 );
 
                 $generator = Mage::getModel('doofinder_feed/generator', $options);
+
                 $xmlData = $generator->run();
 
+                // If there were errors log them
+                if ($errors = $generator->getErrors()) {
+                    $process->setErrorStack($process->getErrorStack() + count($errors));
+
+                    foreach ($errors as $error) {
+                        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::ERROR, $error);
+                    }
+                }
+
+                $message = $helper->__('Processed products with ids in range %d - %d', $offset + 1, $generator->getLastProcessedProductId());
+                Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $message);
 
                 // If there is new data append to xml.tmp else convert into xml
                 if ($xmlData) {
@@ -77,55 +89,43 @@ class Doofinder_Feed_Model_Observers_Feed
 
                     // If directory doesn't exist create one
                     if (!file_exists($dir)) {
-                        $this->_createDirectory($dir);
+                        $helper->createFeedDirectory($dir);
                     }
 
                     // If file can not be save throw an error
                     if (!$success = file_put_contents($tmpPath, $xmlData, FILE_APPEND | LOCK_EX)) {
-                        Mage::throwException("File can not be saved: {$tmpPath}");
+                        Mage::throwException($helper->__("File can not be saved: {$tmpPath}"));
                     }
 
                     $this->productCount = $generator->getProductCount();
-
-                    $exceed = ($offset + $stepSize) >= $this->productCount ? true : false;
-
-
-                    if (!$exceed) {
-                        $this->_createNewSchedule($process);
-                    } else {
-                        if (!rename($tmpPath, $path)) {
-                            $process->setMessage("#error#Cannot convert {$tmpPath} to {$path}");
-                            throw new Exception("Cannot convert {$tmpPath} to {$path}");
-                        }
-                        $this->_endProcess($process);
-                    }
-
                 } else {
+                    Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::WARNING, $helper->__('No data added to feed'));
+                }
+
+                // Set process offset and progress
+                $process->setOffset($generator->getLastProcessedProductId());
+                $process->setComplete(sprintf('%0.1f%%', $generator->getProgress() * 100));
+
+                if (!$generator->isFeedDone()) {
+                    $helper->createNewSchedule($process);
+                } else {
+                    Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Feed generation completed'));
+
                     if (!rename($tmpPath, $path)) {
-                        throw new Exception("Cannot convert {$tmpPath} to {$path}");
+                        Mage::throwException($helper->__("Cannot rename {$tmpPath} to {$path}"));
                     }
+
+                    $process->setMessage($helper->__('Last process successfully completed. Now waiting for new schedule.'));
+                    $this->_endProcess($process);
                 }
 
             } catch (Exception $e) {
-                Mage::logException('Exception: '.$e);
-                unset($tmpPath);
+                Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::ERROR, $e->getMessage());
+                $process->setErrorStack($process->getErrorStack() + 1);
+                $process->setMessage('#error#' . $e->getMessage());
+                $helper->createNewSchedule($process);
             }
         }
-    }
-
-    /**
-     * Creates directory.
-     * @param string $dir
-     * @return bool
-     */
-    protected function _createDirectory($dir = null) {
-        if (!$dir) return false;
-
-        if(!mkdir($dir, 0777, true)) {
-           Mage::throwException('Could not create directory: '.$dir);
-        }
-
-        return true;
     }
 
     /**
@@ -181,54 +181,6 @@ class Doofinder_Feed_Model_Observers_Feed
     }
 
     /**
-     * Creates new schedule entry.
-     * @param Doofinder_Feed_Model_Cron $process
-     */
-
-    private function _createNewSchedule(Doofinder_Feed_Model_Cron $process) {
-        Mage::log('Creating new schedule');
-        $helper = Mage::helper('doofinder_feed');
-
-        // Set new schedule time
-        $timezoneOffset = $helper->getTimezoneOffset();
-        $delayInMin = intval($this->config['stepDelay']);
-        $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
-        $localTimescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H") + $timezoneOffset, date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
-        $timescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
-
-
-        $offset = intval($process->getOffset());
-        $newOffset = $offset + $this->config['stepSize'];
-
-        // Set new schedule in cron_schedule
-        $newSchedule = Mage::getModel('cron/schedule');
-        $newSchedule->setCreatedAt($timecreated)
-            ->setJobCode($helper::JOB_CODE)
-            ->setScheduledAt($timescheduled)
-            ->save();
-
-        // Prepare new process data
-        $schedule_id = $newSchedule->getId();
-        $last_schedule_id = $process->getScheduleId();
-        $status = $helper::STATUS_RUNNING;
-        $complete = sprintf('%0.1f%%', ($newOffset / $this->productCount) * 100);
-        $nextRun = '-';
-
-
-        // Set process data and save
-        $process->setStatus($status)
-            ->setComplete($complete)
-            ->setNextRun('-')
-            ->setNextIteration($localTimescheduled)
-            ->setOffset($newOffset)
-            ->setScheduleId($schedule_id)
-            ->setMessage($helper::MSG_EMPTY)
-            ->save();
-
-        $lastSchedule = Mage::getModel('cron/schedule')->load($last_schedule_id)->delete();
-
-    }
-    /**
      * Concludes process.
      * @param Doofinder_Feed_Model_Cron $process
      */
@@ -237,13 +189,9 @@ class Doofinder_Feed_Model_Observers_Feed
         // Prepare data
         $data = array(
             'status'    =>  $helper::STATUS_WAITING,
-            'message' => 'Last process successfully completed. Now waiting for new schedule.',
-            'error_stack' => 0,
-            'complete' => '-',
             'next_run' => '-',
             'next_iteration' => '-',
             'last_feed_name' => $this->config['xmlName'],
-            'offset' => 0,
             'schedule_id' => null,
         );
 

@@ -4,4 +4,11 @@
             <action method="addCss"><name>doofinder/styles.css</name></action>
         </reference>
     </default>
+
+    <adminhtml_doofinderfeedlog_view>
+        <reference name="content">
+            <block type="doofinder_feed/adminhtml_log_view" name="doofinder_log_view"></block>
+        </reference>
+    </adminhtml_doofinderfeedlog_view>
+
 </layout>

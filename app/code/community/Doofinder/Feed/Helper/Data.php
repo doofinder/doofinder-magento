@@ -432,6 +432,46 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         return $cronExprString;
     }
 
+    /**
+     * Creates new schedule entry.
+     * @param Doofinder_Feed_Model_Cron $process
+     */
+
+    public function createNewSchedule(Doofinder_Feed_Model_Cron $process) {
+        $helper = Mage::helper('doofinder_feed');
+
+        // Set new schedule time
+        $timezoneOffset = $helper->getTimezoneOffset();
+        $delayInMin = intval($this->config['stepDelay']);
+        $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
+        $timescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
+
+        // Set new schedule in cron_schedule
+        $newSchedule = Mage::getModel('cron/schedule');
+        $newSchedule->setCreatedAt($timecreated)
+            ->setJobCode($helper::JOB_CODE)
+            ->setScheduledAt($timescheduled)
+            ->save();
+
+        // Prepare new process data
+        $schedule_id = $newSchedule->getId();
+        $last_schedule_id = $process->getScheduleId();
+        $status = $helper::STATUS_RUNNING;
+        $nextRun = '-';
+
+
+        // Set process data and save
+        $process->setStatus($status)
+            ->setNextRun('-')
+            ->setNextIteration($timescheduled)
+            ->setScheduleId($schedule_id)
+            ->save();
+
+        $lastSchedule = Mage::getModel('cron/schedule')->load($last_schedule_id)->delete();
+
+        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Scheduling the next step for %s', $timescheduled));
+    }
+
     public function getScheduledAt($time = null, $frequency = null, $timezoneOffset = true) {
 
         $week   = $frequency == self::CRON_WEEKLY ? 7 : 0;
@@ -456,5 +496,54 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         // Revoke server timezone
         date_default_timezone_set($backTimezone);
         return $offset;
+    }
+
+    /**
+     * Get path to feed file.
+     *
+     * @return string
+     */
+    public function getFeedDirectory()
+    {
+        return Mage::getBaseDir('media').DS.'doofinder';
+    }
+
+    /**
+     * Get path to feed file.
+     *
+     * @return string
+     */
+    public function getFeedPath($storeCode)
+    {
+        $config = $this->getStoreConfig($storeCode);
+
+        return $this->getFeedDirectory().DS.$config['xmlName'];
+    }
+
+    /**
+     * Get path to feed file.
+     *
+     * @return string
+     */
+    public function getFeedTemporaryPath($storeCode)
+    {
+        return $this->getFeedPath($storeCode) . '.tmp';
+    }
+
+    /**
+     * Creates feed directory.
+     *
+     * @param string $dir
+     * @return bool
+     */
+    public function createFeedDirectory()
+    {
+        $dir = $this->getFeedDirectory();
+
+        if ((!file_exists($dir) && !mkdir($dir, 0777, true)) || !is_dir($dir)) {
+           Mage::throwException('Could not create directory: '.$dir);
+        }
+
+        return true;
     }
 }

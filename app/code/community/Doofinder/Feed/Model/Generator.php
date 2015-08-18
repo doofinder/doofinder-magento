@@ -33,19 +33,33 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     protected $_store;
     protected $_oRootCategory;
 
-    protected $_iProductCount;
+    protected $_maxProductId;
 
     protected $_attributes = array();
     protected $_categories = array();
     protected $_fieldMap;
 
-    protected $_iBatchSize = 0;
     protected $_iDumped = 0;
     protected $_iSkipped = 0;
 
     protected $_oXmlWriter;
 
     protected $_response;
+
+    protected $_errors = array();
+
+    protected $_lastProcessedProductId;
+
+    /**
+     * Log to doofinder generator logfile
+     *
+     * @param string $message
+     * @param integer $level
+     */
+    public function logError($message)
+    {
+        $this->_errors[] = $message;
+    }
 
     //
     // public::Export
@@ -62,35 +76,20 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
         // Generate Feed
         $this->_loadAdditionalAttributes();
-        $this->_iProductCount = $this->getProductCount();
+        $this->_maxProductId = $this->getMaxProductId();
 
-        if ($this->getData('_offset_') >= $this->_iProductCount)  // offset is 0-based
-        {
-            return "";
-        }
-        else
-        {
-            $this->_initFeed();
-            if (! $this->getData('_limit_'))
-            {
-                $this->_iBatchSize = false;
+        // Clear errors
+        $this->_errors = array();
 
-                // Dump ALL products
-                for ($offset = $this->getData('_offset_');
-                        $offset < $this->_iProductCount;
-                        $offset += self::DEFAULT_BATCH_SIZE)
-                    $this->_batchProcessProducts($offset, self::DEFAULT_BATCH_SIZE);
-            }
-            else
-            {
-                $this->_iBatchSize = $this->_batchProcessProducts(
-                    $this->getData('_offset_'),
-                    $this->getData('_limit_')
-                );
-            }
-            $this->_closeFeed();
-            return $this->_response;
-        }
+        // Perform run
+        $this->_initFeed();
+        $this->_batchProcessProducts(
+            $this->getData('_offset_'),
+            $this->getData('_limit_')
+        );
+        $this->_closeFeed();
+
+        return $this->_response;
     }
 
     public function getSQL()
@@ -105,36 +104,95 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         return $this->_getProductCollection()->getSize();
     }
 
+    public function getMaxProductId()
+    {
+        $collection = $this->_getProductCollection();
+        $collection->getSelect()->limit(1);
+        $collection->getSelect()->order('e.entity_id DESC');
+        $item = $collection->fetchItem();
+
+        return $item ? $item->getEntityId() : 0;
+    }
+
+    /**
+     * Is the feed done, are there any products
+     * left to process.
+     *
+     * @return boolean
+     */
+    public function isFeedDone()
+    {
+        return $this->_lastProcessedProductId >= $this->_maxProductId;
+    }
+
+    /**
+     * Get the ID of the last processed product.
+     *
+     * @return integer
+     */
+    public function getLastProcessedProductId()
+    {
+        return $this->_lastProcessedProductId;
+    }
+
+    /**
+     * Get generator progress, it is what part
+     * of products has been processed yet.
+     *
+     * @return double
+     */
+    public function getProgress()
+    {
+        $collection = $this->_getProductCollection();
+
+        $all = $collection->getSize();
+
+        $collection = $this->_getProductCollection();
+        $collection->addAttributeToFilter('entity_id', array('lteq' => $this->_lastProcessedProductId));
+        $now = $collection->getSize();
+
+        return $now / $all;
+    }
 
     public function addProductToFeed($args)
     {
-        $row = $args['row'];
+        try
+        {
+            $row = $args['row'];
 
-        $parentEntityId = null;
+            $this->_lastProcessedProductId = $row['entity_id'];
 
-        $map = $this->_getProductMapModel($row['type_id'], array());
+            $parentEntityId = null;
 
-        if (is_null($map))
-            return false;
+            $map = $this->_getProductMapModel($row['type_id'], array());
 
-        $product = Mage::getModel('catalog/product');
-        $product->setData($row)
-            ->setStoreId($this->getStoreId())
-            ->setCustomerGroupId($this->getData('customer_group_id'));
+            if (is_null($map)) {
+                Mage::throwException("There is no map definition for product with type {$row['type_id']}");
+            }
 
-        $product->getResource()->load($product, $row['entity_id']);
-        $map->setGenerator($this)
-            ->setProduct($product)
-            ->setFieldsMap($this->_getFieldsMap())
-            ->initialize();
+            $product = Mage::getModel('catalog/product');
+            $product->setData($row)
+                ->setStoreId($this->getStoreId())
+                ->setCustomerGroupId($this->getData('customer_group_id'));
 
-        if ($map->checkSkipSubmission()->isSkip())
-            return;
+            $product->getResource()->load($product, $row['entity_id']);
+            $map->setGenerator($this)
+                ->setProduct($product)
+                ->setFieldsMap($this->_getFieldsMap())
+                ->initialize();
 
-        if ($this->_addProductToXml($map))
-            $this->_iDumped++;
+            if ($map->checkSkipSubmission()->isSkip())
+                return;
 
-        $map->unsetData();
+            if ($this->_addProductToXml($map))
+                $this->_iDumped++;
+
+            $map->unsetData();
+        }
+        catch (Exception $e)
+        {
+            $this->logError('Error processing product (ID: ' . $row['entity_id'] . '): ' . $e->getMessage(), Zend_Log::ERR);
+        }
     }
 
 
@@ -144,24 +202,18 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected function _batchProcessProducts($offset, $limit)
     {
+        // Make sure we have this initialized
+        // in case of an empty collection
+        $this->_lastProcessedProductId = $offset;
 
-        $batchSize = min($this->_iProductCount - $offset, $limit);
+        $collection = $this->_getProductCollection($offset, $limit);
 
-        if ($batchSize > 0)
-        {
-            $collection = $this->_getProductCollection($offset, $batchSize);
-            Mage::getSingleton('core/resource_iterator')->walk(
-                $collection->getSelect(),
-                array(array($this, 'addProductToFeed'))
-            );
-            $this->_flushFeed();
-        }
-        else
-        {
-            $batchSize = 0;
-        }
+        Mage::getSingleton('core/resource_iterator')->walk(
+            $collection->getSelect(),
+            array(array($this, 'addProductToFeed'))
+        );
+        $this->_flushFeed();
 
-        return $batchSize;
     }
 
     protected function _addProductToXml(
@@ -321,6 +373,11 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         return $this->getStore()->getWebsiteId();
     }
 
+    public function getErrors()
+    {
+        return $this->_errors;
+    }
+
     public function getRootCategory()
     {
         if (is_null($this->_oRootCategory))
@@ -434,7 +491,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     {
         $this->_oXmlWriter = new XMLWriter();
         $this->_oXmlWriter->openMemory();
-        if ($this->getData('_offset_') === 0)
+        if (!$this->getData('_offset_'))
         {
             $this->_oXmlWriter->startDocument('1.0', 'UTF-8');
 
@@ -462,18 +519,16 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected function _closeFeed()
     {
-        if (! $this->getData('_limit_'))
+        if ($this->isFeedDone())
         {
-            $this->_oXmlWriter->endElement(); // Channel
-            $this->_oXmlWriter->endElement(); // RSS
-            $this->_oXmlWriter->endDocument();
+            if (!$this->getData('_offset_'))
+            {
+                $this->_oXmlWriter->endElement(); // Channel
+                $this->_oXmlWriter->endElement(); // RSS
+                $this->_oXmlWriter->endDocument();
 
-            $this->_flushFeed();
-        }
-        else
-        {
-            if ($this->getData('_offset_') < $this->_iProductCount
-                && ($this->getData('_offset_') + $this->getData('_limit_')) >= $this->_iProductCount)
+                $this->_flushFeed();
+            } else
             {
                 $this->_response .= '</channel></rss>';
             }
@@ -557,7 +612,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         }
     }
 
-    protected function _getProductCollection($offset = 0, $limit = null)
+    protected function _getProductCollection($offset = 0, $limit = 0)
     {
         $collection = Mage::getModel('catalog/product')
             ->getCollection()
@@ -572,8 +627,11 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         ));
         $collection->addAttributeToSelect('*');
 
-        if (!is_null($limit))
-            $collection->getSelect()->limit($limit, $offset);
+        if ($limit && $limit > 0)
+            $collection->getSelect()->limit($limit, 0);
+
+        if ($offset)
+            $collection->addAttributeToFilter('entity_id', array('gt' => $offset));
 
         return $collection;
     }
@@ -621,11 +679,27 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
 
         $this->_fieldMap = array();
-        $tmp = $cfg = $this->getConfigVar('field_map');
 
-        foreach ($tmp as $key => $mapData)
+        $fields = $this->getConfigVar('fields');
+        $map = Mage::getStoreConfig('doofinder_cron/attributes_mapping', Mage::app()->getStore());
+        $additional = unserialize($map['additional']);
+        unset($map['additional']);
+
+        if (!empty($additional['additional_mapping']))
         {
-            $attName = $mapData['attribute'];
+            foreach ($additional['additional_mapping'] as $data)
+            {
+                if (isset($map[$data['field']])) continue;
+
+                $fields[$data['field']] = array('label' => $data['label']);
+                $map[$data['field']] = $data['attribute'];
+            }
+        }
+
+        foreach ($map as $key => $attName)
+        {
+            if (!isset($fields[$key])) continue;
+
             if (!$this->getConfig()->isDirective($attName,
                                                  $this->getStoreId()))
             {
@@ -633,23 +707,25 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
                 if ($att === false)
                 {
-                    unset($cfg[$key]);
                     continue;
                 }
 
                 $att->setStoreId($this->getStoreId());
                 $this->_attributes[$att->getAttributeCode()] = $att;
             }
-        }
 
-        foreach ($cfg as $mapData)
-            $this->_fieldMap[$mapData['field']] = $mapData;
+            $this->_fieldMap[$key] = array(
+                'label' => $fields[$key]['label'],
+                'attribute' => $attName,
+                'field' => $key,
+            );
+        }
 
         return $this->_fieldMap;
     }
 
     protected function _stopOnException(Exception $e)
     {
-        Mage::log($e->getMessage());
+        Mage::logError($e->getMessage());
     }
 }

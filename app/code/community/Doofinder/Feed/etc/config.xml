@@ -3,7 +3,7 @@
 
     <modules>
         <Doofinder_Feed>
-            <version>1.5.4</version>
+            <version>1.5.6</version>
         </Doofinder_Feed>
     </modules>
     <global>
@@ -23,6 +23,9 @@
                     <cron>
                         <table>doofinder_feed</table>
                     </cron>
+                    <log>
+                        <table>doofinder_log</table>
+                    </log>
                 </entities>
             </doofinder_feed_mysql4>
         </models>
@@ -149,68 +152,53 @@
                     </df_directive_condition>
                 </directives>
 
-                <default_field_map>
+                <fields>
                     <id>
                         <label>Unique Identifier</label>
-                        <attribute>df_directive_id</attribute>
                     </id>
                     <mpn>
                         <label>Product SKU</label>
-                        <attribute>sku</attribute>
                     </mpn>
                     <title>
                         <label>Title</label>
-                        <attribute>name</attribute>
                     </title>
                     <description>
                         <label>Description</label>
-                        <attribute>short_description</attribute>
                     </description>
                     <long_description>
                         <label>Long Description</label>
-                        <attribute>description</attribute>
                     </long_description>
                     <meta_title>
                         <label>Meta Title</label>
-                        <attribute>meta_title</attribute>
                     </meta_title>
                     <meta_keyword>
                         <label>Meta Keywords</label>
-                        <attribute>meta_keyword</attribute>
                     </meta_keyword>
                     <meta_description>
                         <label>Meta Description</label>
-                        <attribute>meta_description</attribute>
                     </meta_description>
                     <brand>
                         <label>Brand</label>
-                        <attribute>manufacturer</attribute>
                     </brand>
                     <link>
                         <label>Product Link</label>
-                        <attribute>df_directive_url</attribute>
                     </link>
                     <image_link>
                         <label>Image</label>
-                        <attribute>df_directive_image_link</attribute>
                     </image_link>
                     <price>
                         <label>Normal Price</label>
-                        <attribute>df_directive_price</attribute>
                     </price>
                     <sale_price>
                         <label>Sale Price</label>
-                        <attribute>df_directive_sale_price</attribute>
                     </sale_price>
                     <availability>
                         <label>Availability</label>
-                        <attribute>df_directive_availability</attribute>
                     </availability>
                     <currency>
                         <label>Currency</label>
-                        <attribute>df_directive_currency</attribute>
                     </currency>
-                </default_field_map>
+                </fields>
 
             </feed>
         </doofinder>
@@ -227,6 +215,23 @@
                 <display_price>1</display_price>
                 <grouped>1</grouped>
             </feed_settings>
+            <attributes_mapping>
+                <id>df_directive_id</id>
+                <mpn>sku</mpn>
+                <title>name</title>
+                <description>short_description</description>
+                <long_description>description</long_description>
+                <meta_title>meta_title</meta_title>
+                <meta_keyword>meta_keyword</meta_keyword>
+                <meta_description>meta_description</meta_description>
+                <brand>manufacturer</brand>
+                <link>df_directive_url</link>
+                <image_link>df_directive_image_link</image_link>
+                <price>df_directive_price</price>
+                <sale_price>df_directive_sale_price</sale_price>
+                <availability>df_directive_availability</availability>
+                <currency>df_directive_currency</currency>
+            </attributes_mapping>
         </doofinder_cron>
     </default>
 
@@ -262,5 +267,17 @@
             </groups>
         </suite>
     </phpunit>
+
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <Doofinder_Feed after="Mage_Adminhtml">Doofinder_Feed</Doofinder_Feed>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
 
 </config>
