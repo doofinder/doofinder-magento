@@ -440,9 +440,10 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
     public function createNewSchedule(Doofinder_Feed_Model_Cron $process) {
         $helper = Mage::helper('doofinder_feed');
 
+        $config = $helper->getStoreConfig($process->getStoreCode());
+
         // Set new schedule time
-        $timezoneOffset = $helper->getTimezoneOffset();
-        $delayInMin = intval($this->config['stepDelay']);
+        $delayInMin = intval($config['stepDelay']);
         $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
         $timescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
 
