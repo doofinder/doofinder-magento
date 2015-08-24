@@ -28,8 +28,6 @@ class Doofinder_Feed_Model_Observers_Feed
 
         $process = $collection->fetchItem();
 
-        Mage::log($process->getData(), null, 'debug.log');
-
         if (!$process->getId()) {
             return;
         }

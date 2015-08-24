@@ -444,13 +444,11 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
         // Set new schedule time
         $delayInMin = intval($config['stepDelay']);
-        $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
         $timescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
 
         // Prepare new process data
         $status = $helper::STATUS_RUNNING;
         $nextRun = '-';
-
 
         // Set process data and save
         $process->setStatus($status)
