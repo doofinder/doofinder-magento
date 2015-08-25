@@ -206,7 +206,8 @@
             <schedule_settings>
                 <enabled>0</enabled>
                 <name>doofinder-{store_code}.xml</name>
-
+                <time>2,30,0</time>
+                <frequency>D</frequency>
                 <delay>5</delay>
                 <step>5</step>
                 <reset>0</reset>
