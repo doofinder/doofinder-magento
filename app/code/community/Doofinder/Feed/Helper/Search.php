@@ -16,7 +16,7 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
 
         $ids = false;
 
-        $df = Mage::getModel('doofinder_api', $hashId, $apiKey);
+        $df = new Doofinder_Api($hashId, $apiKey);
 
         $dfResults = $df->query($queryText, null, array('transformer' => 'onlyid'));
 
