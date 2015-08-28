@@ -116,7 +116,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         $storesConfiguration = array();
         $generatedFeeds = array();
         // Get file spath
-        $filesUrl = Mage::getUrl('media/doofinder');
+        $filesUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA).'doofinder'.DS;
         $filesPath = Mage::getBaseDir('media').DS.'doofinder'.DS;
 
         foreach ($storeCodes as $code)
