@@ -22,7 +22,7 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
 
         $ids = array();
         foreach($dfResults->getResults() as $result) {
-            $ids[] = $ids['id'];
+            $ids[] = $result['id'];
         }
 
         return $ids;
