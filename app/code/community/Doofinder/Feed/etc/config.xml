@@ -258,6 +258,14 @@
                     <model>doofinder_feed/observers_schedule::regenerateSchedule</model>
                 </run>
             </doofinder_feed_schedule>
+            <doofinder_feed_clear_logs>
+                <schedule>
+                    <cron_expr>2 30 * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>doofinder_feed/observers_logs::clearLogs</model>
+                </run>
+            </doofinder_feed_clear_logs>
         </jobs>
     </crontab>
 
