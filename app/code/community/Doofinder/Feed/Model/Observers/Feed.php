@@ -15,11 +15,20 @@ class Doofinder_Feed_Model_Observers_Feed
         $stores = Mage::app()->getStores();
         $helper = Mage::helper('doofinder_feed');
 
+        Mage::log('running', null, 'debug.log');
 
-        // Get doofinder proces smodel
-        $process = Mage::getModel('doofinder_feed/cron')->load($observer->getScheduleId(), 'schedule_id');
-        Mage::log($process->getData());
-        if (!$process->getData()) {
+
+        // Get doofinder process model
+        $collection = Mage::getModel('doofinder_feed/cron')->getCollection();
+        $collection
+            ->addFieldToFilter('status', array('in' => array($helper::STATUS_PENDING, $helper::STATUS_RUNNING)))
+            ->addFieldToFilter('next_iteration', array('lteq' => Mage::getModel('core/date')->date('Y-m-d H:i:s')))
+            ->setOrder('next_iteration', 'asc');
+        $collection->getSelect()->limit(1);
+
+        $process = $collection->fetchItem();
+
+        if (!$process->getId()) {
             return;
         }
 

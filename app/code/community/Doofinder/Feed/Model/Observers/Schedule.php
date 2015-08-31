@@ -59,9 +59,6 @@ class Doofinder_Feed_Model_Observers_Schedule
 
                 Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Schedule has been enabled'));
             } else if (!$isEnabled && $process->getStatus() != $helper::STATUS_DISABLED) {
-                // Remove last scheduled task
-                $this->_removeLastSchedule($process);
-
                 // Disable process
                 $process->modeDisabled($storeCode);
 
@@ -133,13 +130,6 @@ class Doofinder_Feed_Model_Observers_Schedule
                     // If pending entry for store not exists add new
                     if (!(in_array($status, $skipStatus))) {
                         $this->_rescheduleProcess($config, $process);
-                    }
-                    // Otherwise check if the process still has a pending schedule
-                    // if not recreate the schedule
-                    else if (!$this->_processHasPendingSchedule($process)) {
-                        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::WARNING, $helper->__('Schedule has been missed'));
-                        $process->setMessage($helper->__('Last schedule has been missed.'));
-                        $helper->createNewSchedule($process);
                     }
                 } catch (Exception $e) {
                     throw new Exception(Mage::helper('cron')->__('Unable to save Cron expression'));
@@ -214,21 +204,6 @@ class Doofinder_Feed_Model_Observers_Schedule
     }
 
     /**
-     * Remove last scheduled entry in cron_schedule table.
-     *
-     * @param Doofinder_Feed_Model_Cron $process
-     * @return bool
-     */
-    private function _removeLastSchedule(Doofinder_Feed_Model_Cron $process)
-    {
-        $lastSchedule = Mage::getModel('cron/schedule')->load($process->getScheduleId());
-
-        if ($lastSchedule->getId()) {
-            $lastSchedule->delete();
-        }
-    }
-
-    /**
      * Validate file permissions for feed generation.
      *
      * @return boolean
@@ -251,19 +226,6 @@ class Doofinder_Feed_Model_Observers_Schedule
     }
 
     /**
-     * Check if the given process has a pending schedule
-     *
-     * @param Doofinder_Feed_Model_Cron $process
-     *
-     * @return boolean
-     */
-    protected function _processHasPendingSchedule(Doofinder_Feed_Model_Cron $process)
-    {
-        $schedule = Mage::getModel('cron/schedule')->load($process->getScheduleId());
-        return $schedule->getId() && $schedule->getStatus() == Mage_Cron_Model_Schedule::STATUS_PENDING;
-    }
-
-    /**
      * Reschedule the process accordingly to process configuration.
      *
      * @param array $storeConfig
@@ -277,24 +239,11 @@ class Doofinder_Feed_Model_Observers_Schedule
         $timescheduled = $helper->getScheduledAt($config['time'], $config['frequency']);
         $jobCode = $helper::JOB_CODE;
 
-        $schedule = Mage::getModel('cron/schedule');
-        $schedule->setJobCode($jobCode)
-            ->setCreatedAt($timecreated)
-            ->setScheduledAt($timescheduled)
-            ->setStoreCode($process->getStoreCode())
-            ->save();
-
-        $id = $schedule->getId();
-
-        // Delete last scheduled entry if exists
-        $this->_removeLastSchedule($process);
-
         $process->setStatus($helper::STATUS_PENDING)
             ->setComplete('0%')
             ->setNextRun($timescheduled)
             ->setNextIteration($timescheduled)
             ->setOffset(0)
-            ->setScheduleId($id)
             ->setMessage($helper::MSG_PENDING)
             ->setErrorStack(0)
             ->save();

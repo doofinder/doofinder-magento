@@ -8,15 +8,13 @@ class Doofinder_Feed_Model_Cron extends Mage_Core_Model_Abstract {
 
     }
 
-
     public function modeDisabled() {
         $helper = Mage::helper('doofinder_feed');
         $this->setStatus($helper::STATUS_DISABLED)
             ->setOffset(0)
-            ->setScheduleId(null)
-            ->setComplete('-')
-            ->setNextRun('-')
-            ->setNextIteration('-')
+            ->setComplete(null)
+            ->setNextRun(null)
+            ->setNextIteration(null)
             ->setMessage($helper::MSG_DISABLED)
             ->save();
     }

@@ -551,7 +551,23 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
         return $field;
     }
 
+    /**
+     * Cleans invalid utf8 characters, strips tags and trims
+     *
+     * @param string|array $field
+     */
     protected function cleanFieldValue($field)
+    {
+        $cleaned = $this->cleanFieldValueArray((array) $field);
+        return is_array($field) ? $cleaned : $cleaned[0];
+    }
+
+    protected function cleanFieldValueArray($fields)
+    {
+        return array_map(array($this, '_cleanFieldValue'), $fields);
+    }
+
+    protected function _cleanFieldValue($field)
     {
         // http://stackoverflow.com/questions/4224141/php-removing-invalid-utf-8-characters-in-xml-using-filter
         $valid_utf8 = '/([\x09\x0A\x0D\x20-\x7E]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF]|\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})|./x';
