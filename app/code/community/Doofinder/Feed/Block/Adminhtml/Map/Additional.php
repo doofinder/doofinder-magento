@@ -95,7 +95,7 @@ class Doofinder_Feed_Block_Adminhtml_Map_Additional extends Mage_Adminhtml_Block
 
     protected function _getDisabled()
     {
-        return $this->getElement()->getDisabled() ? ' disabled' : '';
+        return $this->getElement()->getDisabled() ? 'disabled' : '';
     }
 
     protected function _getValue($key)
@@ -111,9 +111,15 @@ class Doofinder_Feed_Block_Adminhtml_Map_Additional extends Mage_Adminhtml_Block
     protected function _getAddRowButtonHtml()
     {
         if (!isset($this->_addRowButtonHtml[$container])) {
+            $_cssClass = 'add';
+
+            if (version_compare(Mage::getVersion(), '1.6', '<')) {
+                $_cssClass .= ' ' . $this->_getDisabled();
+            }
+
             $this->_addRowButtonHtml[$container] = $this->getLayout()->createBlock('adminhtml/widget_button')
                 ->setType('button')
-                ->setClass('add ' . $this->_getDisabled())
+                ->setClass($_cssClass)
                 ->setLabel($this->__('Add'))
                 ->setOnClick("doofinderFeedMapAdditionalRowGenerator.add()")
                 ->setDisabled($this->_getDisabled())
@@ -125,9 +131,15 @@ class Doofinder_Feed_Block_Adminhtml_Map_Additional extends Mage_Adminhtml_Block
     protected function _getRemoveRowButtonHtml()
     {
         if (!$this->_removeRowButtonHtml) {
+            $_cssClass = 'delete v-middle';
+
+            if (version_compare(Mage::getVersion(), '1.6', '<')) {
+                $_cssClass .= ' ' . $this->_getDisabled();
+            }
+
             $this->_removeRowButtonHtml = $this->getLayout()->createBlock('adminhtml/widget_button')
                 ->setType('button')
-                ->setClass('delete v-middle ' . $this->_getDisabled())
+                ->setClass($_cssClass)
                 ->setLabel($this->__('Delete'))
                 ->setOnClick("Element.remove($(this).up('tr'))")
                 ->setDisabled($this->_getDisabled())
