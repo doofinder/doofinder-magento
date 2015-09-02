@@ -28,7 +28,7 @@ class Doofinder_Feed_Model_Observers_Feed
 
         $process = $collection->fetchItem();
 
-        if (!$process->getId()) {
+        if (!$process || !$process->getId()) {
             return;
         }
 
