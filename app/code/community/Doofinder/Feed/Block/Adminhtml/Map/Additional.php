@@ -46,7 +46,7 @@ class Doofinder_Feed_Block_Adminhtml_Map_Additional extends Mage_Adminhtml_Block
 
             DoofinderFeedMapAdditionalRowGenerator.prototype.add = function() {
                 var html = $('doofinder_feed_additional_mapping_template').innerHTML;
-                html = html.replace(/\[additional_mapping\]\[\]/g, '[additional_mapping][' + (this.count++) + ']');
+                html = html.replace(/\[additional_mapping\]\[-1\]/g, '[additional_mapping][' + (this.count++) + ']');
                 Element.insert($('doofinder_feed_additional_mapping_container'), {bottom: html});
             };
 
