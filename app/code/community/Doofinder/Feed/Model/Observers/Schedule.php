@@ -21,7 +21,9 @@ class Doofinder_Feed_Model_Observers_Schedule
         } else {
             $stores = Mage::app()->getStores();
             foreach ($stores as $store) {
-                $codes[] = $store->getCode();
+                if ($store->getIsActive()) {
+                    $codes[] = $store->getCode();
+                }
             }
         }
 
