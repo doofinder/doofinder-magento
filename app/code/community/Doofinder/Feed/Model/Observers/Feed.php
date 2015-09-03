@@ -15,9 +15,6 @@ class Doofinder_Feed_Model_Observers_Feed
         $stores = Mage::app()->getStores();
         $helper = Mage::helper('doofinder_feed');
 
-        Mage::log('running', null, 'debug.log');
-
-
         // Get doofinder process model
         $collection = Mage::getModel('doofinder_feed/cron')->getCollection();
         $collection
