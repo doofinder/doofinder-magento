@@ -27,11 +27,14 @@ class Doofinder_Feed_Model_Observers_Schedule
             }
         }
 
+        // Check if user wants to generate the schedule
+        $generate = (bool) Mage::app()->getRequest()->getParam('generate');
+
         // Check if user wants to reset the schedule
-        $reset = (bool) Mage::app()->getRequest()->getParam('reset');
+        $reset = $generate ? true : (bool) Mage::app()->getRequest()->getParam('reset');
 
         foreach ($codes as $storeCode) {
-            $this->_updateProcess($storeCode, $reset);
+            $this->_updateProcess($storeCode, $reset, $generate);
         }
     }
 
@@ -83,12 +86,18 @@ class Doofinder_Feed_Model_Observers_Schedule
      *
      * @param Doofinder_Feed_Model_Cron $process
      * @param boolean $reset
+     * @param boolean $now
      */
-    private function _updateProcess($storeCode = 'default', $reset = false)
+    private function _updateProcess($storeCode = 'default', $reset = false, $now = false)
     {
         // Get store
         $helper = Mage::helper('doofinder_feed');
         $config = $helper->getStoreConfig($storeCode);
+
+        // Override time if $now is enabled
+        if ($now) {
+            $config['time'] = array(date('H') + $helper->getTimezoneOffset(), date('i'), date('s'));
+        }
 
         $isEnabled = (bool) $config['enabled'];
 
