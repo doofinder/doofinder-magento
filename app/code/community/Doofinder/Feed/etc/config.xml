@@ -260,7 +260,7 @@
             </doofinder_feed_schedule>
             <doofinder_feed_clear_logs>
                 <schedule>
-                    <cron_expr>2 30 * * *</cron_expr>
+                    <cron_expr>30 2 * * *</cron_expr>
                 </schedule>
                 <run>
                     <model>doofinder_feed/observers_logs::clearLogs</model>
