@@ -460,18 +460,33 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     public function getScheduledAt($time = null, $frequency = null, $timezoneOffset = true) {
-
-        $week   = $frequency == self::CRON_WEEKLY ? 7 : 0;
-        $month  = $frequency == self::CRON_MONTHLY ? 1 : 0;
-        $day    = $frequency == self::CRON_DAILY ? 1 : $week;
+        $parts = array($time[0], $time[1], $time[2], date('m'), date('d'));
         $offset = $this->getTimezoneOffset();
-        if ($timezoneOffset) {
-            $timescheduled = strftime("%Y-%m-%d %H:%M:%S", mktime($time[0] - $offset, $time[1], $time[2], date("m") + $month, date("d") + $day, date("Y")));
-        } else {
-            $timescheduled = strftime("%Y-%m-%d %H:%M:%S", mktime($time[0], $time[1], $time[2], date("m") + $month, date("d") + $day, date("Y")));
+
+        $now = time();
+        $start = mktime($parts[0] - $offset, $parts[1], $parts[2], $parts[3], $parts[4]);
+
+        if ($start < $now) {
+            switch ($frequency) {
+                case self::CRON_MONTHLY:
+                    $parts[3] += 1;
+                    break;
+
+                case self::CRON_WEEKLY:
+                    $parts[4] += 7;
+                    break;
+
+                case self::CRON_DAILY:
+                    $parts[4] += 1;
+                    break;
+            }
         }
 
-        return $timescheduled;
+        if ($timezoneOffset) {
+            $parts[0] -= $offset;
+        }
+
+        return strftime("%Y-%m-%d %H:%M:%S", mktime($parts[0], $parts[1], $parts[2], $parts[3], $parts[4]));
     }
 
     public function getTimezoneOffset() {
