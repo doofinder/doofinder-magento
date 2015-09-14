@@ -56,6 +56,15 @@
             </doofinder_feed>
         </blocks>
         <events>
+            <adminhtml_block_html_before>
+                <observers>
+                    <doofinder_feed>
+                        <type>singleton</type>
+                        <class>doofinder_feed/observers_feed</class>
+                        <method>addButtons</method>
+                    </doofinder_feed>
+                </observers>
+            </adminhtml_block_html_before>
             <admin_system_config_changed_section_doofinder_cron>
                 <observers>
                     <doofinder_feed>

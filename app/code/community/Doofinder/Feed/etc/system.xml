@@ -275,24 +275,6 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
                         </name>
-
-                        <generate translate="label">
-                            <frontend_type>button</frontend_type>
-                            <frontend_model>doofinder_feed/settings_buttons_generate</frontend_model>
-                            <sort_order>20</sort_order>
-                            <show_in_default>0</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </generate>
-
-                        <reschedule translate="label">
-                            <frontend_type>button</frontend_type>
-                            <frontend_model>doofinder_feed/settings_buttons_reschedule</frontend_model>
-                            <sort_order>20</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </reschedule>
                     </fields>
                 </schedule_settings>
                 <panel translate="label">
