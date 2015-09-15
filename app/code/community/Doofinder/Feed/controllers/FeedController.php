@@ -70,7 +70,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 
         $storeCodes = array_keys(Mage::app()->getStores(false, true));
         $storesConfiguration = array();
-        $generatedFeeds = array();
+
         // Get file spath
         $filesUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA).'doofinder'.DS;
         $filesPath = Mage::getBaseDir('media').DS.'doofinder'.DS;
@@ -79,23 +79,16 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         {
             $settings = $helper->getStoreConfig($code);
 
+            $filepath = $filesPath.$settings['xmlName'];
+            $fileurl = $filesUrl.$settings['xmlName'];
+
             $oStore = Mage::app()->getStore($code);
             $L = Mage::getStoreConfig('general/locale/code', $oStore->getId());
             $storesConfiguration[$code] = array(
                 'language' => strtoupper(substr($L, 0, 2)),
                 'currency' => $oStore->getCurrentCurrencyCode(),
-                'prices' => true,
-                'taxes' => true
+                'feed' => $this->_feedExists($filepath) ? $filesUrl.$settings['xmlName'] : '',
             );
-
-            // Check if feed file exists
-            $filepath = $filesPath.$settings['xmlName'];
-            $fileurl = $filesUrl.$settings['xmlName'];
-
-            if ($this->_feedExists($filepath)) {
-                $generatedFeeds[$code] = $fileurl;
-            }
-
         }
 
         $config = array(
@@ -109,13 +102,8 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
                 'feed' => Mage::getUrl('doofinder/feed'),
                 'options' => array(
                     'language' => $storeCodes,
-                    'grouped' => true,
-                    'minimal_price' => true,
-                    'prices_incl_taxes' => true,
-                    'customer_group_id' => 0,
                 ),
                 'configuration' => $storesConfiguration,
-                'generated_feeds' => $generatedFeeds,
             ),
         );
 
