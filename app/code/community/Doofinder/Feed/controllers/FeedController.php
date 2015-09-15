@@ -60,50 +60,6 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         $this->getResponse()->setBody($response);
     }
 
-
-    /**
-     * Ajax action for backend generate html button
-     */
-    public function generateAction() {
-
-        $this->_setJSONHeaders();
-
-
-        $params = $this->getRequest()->getParams();
-        $options = array(
-            '_limit_' => $this->_getInteger('limit', null),
-            '_offset_' => $this->_getInteger('offset', 0),
-            'store_code' => $params['store_code'],
-            'grouped' => $params['grouped'],
-            'display_price' => $this->_getBoolean('display_price', true),
-            'minimal_price' => $this->_getBoolean('minimal_price', false),
-            // Not logged in by default
-            'customer_group_id' => $this->_getInteger('customer_group', 0),
-        );
-
-        $generator = Mage::getModel('doofinder_feed/generator', $options);
-        $xmlData = $generator->run();
-
-        if ($xmlData) {
-            $dir = Mage::getBaseDir('media').DS.'doofinder';
-            $path = Mage::getBaseDir('media').DS.'doofinder'.DS.'doofinder-'.$params['store_code'].'.xml';
-            // If directory doesn't exist create one
-            if (!file_exists($dir)) {
-                $this->_createDirectory($dir);
-            }
-
-            // If file can not be save throw an error
-            if (!$success = file_put_contents($path, $xmlData, LOCK_EX)) {
-                $this->getResponse()->setBody("File can not be saved: {$path}");
-            }
-            //Mage::getSingleton('core/session')->addMessage('Feed generated and saved.');
-            $this->getResponse()->setBody('Success.');
-
-        } else {
-            $this->getResponse()->setBody('Failure.');
-        }
-    }
-
     public function configAction()
     {
         $this->_setJSONHeaders();

@@ -27,14 +27,11 @@ class Doofinder_Feed_Model_Observers_Schedule
             }
         }
 
-        // Check if user wants to generate the schedule
-        $generate = (bool) Mage::app()->getRequest()->getParam('generate');
-
         // Check if user wants to reset the schedule
-        $reset = $generate ? true : (bool) Mage::app()->getRequest()->getParam('reset');
+        $reset = (bool) Mage::app()->getRequest()->getParam('reset');
 
         foreach ($codes as $storeCode) {
-            $this->_updateProcess($storeCode, $reset, $generate);
+            $this->updateProcess($storeCode, $reset);
         }
     }
 
@@ -50,7 +47,7 @@ class Doofinder_Feed_Model_Observers_Schedule
 
         foreach ($stores as $store) {
             if ($store->getIsActive()) {
-                $this->_updateProcess($store->getCode());
+                $this->updateProcess($store->getCode());
             }
         }
     }
@@ -88,7 +85,7 @@ class Doofinder_Feed_Model_Observers_Schedule
      * @param boolean $reset
      * @param boolean $now
      */
-    private function _updateProcess($storeCode = 'default', $reset = false, $now = false)
+    public function updateProcess($storeCode = 'default', $reset = false, $now = false)
     {
         // Get store
         $helper = Mage::helper('doofinder_feed');

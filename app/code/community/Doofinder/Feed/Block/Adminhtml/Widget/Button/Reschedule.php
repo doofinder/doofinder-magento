@@ -14,7 +14,7 @@ class Doofinder_Feed_Block_Adminhtml_Widget_Button_Reschedule extends Mage_Admin
         $this->setData(array(
             'type' => 'button',
             'label' => 'Save & Reschedule',
-            'on_click' => 'saveAndReschedule()',
+            'on_click' => "confirm('Feed will be rescheduled (if there\'s a process running it will be stopped and the feed will be reset). Do you want to proceed?') && saveAndReschedule()",
             'after_html' => $script,
             'class' => 'save',
         ));
