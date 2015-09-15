@@ -218,7 +218,7 @@
                 <time>2,30,0</time>
                 <frequency>D</frequency>
                 <delay>5</delay>
-                <step>5</step>
+                <step>250</step>
                 <reset>0</reset>
             </schedule_settings>
             <feed_settings>
