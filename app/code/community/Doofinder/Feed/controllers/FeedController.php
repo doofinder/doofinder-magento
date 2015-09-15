@@ -60,50 +60,6 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         $this->getResponse()->setBody($response);
     }
 
-
-    /**
-     * Ajax action for backend generate html button
-     */
-    public function generateAction() {
-
-        $this->_setJSONHeaders();
-
-
-        $params = $this->getRequest()->getParams();
-        $options = array(
-            '_limit_' => $this->_getInteger('limit', null),
-            '_offset_' => $this->_getInteger('offset', 0),
-            'store_code' => $params['store_code'],
-            'grouped' => $params['grouped'],
-            'display_price' => $this->_getBoolean('display_price', true),
-            'minimal_price' => $this->_getBoolean('minimal_price', false),
-            // Not logged in by default
-            'customer_group_id' => $this->_getInteger('customer_group', 0),
-        );
-
-        $generator = Mage::getModel('doofinder_feed/generator', $options);
-        $xmlData = $generator->run();
-
-        if ($xmlData) {
-            $dir = Mage::getBaseDir('media').DS.'doofinder';
-            $path = Mage::getBaseDir('media').DS.'doofinder'.DS.'doofinder-'.$params['store_code'].'.xml';
-            // If directory doesn't exist create one
-            if (!file_exists($dir)) {
-                $this->_createDirectory($dir);
-            }
-
-            // If file can not be save throw an error
-            if (!$success = file_put_contents($path, $xmlData, LOCK_EX)) {
-                $this->getResponse()->setBody("File can not be saved: {$path}");
-            }
-            //Mage::getSingleton('core/session')->addMessage('Feed generated and saved.');
-            $this->getResponse()->setBody('Success.');
-
-        } else {
-            $this->getResponse()->setBody('Failure.');
-        }
-    }
-
     public function configAction()
     {
         $this->_setJSONHeaders();
@@ -114,7 +70,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 
         $storeCodes = array_keys(Mage::app()->getStores(false, true));
         $storesConfiguration = array();
-        $generatedFeeds = array();
+
         // Get file spath
         $filesUrl = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_MEDIA).'doofinder'.DS;
         $filesPath = Mage::getBaseDir('media').DS.'doofinder'.DS;
@@ -123,23 +79,16 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         {
             $settings = $helper->getStoreConfig($code);
 
+            $filepath = $filesPath.$settings['xmlName'];
+            $fileurl = $filesUrl.$settings['xmlName'];
+
             $oStore = Mage::app()->getStore($code);
             $L = Mage::getStoreConfig('general/locale/code', $oStore->getId());
             $storesConfiguration[$code] = array(
                 'language' => strtoupper(substr($L, 0, 2)),
                 'currency' => $oStore->getCurrentCurrencyCode(),
-                'prices' => true,
-                'taxes' => true
+                'feed' => $this->_feedExists($filepath) ? $filesUrl.$settings['xmlName'] : '',
             );
-
-            // Check if feed file exists
-            $filepath = $filesPath.$settings['xmlName'];
-            $fileurl = $filesUrl.$settings['xmlName'];
-
-            if ($this->_feedExists($filepath)) {
-                $generatedFeeds[$code] = $fileurl;
-            }
-
         }
 
         $config = array(
@@ -153,13 +102,8 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
                 'feed' => Mage::getUrl('doofinder/feed'),
                 'options' => array(
                     'language' => $storeCodes,
-                    'grouped' => true,
-                    'minimal_price' => true,
-                    'prices_incl_taxes' => true,
-                    'customer_group_id' => 0,
                 ),
                 'configuration' => $storesConfiguration,
-                'generated_feeds' => $generatedFeeds,
             ),
         );
 

@@ -27,14 +27,11 @@ class Doofinder_Feed_Model_Observers_Schedule
             }
         }
 
-        // Check if user wants to generate the schedule
-        $generate = (bool) Mage::app()->getRequest()->getParam('generate');
-
         // Check if user wants to reset the schedule
-        $reset = $generate ? true : (bool) Mage::app()->getRequest()->getParam('reset');
+        $reset = (bool) Mage::app()->getRequest()->getParam('reset');
 
         foreach ($codes as $storeCode) {
-            $this->_updateProcess($storeCode, $reset, $generate);
+            $this->updateProcess($storeCode, $reset);
         }
     }
 
@@ -50,7 +47,7 @@ class Doofinder_Feed_Model_Observers_Schedule
 
         foreach ($stores as $store) {
             if ($store->getIsActive()) {
-                $this->_updateProcess($store->getCode());
+                $this->updateProcess($store->getCode());
             }
         }
     }
@@ -88,7 +85,7 @@ class Doofinder_Feed_Model_Observers_Schedule
      * @param boolean $reset
      * @param boolean $now
      */
-    private function _updateProcess($storeCode = 'default', $reset = false, $now = false)
+    public function updateProcess($storeCode = 'default', $reset = false, $now = false)
     {
         // Get store
         $helper = Mage::helper('doofinder_feed');
@@ -124,12 +121,14 @@ class Doofinder_Feed_Model_Observers_Schedule
 
         // Do not process the schedule if it has insufficient file permissions
         if (!$this->_checkFeedFilePermission($storeCode)) {
-            Mage::getSingleton('adminhtml/session')->addError($helper->__('Insufficient file permissions for store: %s. Check if the feed file is writeable', $store->getName()));
+            Mage::getSingleton('adminhtml/session')->addError($helper->__('Insufficient file permissions for store: %s. Check if the feed file is writeable', $storeCode));
             return $this;
         }
 
         // Reschedule the process if it needs to
         if ($reset || $process->getStatus() == $helper::STATUS_WAITING) {
+            $store = Mage::getModel('core/store')->load($storeCode);
+            Mage::getSingleton('adminhtml/session')->addSuccess($helper->__('Process for store "%s" has been rescheduled', $store->getName()));
             $this->_removeTmpXml($storeCode);
             $this->_rescheduleProcess($config, $process);
         }
