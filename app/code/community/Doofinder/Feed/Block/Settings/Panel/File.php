@@ -14,16 +14,43 @@ class Doofinder_Feed_Block_Settings_Panel_File extends Mage_Adminhtml_Block_Syst
         $element->setScopeLabel('');
         $store_code = Mage::app()->getRequest()->getParam('store');
 
-        $process = Mage::getModel('doofinder_feed/cron')->load($store_code, 'store_code');
-        $lastGeneratedName = $process->getLastFeedName();
+        $stores = array();
+
+        if ($store_code) {
+            $stores[$store_code] = Mage::getModel('core/store')->load($store_code);
+        } else {
+            foreach (Mage::app()->getStores() as $store) {
+                if ($store->getIsActive()) {
+                    $stores[$store->getCode()] = $store;
+                }
+            }
+        }
+
+        $files = array();
+
+        foreach ($stores as $store) {
+            $process = Mage::getModel('doofinder_feed/cron')->load($store->getCode(), 'store_code');
+            $lastGeneratedName = $process->getLastFeedName();
+
+            $fileUrl = Mage::getBaseUrl('media').'doofinder'.DS.$lastGeneratedName;
+            $fileDir = Mage::getBaseDir('media').DS.'doofinder'.DS.$lastGeneratedName;
+            if ($lastGeneratedName && file_exists($fileDir)) {
+                $files[$store->getCode()] = "<a href='{$fileUrl}' target='_blank'>Get {$lastGeneratedName}</a>";
+            } else {
+                $files[$store->getCode()] = "Currently there is no file to preview.";
+            }
+        }
 
         $html = '';
-        $fileUrl = Mage::getBaseUrl('media').'doofinder'.DS.$lastGeneratedName;
-        $fileDir = Mage::getBaseDir('media').DS.'doofinder'.DS.$lastGeneratedName;
-        if ($lastGeneratedName && file_exists($fileDir)) {
-            $html = "<a href='{$fileUrl}' target='_blank'>Get {$lastGeneratedName}</a>";
+
+        if (count($files) > 1) {
+            $html .= '<ul>';
+            foreach ($files as $code => $file) {
+                $html .= '<li>' . $stores[$code]->getName() . ': ' . $file . '</li>';
+            }
+            $html .= '</ul>';
         } else {
-            $html = "<p>Currently there is no file to preview.</p>";
+            $html .= reset($files);
         }
 
         return $html;
