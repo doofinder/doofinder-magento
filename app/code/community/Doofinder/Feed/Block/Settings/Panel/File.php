@@ -12,7 +12,7 @@ class Doofinder_Feed_Block_Settings_Panel_File extends Mage_Adminhtml_Block_Syst
         $this->setElement($element);
         $name = $element->getName();
         $element->setScopeLabel('');
-        $store_code = Mage::getSingleton('adminhtml/config_data')->getStore();
+        $store_code = Mage::app()->getRequest()->getParam('store');
 
         $process = Mage::getModel('doofinder_feed/cron')->load($store_code, 'store_code');
         $lastGeneratedName = $process->getLastFeedName();
