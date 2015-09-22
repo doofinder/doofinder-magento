@@ -41,23 +41,28 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 
     public function indexAction()
     {
-        $options = array(
-            '_limit_' => $this->_getInteger('limit', null),
-            '_offset_' => $this->_getInteger('offset', 0),
-            'store_code' => $this->_getStoreCode(),
-            'display_price' => $this->_getBoolean('display_price', true),
-            'grouped' => $this->_getBoolean('grouped', true),
-            // Calculate the minimal price with the tier prices
-            'minimal_price' => $this->_getBoolean('minimal_price', false),
-            'customer_group_id' => $this->_getInteger('customer_group', 0),
-        );
-        $this->_setXMLHeaders();
+        $storeCode = $this->_getStoreCode();
+        $config = Mage::helper('doofinder_feed')->getStoreConfig($storeCode);
 
-        $generator = Mage::getSingleton('doofinder_feed/generator', $options);
-        $response = $generator->run();
+        if ($config['enabled']) {
+            // Set options for cron generator
+            $options = array(
+                '_limit_' => $this->_getInteger('limit', null),
+                '_offset_' => $this->_getInteger('offset', 0),
+                'store_code' => $config['storeCode'],
+                'grouped' => (bool) $config['grouped'],
+                'display_price' => (bool) $config['display_price'],
+                'minimal_price' => $this->_getBoolean('minimal_price', false),
+                'customer_group_id' => 0,
+            );
+            $this->_setXMLHeaders();
 
-        ob_end_clean();
-        $this->getResponse()->setBody($response);
+            $generator = Mage::getSingleton('doofinder_feed/generator', $options);
+            $response = $generator->run();
+
+            ob_end_clean();
+            $this->getResponse()->setBody($response);
+        }
     }
 
     public function configAction()
