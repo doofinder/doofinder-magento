@@ -205,10 +205,10 @@ class Doofinder_Feed_Model_Observers_Feed
     }
 
 
-    public function addButtons(Mage_Core_Model_Observer $observer) {
+    public function addButtons($observer) {
         $block = $observer->getBlock();
 
-        if ($block instanceof Mage_Adminhtml_Block_System_Config_Edit) {
+        if ($block instanceof Mage_Adminhtml_Block_System_Config_Edit && $block->getRequest()->getParam('section') == 'doofinder_cron') {
             $html = $block->getChild('save_button')->toHtml();
 
             $html .= $block->getLayout()->createBlock('doofinder_feed/adminhtml_widget_button_reschedule')->toHtml();
