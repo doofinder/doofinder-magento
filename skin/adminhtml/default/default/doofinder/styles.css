@@ -1,3 +1,7 @@
 #row_doofinder_cron_schedule_settings_time select {
     width: 80px !important;
 }
+
+#row_doofinder_cron_schedule_settings_time .df-separator:before {
+    content: " : "
+}

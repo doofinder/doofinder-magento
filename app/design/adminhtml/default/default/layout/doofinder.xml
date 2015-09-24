@@ -3,6 +3,9 @@
         <reference name="head">
             <action method="addCss"><name>doofinder/styles.css</name></action>
         </reference>
+        <reference name="head">
+            <action method="addJs"><name>doofinder/admin.js</name></action>
+        </reference>
     </default>
 
     <adminhtml_doofinderfeedlog_view>
@@ -10,5 +13,4 @@
             <block type="doofinder_feed/adminhtml_log_view" name="doofinder_log_view"></block>
         </reference>
     </adminhtml_doofinderfeedlog_view>
-
 </layout>

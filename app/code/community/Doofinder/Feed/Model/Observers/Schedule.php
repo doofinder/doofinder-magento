@@ -107,12 +107,12 @@ class Doofinder_Feed_Model_Observers_Schedule
         }
 
         // Enable/disable process if it needs to
-        if ($isEnabled) {
+        if ($now || $isEnabled) {
             if ($process->getStatus() == $helper::STATUS_DISABLED) {
                 $this->_enableProcess($process);
             }
         } else {
-            if ($process->getStatus() != $helper::STATUS_DISABLED) {
+            if ($process->getStatus() == $helper::STATUS_WAITING) {
                 $this->_removeTmpXml($storeCode);
                 $this->_disableProcess($process);
                 return $this;
