@@ -211,8 +211,6 @@ class Doofinder_Feed_Model_Observers_Feed
 
             $html .= $block->getLayout()->createBlock('doofinder_feed/adminhtml_widget_button_reschedule')->toHtml();
 
-            $html .= $block->getLayout()->createBlock('doofinder_feed/adminhtml_widget_button_generate')->toHtml();
-
             $block->setChild('save_button',
                 $block->getLayout()->createBlock('core/text')->setText($html)
             );
