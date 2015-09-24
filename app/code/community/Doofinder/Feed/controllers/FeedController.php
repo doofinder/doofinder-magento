@@ -44,25 +44,24 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         $storeCode = $this->_getStoreCode();
         $config = Mage::helper('doofinder_feed')->getStoreConfig($storeCode);
 
-        if ($config['enabled']) {
-            // Set options for cron generator
-            $options = array(
-                '_limit_' => $this->_getInteger('limit', null),
-                '_offset_' => $this->_getInteger('offset', 0),
-                'store_code' => $config['storeCode'],
-                'grouped' => (bool) $config['grouped'],
-                'display_price' => (bool) $config['display_price'],
-                'minimal_price' => $this->_getBoolean('minimal_price', false),
-                'customer_group_id' => 0,
-            );
-            $this->_setXMLHeaders();
 
-            $generator = Mage::getSingleton('doofinder_feed/generator', $options);
-            $response = $generator->run();
+        // Set options for cron generator
+        $options = array(
+            '_limit_' => $this->_getInteger('limit', null),
+            '_offset_' => $this->_getInteger('offset', 0),
+            'store_code' => $config['storeCode'],
+            'grouped' => (bool) $config['grouped'],
+            'display_price' => (bool) $config['display_price'],
+            'minimal_price' => $this->_getBoolean('minimal_price', false),
+            'customer_group_id' => 0,
+        );
+        $this->_setXMLHeaders();
 
-            ob_end_clean();
-            $this->getResponse()->setBody($response);
-        }
+        $generator = Mage::getSingleton('doofinder_feed/generator', $options);
+        $response = $generator->run();
+
+        ob_end_clean();
+        $this->getResponse()->setBody($response);
     }
 
     public function configAction()

@@ -37,100 +37,98 @@ class Doofinder_Feed_Model_Observers_Feed
         // Get store config
         $this->config = $helper->getStoreConfig($this->storeCode);
 
-        if ($this->config['enabled']) {
-            try {
-                // Clear out the message
-                $process->setMessage($helper::MSG_EMPTY);
+        try {
+            // Clear out the message
+            $process->setMessage($helper::MSG_EMPTY);
 
-                // Get data model for store cron
-                $dataModel = Mage::getModel('cron/schedule');
+            // Get data model for store cron
+            $dataModel = Mage::getModel('cron/schedule');
 
 
-                // Get store cron data
-                $data = $dataModel->load($scheduleId);
+            // Get store cron data
+            $data = $dataModel->load($scheduleId);
 
-                // Get current offset
-                $offset = intval($process->getOffset());
+            // Get current offset
+            $offset = intval($process->getOffset());
 
-                // Get step size
-                $stepSize = intval($this->config['stepSize']);
+            // Get step size
+            $stepSize = intval($this->config['stepSize']);
 
-                // Set paths
-                $path = $helper->getFeedPath($this->storeCode);
-                $tmpPath = $helper->getFeedTemporaryPath($this->storeCode);
+            // Set paths
+            $path = $helper->getFeedPath($this->storeCode);
+            $tmpPath = $helper->getFeedTemporaryPath($this->storeCode);
 
-                // Get job code
-                $jobCode = $helper::JOB_CODE;
+            // Get job code
+            $jobCode = $helper::JOB_CODE;
 
-                // Set options for cron generator
-                $options = array(
-                    '_limit_' => $stepSize,
-                    '_offset_' => $offset,
-                    'store_code' => $this->config['storeCode'],
-                    'grouped' => $this->_getBoolean($this->config['grouped']),
-                    'display_price' => $this->_getBoolean($this->config['display_price']),
-                    'minimal_price' => $this->_getBoolean('minimal_price', false),
-                    'customer_group_id' => 0,
-                );
+            // Set options for cron generator
+            $options = array(
+                '_limit_' => $stepSize,
+                '_offset_' => $offset,
+                'store_code' => $this->config['storeCode'],
+                'grouped' => $this->_getBoolean($this->config['grouped']),
+                'display_price' => $this->_getBoolean($this->config['display_price']),
+                'minimal_price' => $this->_getBoolean('minimal_price', false),
+                'customer_group_id' => 0,
+            );
 
-                $generator = Mage::getModel('doofinder_feed/generator', $options);
+            $generator = Mage::getModel('doofinder_feed/generator', $options);
 
-                $xmlData = $generator->run();
+            $xmlData = $generator->run();
 
-                // If there were errors log them
-                if ($errors = $generator->getErrors()) {
-                    $process->setErrorStack($process->getErrorStack() + count($errors));
+            // If there were errors log them
+            if ($errors = $generator->getErrors()) {
+                $process->setErrorStack($process->getErrorStack() + count($errors));
 
-                    foreach ($errors as $error) {
-                        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::ERROR, $error);
-                    }
+                foreach ($errors as $error) {
+                    Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::ERROR, $error);
                 }
-
-                $message = $helper->__('Processed products with ids in range %d - %d', $offset + 1, $generator->getLastProcessedProductId());
-                Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $message);
-
-                // If there is new data append to xml.tmp else convert into xml
-                if ($xmlData) {
-                    $dir = Mage::getBaseDir('media').DS.'doofinder';
-
-                    // If directory doesn't exist create one
-                    if (!file_exists($dir)) {
-                        $helper->createFeedDirectory($dir);
-                    }
-
-                    // If file can not be save throw an error
-                    if (!$success = file_put_contents($tmpPath, $xmlData, FILE_APPEND | LOCK_EX)) {
-                        Mage::throwException($helper->__("File can not be saved: {$tmpPath}"));
-                    }
-
-                    $this->productCount = $generator->getProductCount();
-                } else {
-                    Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::WARNING, $helper->__('No data added to feed'));
-                }
-
-                // Set process offset and progress
-                $process->setOffset($generator->getLastProcessedProductId());
-                $process->setComplete(sprintf('%0.1f%%', $generator->getProgress() * 100));
-
-                if (!$generator->isFeedDone()) {
-                    $helper->createNewSchedule($process);
-                } else {
-                    Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Feed generation completed'));
-
-                    if (!rename($tmpPath, $path)) {
-                        Mage::throwException($helper->__("Cannot rename {$tmpPath} to {$path}"));
-                    }
-
-                    $process->setMessage($helper->__('Last process successfully completed. Now waiting for new schedule.'));
-                    $this->_endProcess($process);
-                }
-
-            } catch (Exception $e) {
-                Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::ERROR, $e->getMessage());
-                $process->setErrorStack($process->getErrorStack() + 1);
-                $process->setMessage('#error#' . $e->getMessage());
-                $helper->createNewSchedule($process);
             }
+
+            $message = $helper->__('Processed products with ids in range %d - %d', $offset + 1, $generator->getLastProcessedProductId());
+            Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $message);
+
+            // If there is new data append to xml.tmp else convert into xml
+            if ($xmlData) {
+                $dir = Mage::getBaseDir('media').DS.'doofinder';
+
+                // If directory doesn't exist create one
+                if (!file_exists($dir)) {
+                    $helper->createFeedDirectory($dir);
+                }
+
+                // If file can not be save throw an error
+                if (!$success = file_put_contents($tmpPath, $xmlData, FILE_APPEND | LOCK_EX)) {
+                    Mage::throwException($helper->__("File can not be saved: {$tmpPath}"));
+                }
+
+                $this->productCount = $generator->getProductCount();
+            } else {
+                Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::WARNING, $helper->__('No data added to feed'));
+            }
+
+            // Set process offset and progress
+            $process->setOffset($generator->getLastProcessedProductId());
+            $process->setComplete(sprintf('%0.1f%%', $generator->getProgress() * 100));
+
+            if (!$generator->isFeedDone()) {
+                $helper->createNewSchedule($process);
+            } else {
+                Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Feed generation completed'));
+
+                if (!rename($tmpPath, $path)) {
+                    Mage::throwException($helper->__("Cannot rename {$tmpPath} to {$path}"));
+                }
+
+                $process->setMessage($helper->__('Last process successfully completed. Now waiting for new schedule.'));
+                $this->_endProcess($process);
+            }
+
+        } catch (Exception $e) {
+            Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::ERROR, $e->getMessage());
+            $process->setErrorStack($process->getErrorStack() + 1);
+            $process->setMessage('#error#' . $e->getMessage());
+            $helper->createNewSchedule($process);
         }
     }
 
