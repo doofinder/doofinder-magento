@@ -213,9 +213,9 @@
         </doofinder>
         <doofinder_cron>
             <schedule_settings>
-                <enabled>0</enabled>
+                <enabled>1</enabled>
                 <name>doofinder-{store_code}.xml</name>
-                <time>2,30,0</time>
+                <time>0,0,0</time>
                 <frequency>D</frequency>
                 <delay>5</delay>
                 <step>250</step>
