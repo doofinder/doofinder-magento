@@ -31,7 +31,7 @@ class Doofinder_Feed_Model_Observers_Schedule
         $reset = (bool) Mage::app()->getRequest()->getParam('reset');
 
         foreach ($codes as $storeCode) {
-            $this->updateProcess($storeCode, $reset);
+            $this->updateProcess($storeCode, $reset, $reset);
         }
     }
 
