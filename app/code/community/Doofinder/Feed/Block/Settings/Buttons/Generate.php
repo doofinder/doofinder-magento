@@ -6,9 +6,12 @@ class Doofinder_Feed_Block_Settings_Buttons_Generate extends Mage_Adminhtml_Bloc
         $this->setElement($element);
         $element->setScopeLabel('');
 
+        $storeCode = Mage::app()->getRequest()->getParam('store');
+        $url = Mage::helper("adminhtml")->getUrl('adminhtml/doofinderFeedFeed/generate', array('store' => $storeCode));
+
         $script = "<script type=\"text/javascript\">
             function generateFeed() {
-                var call = new Ajax.Request('" . Mage::helper("adminhtml")->getUrl('adminhtml/doofinderFeedFeed/generate/store/' . $storeCode) . "', {
+                var call = new Ajax.Request('" . $url . "', {
                     method: 'get',
                     onComplete: function(transport) {
                         alert(transport.responseText);
