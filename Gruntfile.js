@@ -44,16 +44,21 @@ module.exports = function(grunt) {
                 clean: [],
             };
 
-            for (var i = 0, j = cfg.sites.length; i < j; i++)
-            {
-                paths.copy.push({expand: true, src: 'app/code/community/Doofinder/**', dest: cfg.sites[i]});
-                paths.copy.push({expand: true, src: 'app/etc/modules/Doofinder_Feed.xml', dest: cfg.sites[i]});
-                paths.copy.push({expand: true, src: 'var/connect/Doofinder_Feed.xml', dest: cfg.sites[i]});
-                paths.copy.push({expand: true, src: 'var/connect/package.xml', dest: cfg.sites[i]});
+            var content_paths = [
+                'app/code/community/Doofinder/**',
+                'app/design/adminhtml/default/default/layout/doofinder.xml',
+                'app/etc/modules/Doofinder_Feed.xml',
+                'js/doofinder/**',
+                'skin/adminhtml/default/default/doofinder/**',
+                'var/connect/Doofinder_Feed.xml',
+                'var/connect/package.xml'
+            ];
 
-                paths.clean.push(cfg.sites[i] + '/app/code/community/Doofinder/**');
-                paths.clean.push(cfg.sites[i] + '/app/etc/modules/Doofinder_Feed.xml');
-                paths.clean.push(cfg.sites[i] + '/var/connect/**');
+            for (var i = 0, j = cfg.sites.length; i < j; i++) {
+                for (var x = 0, y = content_paths.length; x < y; x++) {
+                    paths.copy.push({expand: true, src: content_paths[x], dest: cfg.sites[i]});
+                    paths.clean.push(cfg.sites[i] + content_paths[x]);
+                }
             }
 
             return paths;
