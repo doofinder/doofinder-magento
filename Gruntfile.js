@@ -46,7 +46,7 @@ module.exports = function(grunt) {
 
             var content_paths = [
                 'app/code/community/Doofinder/**',
-                'app/design/adminhtml/default/default/layout/doofinder.xml',
+                'app/design/**/doofinder.xml',
                 'app/etc/modules/Doofinder_Feed.xml',
                 'js/doofinder/**',
                 'skin/adminhtml/default/default/doofinder/**',
