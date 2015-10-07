@@ -1,4 +1,3 @@
-
 <?php
 
 class Doofinder_Feed_DoofinderFeedLogController extends Mage_Adminhtml_Controller_Action

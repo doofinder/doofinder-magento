@@ -1,4 +1,3 @@
-
 <?php
 /**
  * This file is part of Doofinder_Feed.
