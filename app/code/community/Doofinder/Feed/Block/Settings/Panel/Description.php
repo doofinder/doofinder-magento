@@ -4,7 +4,7 @@ class Doofinder_Feed_Block_Settings_Panel_Description extends Mage_Adminhtml_Blo
 
     protected function _getElementHtml(Varien_Data_Form_Element_Abstract $element)
     {
-        $text = Mage::app()->getRequest()->getParam('store_code') ? '' : 'You can set the options below for each store separately by modifying the Current Configuration Scope.';
+        $text = Mage::app()->getRequest()->getParam('store') ? '' : 'You can set the options below for each store separately by modifying the Current Configuration Scope.';
 
         $this->setElement($element);
         $name = $element->getName();
