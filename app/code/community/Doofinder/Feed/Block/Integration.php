@@ -14,7 +14,7 @@ class Doofinder_Feed_Block_Integration extends Mage_Core_Block_Abstract
 
         if ($enabled) {
             $script .= '<script type="text/javascript">';
-            $script .= 'if (typeof Varien.searchForm !== \'undefined\') Varien.searchForm.prototype.initAutocomplete = function() {};';
+            $script .= "if (typeof Varien.searchForm !== 'undefined') Varien.searchForm.prototype.initAutocomplete = function() { $('search_autocomplete').hide(); };";
             $script .= '</script>';
 
             return $script;
