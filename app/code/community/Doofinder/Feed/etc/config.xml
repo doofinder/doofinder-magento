@@ -87,6 +87,9 @@
                                         <doofinder_cron>
                                             <title>Cron Options</title>
                                         </doofinder_cron>
+                                        <doofinder_search>
+                                            <title>Search Options</title>
+                                        </doofinder_search>
                                     </children>
                                 </config>
                             </children>
@@ -100,6 +103,13 @@
     <install></install>
 
     <frontend>
+        <layout>
+            <updates>
+                <doofinder_feed>
+                    <file>doofinder.xml</file>
+                </doofinder_feed>
+            </updates>
+        </layout>
         <routers>
             <doofinder_feed>
                 <use>standard</use>
@@ -234,6 +244,11 @@
                 <currency>df_directive_currency</currency>
             </attributes_mapping>
         </doofinder_cron>
+        <doofinder_search>
+            <layer_settings>
+                <enabled>0</enabled>
+            </layer_settings>
+        </doofinder_search>
     </default>
 
     <stores></stores>

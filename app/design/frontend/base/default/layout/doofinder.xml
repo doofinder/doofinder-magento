@@ -1,0 +1,7 @@
+<layout>
+    <default>
+        <reference name="head">
+            <block type="doofinder_feed/integration" name="doofinder.integration"></block>
+        </reference>
+    </default>
+</layout>

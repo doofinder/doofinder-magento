@@ -5,3 +5,10 @@
 #row_doofinder_cron_schedule_settings_time .df-separator:before {
     content: " : "
 }
+
+#row_doofinder_search_layer_settings_script textarea {
+    width: 548px;
+    height: 30em;
+    font-family: "Courier New", monospace;
+    font-size: 14px;
+}
