@@ -46,7 +46,7 @@ class Doofinder_Feed_Block_Settings_Panel_File extends Mage_Adminhtml_Block_Syst
         if (count($files) > 1) {
             $html .= '<ul>';
             foreach ($files as $code => $file) {
-                $html .= '<li>' . $stores[$code]->getName() . ': ' . $file . '</li>';
+                $html .= '<li><b>' . $stores[$code]->getName() . ':</b><div>' . $file . '</div></li>';
             }
             $html .= '</ul>';
         } else {
