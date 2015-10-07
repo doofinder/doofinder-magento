@@ -16,3 +16,17 @@
     font-family: "Courier New", monospace;
     font-size: 14px;
 }
+
+.doofinder-alert {
+    padding: 10px 10px 10px 40px;
+    font-size: .95em !important;
+    font-weight: bold !important;
+}
+
+.doofinder-notice {
+    padding-left: 10px;
+    background-image: none !important;
+    background-color: #D9EDF6 !important;
+    border-color: #BCE8F0 !important;
+    color: #3a87ad !important;
+}
