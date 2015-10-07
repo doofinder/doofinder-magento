@@ -23,12 +23,12 @@ To create a new release:
 1. Dump new version number inside package.json
 2. Run:
 
-    $ grunt release
+    $ grunt release:start
 
 3. Create package via the master site admin.
 4. Run:
 
-    $ grunt update
+    $ grunt release:finish
 
 6. Commit & Push
 
@@ -121,6 +121,6 @@ module.exports = function(grunt) {
 
     grunt.registerTask('default', ['clean:sync', 'copy:sync', 'watch:dev']);
     grunt.registerTask('sync', ['clean:sync', 'copy:sync']);
-    grunt.registerTask('release', ['version', 'sync']);
-    grunt.registerTask('update', ['copy:release']);
+    grunt.registerTask('release:start', ['version', 'sync']);
+    grunt.registerTask('release:finish', ['copy:release']);
 };
