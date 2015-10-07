@@ -4,14 +4,17 @@ class Doofinder_Feed_Block_Settings_Panel_Description extends Mage_Adminhtml_Blo
 
     protected function _getElementHtml(Varien_Data_Form_Element_Abstract $element)
     {
-        $text = Mage::app()->getRequest()->getParam('store') ? '' : 'You can set the options below for each store separately by modifying the Current Configuration Scope.';
+        $text = '';
+
+        if (!Mage::app()->getRequest()->getParam('store'))
+        {
+            $text =  'You can set the rest of the options for each store separately by modifying the Current Configuration Scope.';
+        }
 
         $this->setElement($element);
         $name = $element->getName();
         $element->setScopeLabel('');
-        $html = '<p style="color: rgb(21, 125, 21);">' . $text . '</p>';
+        $html = '<p class="notice-msg doofinder-alert doofinder-notice" style="width: 400px;">' . $text . '</p>';
         return $html;
     }
-
-
 }
