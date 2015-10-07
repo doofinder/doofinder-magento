@@ -13,7 +13,7 @@
             var changed = false;
             new Form.Observer('config_edit_form', 0.3, function(form, value) {
                 if (changed) return;
-                $('row_doofinder_cron_feed_settings_instruction').select('p')[0].update('Configuration have changed. Feed will be regenerated after the save.').style.color = 'red';
+                $$('[id^="row_doofinder_cron_feed_settings_instruction"]')[0].select('p')[0].update('Configuration has changed. Feed will be regenerated after the save.').style.color = 'red';
                 form.insert('<input type="hidden" name="reset" value="1"/>');
                 changed = true;
             });

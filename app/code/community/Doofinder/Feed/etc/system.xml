@@ -24,13 +24,13 @@
                     <show_in_website>0</show_in_website>
                     <show_in_store>1</show_in_store>
                     <fields>
-                        <instruction>
+                        <instruction_default>
                             <frontend_model>doofinder_feed/settings_panel_description</frontend_model>
                             <sort_order>0</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
-                        </instruction>
+                        </instruction_default>
                         <instruction>
                             <frontend_model>doofinder_feed/settings_panel_description</frontend_model>
                             <sort_order>0</sort_order>
