@@ -224,17 +224,13 @@
             </schedule_settings>
             <feed_settings>
                 <display_price>1</display_price>
-                <grouped>1</grouped>
+                <grouped>0</grouped>
             </feed_settings>
             <attributes_mapping>
                 <id>df_directive_id</id>
                 <mpn>sku</mpn>
                 <title>name</title>
                 <description>short_description</description>
-                <long_description>description</long_description>
-                <meta_title>meta_title</meta_title>
-                <meta_keyword>meta_keyword</meta_keyword>
-                <meta_description>meta_description</meta_description>
                 <brand>manufacturer</brand>
                 <link>df_directive_url</link>
                 <image_link>df_directive_image_link</image_link>
@@ -242,6 +238,10 @@
                 <sale_price>df_directive_sale_price</sale_price>
                 <availability>df_directive_availability</availability>
                 <currency>df_directive_currency</currency>
+                <!--long_description>description</long_description>
+                <meta_title>meta_title</meta_title>
+                <meta_keyword>meta_keyword</meta_keyword>
+                <meta_description>meta_description</meta_description-->
             </attributes_mapping>
         </doofinder_cron>
         <doofinder_search>

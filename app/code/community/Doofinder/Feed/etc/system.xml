@@ -39,9 +39,8 @@
                             <show_in_store>1</show_in_store>
                         </instruction>
                         <display_price translate="label">
-                            <label>Display Price</label>
+                            <label>Export Product Prices</label>
                             <frontend_type>select</frontend_type>
-                            <comment>Show/hide the price in the feed</comment>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>7</sort_order>
                             <show_in_default>1</show_in_default>
@@ -49,7 +48,8 @@
                             <show_in_store>1</show_in_store>
                         </display_price>
                         <grouped translate="label">
-                            <label>Export Grouped Products as Simple</label>
+                            <label>Split Configurable Products</label>
+                            <comment>Export each component of a configurable product separately, instead of exporting them as a single product.</comment>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>8</sort_order>
@@ -61,7 +61,7 @@
                 </feed_settings>
 
                 <attributes_mapping translate="label">
-                    <label>Attributes Mapping</label>
+                    <label>Feed Attributes</label>
                     <expanded>false</expanded>
                     <frontend_type>text</frontend_type>
                     <sort_order>15</sort_order>
@@ -70,7 +70,7 @@
                     <show_in_store>1</show_in_store>
                     <fields>
                         <id translate="label">
-                            <label>ID</label>
+                            <label>Id</label>
                             <frontend_type>select</frontend_type>
                             <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
                             <sort_order>1</sort_order>
@@ -78,20 +78,11 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
                         </id>
-                        <mpn translate="label">
-                            <label>MPN</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
-                            <sort_order>2</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </mpn>
                         <title translate="label">
                             <label>Title</label>
                             <frontend_type>select</frontend_type>
                             <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
-                            <sort_order>3</sort_order>
+                            <sort_order>2</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -100,12 +91,93 @@
                             <label>Description</label>
                             <frontend_type>select</frontend_type>
                             <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
-                            <sort_order>4</sort_order>
+                            <sort_order>3</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
                         </description>
-                        <long_description translate="label">
+                        <brand translate="label">
+                            <label>Brand</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
+                            <sort_order>4</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </brand>
+                        <link translate="label">
+                            <label>Link</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </link>
+                        <image_link translate="label">
+                            <label>Image Link</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </image_link>
+                        <price translate="label">
+                            <label>Price</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
+                            <sort_order>7</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </price>
+                        <sale_price translate="label">
+                            <label>Sale price</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
+                            <sort_order>8</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </sale_price>
+                        <mpn translate="label">
+                            <label>MPN</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
+                            <sort_order>9</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </mpn>
+                        <availability translate="label">
+                            <label>Availability</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </availability>
+                        <currency translate="label">
+                            <label>Currency</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </currency>
+                        <additional translate="label">
+                            <label>Additional Attributes</label>
+                            <frontend_model>doofinder_feed/adminhtml_map_additional</frontend_model>
+                            <backend_model>doofinder_feed/system_config_backend_map_additional</backend_model>
+                            <sort_order>12</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </additional>
+                        <!--long_description translate="label">
                             <label>Long Description</label>
                             <frontend_type>select</frontend_type>
                             <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
@@ -140,79 +212,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </meta_description>
-                        <brand translate="label">
-                            <label>Brand</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
-                            <sort_order>9</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </brand>
-                        <link translate="label">
-                            <label>Link</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
-                            <sort_order>10</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </link>
-                        <image_link translate="label">
-                            <label>Image Link</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
-                            <sort_order>11</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </image_link>
-                        <price translate="label">
-                            <label>Price</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
-                            <sort_order>12</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </price>
-                        <sale_price translate="label">
-                            <label>Sale price</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
-                            <sort_order>13</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </sale_price>
-                        <availability translate="label">
-                            <label>Availability</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
-                            <sort_order>14</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </availability>
-                        <currency translate="label">
-                            <label>Currency</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>doofinder_feed/system_config_source_product_attributes</source_model>
-                            <sort_order>15</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </currency>
-                        <additional translate="label">
-                            <label>Additional</label>
-                            <frontend_model>doofinder_feed/adminhtml_map_additional</frontend_model>
-                            <backend_model>doofinder_feed/system_config_backend_map_additional</backend_model>
-                            <sort_order>16</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </additional>
+                        </meta_description-->
                     </fields>
                 </attributes_mapping>
 
