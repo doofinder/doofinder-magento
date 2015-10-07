@@ -224,7 +224,7 @@
                         <time translate="label">
                             <label>Feed generation start time</label>
                             <frontend_type>time</frontend_type>
-                            <comment>Feed generation start date</comment>
+                            <comment>The time at which the feed generation starts.</comment>
                             <sort_order>2</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
@@ -243,7 +243,7 @@
                         <step translate="label">
                             <label>Step Size</label>
                             <frontend_type>text</frontend_type>
-                            <comment>The number of products added to each iteration when the feed is generated.</comment>
+                            <comment>The maximum number of products added to the feed on each iteration of the generation process.</comment>
                             <sort_order>4</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
@@ -252,7 +252,7 @@
                         <delay translate="label">
                             <label>Step Delay</label>
                             <frontend_type>text</frontend_type>
-                            <comment><![CDATA[The interval between the subsequent stages of feed generating (in minutes). It shouldn't be smaller than the crontab setting. (<a href="http://devdocs.magento.com/guides/v2.0/config-guide/cli/config-cli-subcommands-cron.html" target="step-delay">What's this?</a>)]]></comment>
+                            <comment><![CDATA[The interval (in minutes) between subsequent stages of the feed generation process. It should not be smaller than the frequency of execution of your cron.sh file. (<a href="http://devdocs.magento.com/guides/v2.0/config-guide/cli/config-cli-subcommands-cron.html" target="step-delay">What's this?</a>)]]></comment>
                             <sort_order>5</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
