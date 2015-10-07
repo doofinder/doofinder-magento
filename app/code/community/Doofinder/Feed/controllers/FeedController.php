@@ -91,7 +91,8 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             $storesConfiguration[$code] = array(
                 'language' => strtoupper(substr($L, 0, 2)),
                 'currency' => $oStore->getCurrentCurrencyCode(),
-                'feed' => $this->_feedExists($filepath) ? $filesUrl.$settings['xmlName'] : '',
+                'feed' =>  $filesUrl.$settings['xmlName'],
+                'feed_exists' => (bool) $this->_feedExists($filepath),
             );
         }
 
