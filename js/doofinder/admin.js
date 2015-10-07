@@ -13,7 +13,7 @@
             var changed = false;
             new Form.Observer('config_edit_form', 0.3, function(form, value) {
                 if (changed) return;
-                $('messages').insert('<p class="notice-msg doofinder-alert">Configuration has changed. Feed will be regenerated after the save.</p>');
+                $('messages').insert('<p class="notice-msg doofinder-alert">Configuration has changed. The feed generation will be rescheduled after saving.</p>');
                 form.insert('<input type="hidden" name="reset" value="1"/>');
                 changed = true;
             });
