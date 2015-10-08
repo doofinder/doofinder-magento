@@ -14,7 +14,7 @@ class Doofinder_Feed_Block_Settings_Panel_Description extends Mage_Adminhtml_Blo
         $this->setElement($element);
         $name = $element->getName();
         $element->setScopeLabel('');
-        $html = '<p class="notice-msg doofinder-alert doofinder-notice" style="width: 400px;">' . $text . '</p>';
+        $html = '<p class="doofinder-info" style="width: 400px;">' . $text . '</p>';
         return $html;
     }
 }
