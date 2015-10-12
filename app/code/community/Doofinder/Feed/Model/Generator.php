@@ -618,6 +618,19 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected function _getProductCollection($offset = 0, $limit = 0)
     {
+        $collection = $this->getProductCollection($offset, $limit);
+
+        if ($limit && $limit > 0)
+            $collection->getSelect()->limit($limit, 0);
+
+        if ($offset)
+            $collection->addAttributeToFilter('entity_id', array('gt' => $offset));
+
+        return $collection;
+    }
+
+    public function getProductCollection()
+    {
         $collection = Mage::getModel('catalog/product')
             ->getCollection()
             ->addStoreFilter($this->getStoreId());
@@ -630,12 +643,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_SEARCH
         ));
         $collection->addAttributeToSelect('*');
-
-        if ($limit && $limit > 0)
-            $collection->getSelect()->limit($limit, 0);
-
-        if ($offset)
-            $collection->addAttributeToFilter('entity_id', array('gt' => $offset));
 
         return $collection;
     }

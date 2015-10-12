@@ -43,23 +43,41 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         $storeCode = $this->_getStoreCode();
         $config = Mage::helper('doofinder_feed')->getStoreConfig($storeCode);
 
-
         // Set options for cron generator
         $options = array(
             '_limit_' => $this->_getInteger('limit', null),
-            '_offset_' => $this->_getInteger('offset', 0),
+            '_offset_' => 0,
             'store_code' => $config['storeCode'],
             'grouped' => (bool) $config['grouped'],
             'display_price' => (bool) $config['display_price'],
             'minimal_price' => $this->_getBoolean('minimal_price', false),
             'customer_group_id' => 0,
         );
-        $this->_setXMLHeaders();
 
         $generator = Mage::getSingleton('doofinder_feed/generator', $options);
-        $response = $generator->run();
 
-        ob_end_clean();
+        // Convert offset to product id
+        $offset = $this->_getInteger('offset', 0);
+
+        if ($offset > 0) {
+            $collection = $generator->getProductCollection();
+            $collection->getSelect()->limit(1, $offset);
+
+            $item = $collection->fetchItem();
+
+            $offset = $item ? $item->getEntityId() - 1 : -1;
+        }
+
+        $response = '';
+        if ($offset >= 0) {
+            $generator->setData('_offset_', $offset);
+            $this->_setXMLHeaders();
+
+            $response = $generator->run();
+
+            ob_end_clean();
+        }
+
         $this->getResponse()->setBody($response);
     }
 
