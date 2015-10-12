@@ -87,7 +87,11 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             $this->getData('_offset_'),
             $this->getData('_limit_')
         );
-        $this->_closeFeed();
+
+        // Only close feed if there was at least one processed product
+        if ($this->getLastProcessedProductId() != $this->getData('_offset_')) {
+            $this->_closeFeed();
+        }
 
         return $this->_response;
     }
