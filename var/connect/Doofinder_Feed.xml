@@ -1,5 +1,5 @@
 <_>
-   <form_key>OQCEQQkUonLfoZRN</form_key>
+   <form_key>DtGf8H72D0R9fuEt</form_key>
    <name>Doofinder_Feed</name>
    <channel>community</channel>
    <version_ids>
@@ -83,7 +83,7 @@ http://www.doofinder.com</description>
             <max/>
          </max>
          <files>
-            <files>                                                            </files>
+            <files>                                                             </files>
          </files>
       </package>
       <extension>
@@ -145,4 +145,8 @@ http://www.doofinder.com</description>
          <ignore/>
       </ignore>
    </contents>
+   <page>1</page>
+   <limit>200</limit>
+   <folder/>
+   <package/>
 </_>

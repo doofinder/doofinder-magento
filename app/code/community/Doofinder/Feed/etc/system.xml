@@ -243,7 +243,7 @@
                         <step translate="label">
                             <label>Step Size</label>
                             <frontend_type>text</frontend_type>
-                            <comment>The maximum number of products added to the feed on each iteration of the generation process.</comment>
+                            <comment>The maximum number of products added to the feed on each iteration of the generation process (maximum recommended value: 1000)</comment>
                             <sort_order>4</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
