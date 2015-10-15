@@ -1,3 +1,10 @@
+#doofinder_feed_additional_mapping_container input {
+    max-width: 80px;
+}
+#doofinder_feed_additional_mapping_container select {
+    max-width: 180px;
+}
+
 #row_doofinder_cron_schedule_settings_time select {
     width: 80px !important;
 }
@@ -7,10 +14,10 @@
 }
 
 #row_doofinder_search_layer_settings_script textarea {
-    width: 548px;
+    min-width: 370px;
     height: 30em;
     font-family: "Courier New", monospace;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .doofinder-info {
