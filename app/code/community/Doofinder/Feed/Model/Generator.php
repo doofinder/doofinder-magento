@@ -284,12 +284,13 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                         $value = trim($value);
                     }
 
-                    if ($field != 'description' && empty($value)) {
+                    if ($field != 'description' && empty($value))
+                    {
                         continue;
                     }
 
-                    if (!$displayPrice && $field === 'price') {
-
+                    if (!$displayPrice && ($field === 'price' || $field === 'sale_price'))
+                    {
                         continue;
                     }
 
