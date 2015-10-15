@@ -6,10 +6,6 @@
     content: " : "
 }
 
-#row_doofinder_cron_panel_last_files td.value {
-    min-width: 500px;
-}
-
 #row_doofinder_search_layer_settings_script textarea {
     width: 548px;
     height: 30em;
