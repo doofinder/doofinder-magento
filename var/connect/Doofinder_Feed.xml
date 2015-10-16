@@ -1,5 +1,5 @@
 <_>
-   <form_key>de1JEsAP9ckzhtI1</form_key>
+   <form_key>bV1iT6HzjNl4kcCc</form_key>
    <name>Doofinder_Feed</name>
    <channel>community</channel>
    <version_ids>
@@ -81,7 +81,7 @@ Adjustments.</notes>
             <max/>
          </max>
          <files>
-            <files>                                                              </files>
+            <files>                                                               </files>
          </files>
       </package>
       <extension>
@@ -143,4 +143,8 @@ Adjustments.</notes>
          <ignore/>
       </ignore>
    </contents>
+   <page>1</page>
+   <limit>200</limit>
+   <folder/>
+   <package/>
 </_>

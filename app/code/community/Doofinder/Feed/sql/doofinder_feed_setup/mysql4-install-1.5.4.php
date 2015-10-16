@@ -3,7 +3,20 @@
 $installer = $this;
 
 $installer->startSetup();
-// Add doofinder table
+
+/**
+ * Cron table
+ */
+
+if (version_compare(Mage::getVersion(), '1.6', '<'))
+{
+    $installer->run("DROP TABLE IF EXISTS {$installer->getTable('doofinder_feed/cron')};");
+}
+else
+{
+    $installer->getConnection()->dropTable( $installer->getTable('doofinder_feed/cron') );
+}
+
 $table = $installer->getConnection()
     ->newTable($installer->getTable('doofinder_feed/cron'))
     ->addColumn('id', Varien_Db_Ddl_Table::TYPE_INTEGER, null, array(
@@ -18,7 +31,6 @@ $table = $installer->getConnection()
         'length'    => 255,
         ), 'Status')
     ->addColumn('message', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255, array(
-
         ), 'Message')
     ->addColumn('error_stack', Varien_Db_Ddl_Table::TYPE_INTEGER, null, array(
         'default'    => 0,

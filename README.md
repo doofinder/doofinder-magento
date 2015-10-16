@@ -1,6 +1,3 @@
-doofinder-magento
-=================
-
 # How to configure Doofinder in Magento
 
 ## Table Of Contents

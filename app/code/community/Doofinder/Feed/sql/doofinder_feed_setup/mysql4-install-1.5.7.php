@@ -4,9 +4,23 @@ $installer = $this;
 
 $installer->startSetup();
 
+// 1.5
+if ( version_compare(Mage::getVersion(), '1.6', '<') )
+{
+    $installer->run("DROP TABLE IF EXISTS {$installer->getTable('doofinder_feed/cron')};");
+    $installer->run("DROP TABLE IF EXISTS {$installer->getTable('doofinder_feed/log')};");
+}
+// 1.6+
+else
+{
+    $installer->getConnection()->dropTable( $installer->getTable('doofinder_feed/cron') );
+    $installer->getConnection()->dropTable( $installer->getTable('doofinder_feed/log') );
+}
+
 /**
  * Cron table
  */
+
 $table = $installer->getConnection()
     ->newTable($installer->getTable('doofinder_feed/cron'))
     ->addColumn('id', Varien_Db_Ddl_Table::TYPE_INTEGER, null, array(
@@ -21,7 +35,6 @@ $table = $installer->getConnection()
         'length'    => 255,
         ), 'Status')
     ->addColumn('message', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255, array(
-
         ), 'Message')
     ->addColumn('error_stack', Varien_Db_Ddl_Table::TYPE_INTEGER, null, array(
         'default'    => 0,
@@ -44,7 +57,8 @@ $table = $installer->getConnection()
 
 $installer->getConnection()->createTable($table);
 
-if (version_compare(Mage::getVersion(), '1.6', '<'))
+// 1.5
+if ( version_compare(Mage::getVersion(), '1.6', '<') )
 {
     $installer->run("
 
@@ -57,7 +71,9 @@ if (version_compare(Mage::getVersion(), '1.6', '<'))
 /**
  * Log table
  */
-if (!version_compare(Mage::getVersion(), '1.6', '<'))
+
+// 1.6+
+if ( ! version_compare(Mage::getVersion(), '1.6', '<') )
 {
     // Add log table
     $table = $installer->getConnection()
@@ -113,8 +129,8 @@ if (!version_compare(Mage::getVersion(), '1.6', '<'))
 
     $installer->getConnection()->createTable($table);
 }
-
-if (version_compare(Mage::getVersion(), '1.6', '<'))
+// 1.5
+else
 {
     $installer->run("
 

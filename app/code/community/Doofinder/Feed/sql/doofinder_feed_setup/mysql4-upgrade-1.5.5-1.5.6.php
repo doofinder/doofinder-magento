@@ -4,7 +4,23 @@ $installer = $this;
 
 $installer->startSetup();
 
-if (!version_compare(Mage::getVersion(), '1.6', '<'))
+// 1.5
+if ( version_compare(Mage::getVersion(), '1.6', '<') )
+{
+    $installer->run("DROP TABLE IF EXISTS {$installer->getTable('doofinder_feed/log')};");
+}
+// 1.6+
+else
+{
+    $installer->getConnection()->dropTable( $installer->getTable('doofinder_feed/log') );
+}
+
+/**
+ * Log table
+ */
+
+// 1.6+
+if ( ! version_compare(Mage::getVersion(), '1.6', '<') )
 {
     // Add log table
     $table = $installer->getConnection()
@@ -60,8 +76,8 @@ if (!version_compare(Mage::getVersion(), '1.6', '<'))
 
     $installer->getConnection()->createTable($table);
 }
-
-if (version_compare(Mage::getVersion(), '1.6', '<'))
+// 1.5
+else
 {
     $installer->run("
 

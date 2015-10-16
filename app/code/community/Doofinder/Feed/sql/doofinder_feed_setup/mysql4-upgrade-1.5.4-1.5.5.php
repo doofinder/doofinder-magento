@@ -4,7 +4,8 @@ $installer = $this;
 
 $installer->startSetup();
 
-if (version_compare(Mage::getVersion(), '1.6', '<'))
+// 1.5
+if ( version_compare(Mage::getVersion(), '1.6', '<') )
 {
     $installer->run("
 
