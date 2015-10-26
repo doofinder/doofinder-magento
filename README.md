@@ -242,7 +242,29 @@ __Doofinder can't detect the module__
   - __Check that you've installed the module.__ Go to `System > Magento Connect > Magento Connect Manager` and check if the module is listed in the installed modules list.
   - __Refresh the configuration cache__ of your Magento, and …
   - … Log out from the admin of your Magento store and log in again.
-  - If you're using Magento's _compiled mode_ then you will have to recompile because Magento may not be finding the module files in the compilation paths. Go to `System > Tools > Compiler`. Ensure that you understand what's [compilation mode](http://merch.docs.magento.com/ce/user_guide/Magento_Community_Edition_User_Guide.html#system-operations/system-tools-compilation.html#kanchor1022) first! Use this at your own risk!
+  - If you're getting HTTP 50x errors related to the non-existence of some classes of the module, continue reading the next question.
+
+__I'm receiving HTTP 50x errors / blank screens when trying to access the module__
+
+If you're using Magento's _compiled mode_ probably the module classes have not been _compiled_.
+
+The compilation process involves copying files to not so deeper paths in your filesystem by renaming them.
+
+For example, this file:
+
+    ./app/code/community/Doofinder/Feed/Model/Tools.php
+
+would be copied to a single folder like this (can be different in your system):
+
+    ./src/Doofinder_Feed_Model_Tools.php
+
+But, if Magento has not been recompiled, your Doofinder configuration panel and feed generation will break due to Magento not finding the module files in the compilation paths.
+
+To recompile Magento go to `System > Tools > Compiler`.
+
+Ensure that you understand what's [compilation mode](http://merch.docs.magento.com/ce/user_guide/Magento_Community_Edition_User_Guide.html#system-operations/system-tools-compilation.html#kanchor1022) first!
+
+Use this at your own risk!
 
 __The configuration section in my Magento admin is returning a Page Not Found error__
 
