@@ -49,6 +49,7 @@ module.exports = function(grunt) {
                 'app/design/**/doofinder.xml',
                 'app/etc/modules/Doofinder_Feed.xml',
                 'js/doofinder/**',
+                'lib/Doofinder/**',
                 'skin/adminhtml/default/default/doofinder/**',
                 'var/connect/Doofinder_Feed.xml',
                 'var/connect/package.xml'
