@@ -462,7 +462,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             {
                 if (strlen($category->getName()))
                 {
-                    $tree[] = $category->getName();
+                    $tree[] = strip_tags($category->getName());
                 }
             }
         }
