@@ -17,10 +17,8 @@
  * under the License.
  */
 
-require_once('./DoofinderApi.php');
 
-class ExtendedDoofinderApi extends DoofinderApi
-{
+class DoofinderApi{
     /*
      * Basic client for an account.
      * It needs an API url to be constructed.
@@ -68,7 +66,6 @@ class ExtendedDoofinderApi extends DoofinderApi
      */
     function __construct($hashid, $api_key, $fromParams=false, $init_options = array()){
         $zone_key_array = explode('-', $api_key);
-
         if(2 === count($zone_key_array)){
             $this->api_key = $zone_key_array[1];
             $this->zone = $zone_key_array[0];
@@ -216,8 +213,8 @@ class ExtendedDoofinderApi extends DoofinderApi
 
         // if filters without query_name, pre-query first to obtain it.
         if(!array_key_exists('query_name', $params) &&
-           array_key_exists('filter', $params) &&
-           $params['filter']){
+            array_key_exists('filter', $params) &&
+            $params['filter']){
             $filter = $params['filter'];
             $params['filter'] = null;
             $dfResults = $this->apiCall($params);
@@ -335,7 +332,7 @@ class ExtendedDoofinderApi extends DoofinderApi
      */
     public function removeTerm($filterName, $term){
         if($this->optionExists('filter') && isset($this->search_options['filter'][$filterName]) &&
-           in_array($term, $this->search_options['filter'][$filterName]))
+            in_array($term, $this->search_options['filter'][$filterName]))
         {
             function filter_me($value){
                 global $term;
@@ -403,7 +400,7 @@ class ExtendedDoofinderApi extends DoofinderApi
      */
     public function fromQuerystring(){
         $doofinderReqParams = array_filter(array_keys($this->serializationArray),
-                                                      array($this, 'belongsToDoofinder'));
+            array($this, 'belongsToDoofinder'));
 
         foreach($doofinderReqParams as $dfReqParam){
             if($dfReqParam == $this->queryParameter){
@@ -628,28 +625,28 @@ class DoofinderResults{
             // mark "selected" true or false according to filters presence
             foreach($this->facets as $facetName => $facetProperties){
                 switch($facetProperties['_type']){
-                case 'terms':
-                    foreach($facetProperties['terms'] as $pos => $term){
-                        if(isset($this->filter[$facetName]) && in_array($term['term'], $this->filter[$facetName])){
-                            $this->facets[$facetName]['terms'][$pos]['selected'] = true;
-                        } else {
-                            $this->facets[$facetName]['terms'][$pos]['selected'] = false;
+                    case 'terms':
+                        foreach($facetProperties['terms'] as $pos => $term){
+                            if(isset($this->filter[$facetName]) && in_array($term['term'], $this->filter[$facetName])){
+                                $this->facets[$facetName]['terms'][$pos]['selected'] = true;
+                            } else {
+                                $this->facets[$facetName]['terms'][$pos]['selected'] = false;
+                            }
                         }
-                    }
-                    break;
-                case 'range':
-                    foreach($facetProperties['ranges'] as $pos => $range){
-                        $this->facets[$facetName]['ranges'][$pos]['selected_from'] = false;
-                        $this->facets[$facetName]['ranges'][$pos]['selected_to'] = false;
-                        if(isset($this->filter[$facetName]) && isset($this->filter[$facetName]['gte'])){
-                            $this->facets[$facetName]['ranges'][$pos]['selected_from'] = $this->filter[$facetName]['gte'];
-                        }
-                        if(isset($this->filter[$facetName]) && isset($this->filter[$facetName]['lte'])){
-                            $this->facets[$facetName]['ranges'][$pos]['selected_to'] = $this->filter[$facetName]['lte'];
-                        }
+                        break;
+                    case 'range':
+                        foreach($facetProperties['ranges'] as $pos => $range){
+                            $this->facets[$facetName]['ranges'][$pos]['selected_from'] = false;
+                            $this->facets[$facetName]['ranges'][$pos]['selected_to'] = false;
+                            if(isset($this->filter[$facetName]) && isset($this->filter[$facetName]['gte'])){
+                                $this->facets[$facetName]['ranges'][$pos]['selected_from'] = $this->filter[$facetName]['gte'];
+                            }
+                            if(isset($this->filter[$facetName]) && isset($this->filter[$facetName]['lte'])){
+                                $this->facets[$facetName]['ranges'][$pos]['selected_to'] = $this->filter[$facetName]['lte'];
+                            }
 
-                    }
-                    break;
+                        }
+                        break;
                 }
             }
         }
@@ -793,4 +790,3 @@ class DoofinderResults{
 class DoofinderException extends Exception{
 
 }
-

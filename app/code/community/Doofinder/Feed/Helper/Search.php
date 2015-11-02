@@ -1,5 +1,4 @@
 <?php
-
 class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
 {
     /**
@@ -13,10 +12,12 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
     {
         $hashId = Mage::getStoreConfig('doofinder_search/internal_settings/hash_id', Mage::app()->getStore());
         $apiKey = Mage::getStoreConfig('doofinder_search/internal_settings/api_key', Mage::app()->getStore());
-
         $ids = false;
 
-        $df = new Doofinder_Api($hashId, $apiKey);
+        $df = new Doofinder_DoofinderApi($hashId, $apiKey);
+        var_dump('deef');
+        die;
+
 
         $dfResults = $df->query($queryText, null, array('transformer' => 'onlyid'));
 
