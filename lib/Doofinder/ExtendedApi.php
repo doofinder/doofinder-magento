@@ -17,8 +17,9 @@
  * under the License.
  */
 
+require_once('./DoofinderApi.php');
 
-class Doofinder_Api
+class ExtendedDoofinderApi extends DoofinderApi
 {
     /*
      * Basic client for an account.
