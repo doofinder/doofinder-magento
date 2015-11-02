@@ -18,8 +18,7 @@ class Doofinder_Feed_Model_CatalogSearch_Resource_Fulltext extends Mage_CatalogS
         }
 
         $adapter = $this->_getWriteAdapter();
-        if (!$query->getIsProcessed()) {
-
+        if (1 || !$query->getIsProcessed()) {
             try {
                 $results = Mage::helper('doofinder_feed/search')->performDoofinderSearch($queryText);
 

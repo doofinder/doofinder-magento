@@ -18,7 +18,7 @@
  */
 
 
-class Doofinder_Api{
+class DoofinderApi{
     /*
      * Basic client for an account.
      * It needs an API url to be constructed.
