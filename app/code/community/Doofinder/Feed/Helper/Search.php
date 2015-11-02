@@ -14,10 +14,7 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
         $apiKey = Mage::getStoreConfig('doofinder_search/internal_settings/api_key', Mage::app()->getStore());
         $ids = false;
 
-        $df = new Doofinder_DoofinderApi($hashId, $apiKey);
-        var_dump('deef');
-        die;
-
+        $df = new Doofinder_Api($hashId, $apiKey);
 
         $dfResults = $df->query($queryText, null, array('transformer' => 'onlyid'));
 
