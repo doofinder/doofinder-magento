@@ -1,5 +1,5 @@
 <?php
-require_once(Mage::getBaseDir('lib') . DS. 'Doofinder' . DS .'Api.php');
+require_once(Mage::getBaseDir('lib') . DS. 'Doofinder' . DS .'doofinder_api.php');
 
 class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
 {
