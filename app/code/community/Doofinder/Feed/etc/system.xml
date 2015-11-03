@@ -285,10 +285,18 @@
                     <show_in_website>0</show_in_website>
                     <show_in_store>1</show_in_store>
                     <fields>
+                        <cron_issue>
+                            <label>Cron Issues</label>
+                            <frontend_model>doofinder_feed/settings_panel_cron</frontend_model>
+                            <sort_order>5</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </cron_issue>
                         <status>
                             <label>Status</label>
                             <frontend_model>doofinder_feed/settings_panel_message</frontend_model>
-                            <sort_order>1</sort_order>
+                            <sort_order>10</sort_order>
                             <show_in_default>0</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
