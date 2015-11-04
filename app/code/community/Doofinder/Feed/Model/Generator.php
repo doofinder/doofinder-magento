@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.5.9
+ * @version    1.5.10
  */
 
 /**
  * Generator model for Doofinder Feed
  *
- * @version    1.5.9
+ * @version    1.5.10
  * @package    Doofinder_Feed
  */
 if (!defined('DS'))
@@ -736,6 +736,11 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         return $this->_fieldMap;
     }
 
+    protected function _stopOnException(Exception $e)
+    {
+        Mage::logError($e->getMessage());
+    }
+
     protected function _cleanFieldValue($field)
     {
         // http://stackoverflow.com/questions/4224141/php-removing-invalid-utf-8-characters-in-xml-using-filter
@@ -745,12 +750,13 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $field = strip_tags($field);
         $field = preg_replace('/[ ]{2,}/', ' ', $field);
         $field = trim($field);
+        $exField = explode(self::CATEGORY_TREE_SEPARATOR, $field);
+        $newField = [];
+        foreach ($exField as $el) {
+            $newField[] = html_entity_decode($el, null, 'UTF-8');
+        }
+        $field = implode(self::CATEGORY_TREE_SEPARATOR, $newField );
 
         return preg_replace($valid_utf8, '$1', $field);
-    }
-
-    protected function _stopOnException(Exception $e)
-    {
-        Mage::logError($e->getMessage());
     }
 }
