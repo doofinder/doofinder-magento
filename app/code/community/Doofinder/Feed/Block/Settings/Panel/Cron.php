@@ -2,7 +2,7 @@
 class Doofinder_Feed_Block_Settings_Panel_Cron extends Mage_Adminhtml_Block_System_Config_Form_Field
 {
     // 12 Hours in seconds
-    const ALLOWED_TIME = 1;//43200;
+    const ALLOWED_TIME = 43200;
 
     protected function _getElementHtml(Varien_Data_Form_Element_Abstract $element)
     {
