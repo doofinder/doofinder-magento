@@ -576,6 +576,7 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
         $field = strip_tags($field);
         $field = preg_replace('/[ ]{2,}/', ' ', $field);
         $field = trim($field);
+        $field = html_entity_decode($field, null, 'UTF-8');
 
         return preg_replace($valid_utf8, '$1', $field);
     }
