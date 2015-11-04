@@ -1,4 +1,14 @@
 <?php
+/**
+ * This file is part of Doofinder_Feed.
+ */
+
+/**
+ * @category   blocks
+ * @package    Doofinder_Feed
+ * @version    1.5.9
+ */
+
 class Doofinder_Feed_Block_Settings_Panel_Description extends Mage_Adminhtml_Block_System_Config_Form_Field
 {
     protected $description = 'You can set the rest of the options for each store separately by modifying the Current Configuration Scope.';

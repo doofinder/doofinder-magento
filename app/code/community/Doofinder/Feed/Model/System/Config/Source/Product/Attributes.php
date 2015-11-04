@@ -1,4 +1,13 @@
 <?php
+/**
+ * This file is part of Doofinder_Feed.
+ */
+
+/**
+ * @category   Models
+ * @package    Doofinder_Feed
+ * @version    1.5.9
+ */
 
 class Doofinder_Feed_Model_System_Config_Source_Product_Attributes
 {

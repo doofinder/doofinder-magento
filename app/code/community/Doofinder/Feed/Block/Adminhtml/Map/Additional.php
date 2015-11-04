@@ -1,4 +1,13 @@
 <?php
+/**
+ * This file is part of Doofinder_Feed.
+ */
+
+/**
+ * @category   blocks
+ * @package    Doofinder_Feed
+ * @version    1.5.9
+ */
 
 class Doofinder_Feed_Block_Adminhtml_Map_Additional extends Mage_Adminhtml_Block_System_Config_Form_Field
 {
