@@ -426,11 +426,11 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         {
           if (strpos($categories[$i], $categories[$i - 1]) === 0)
             continue;
-          $result[] = $categories[$i - 1];
+          $result[] = $this->_cleanFieldValue($categories[$i - 1]);
         }
 
         if (!empty($categories[$i - 1]))
-          $result[] = $categories[$i - 1];
+          $result[] = $this->_cleanFieldValue($categories[$i - 1]);
 
         return $result;
     }
@@ -462,7 +462,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             {
                 if (strlen($category->getName()))
                 {
-                    $tree[] = $category->getName();
+                    $tree[] = strip_tags($category->getName());
                 }
             }
         }
@@ -734,6 +734,19 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         }
 
         return $this->_fieldMap;
+    }
+
+    protected function _cleanFieldValue($field)
+    {
+        // http://stackoverflow.com/questions/4224141/php-removing-invalid-utf-8-characters-in-xml-using-filter
+        $valid_utf8 = '/([\x09\x0A\x0D\x20-\x7E]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF]|\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})|./x';
+
+        $field = preg_replace('#<br(\s?/)?>#i', ' ', $field);
+        $field = strip_tags($field);
+        $field = preg_replace('/[ ]{2,}/', ' ', $field);
+        $field = trim($field);
+
+        return preg_replace($valid_utf8, '$1', $field);
     }
 
     protected function _stopOnException(Exception $e)
