@@ -1,4 +1,13 @@
 <?php
+/**
+ * This file is part of Doofinder_Feed.
+ */
+
+/**
+ * @category   blocks
+ * @package    Doofinder_Feed
+ * @version    1.5.9
+ */
 
 class Doofinder_Feed_Block_Integration extends Mage_Core_Block_Abstract
 {
