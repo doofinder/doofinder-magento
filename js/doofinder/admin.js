@@ -1,4 +1,4 @@
-(function() {
+;(function() {
   'use strict';
 
   var add_message = function(message_type, text) {
