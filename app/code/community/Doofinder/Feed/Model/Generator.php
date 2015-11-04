@@ -753,4 +753,23 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     {
         Mage::logError($e->getMessage());
     }
+
+    protected function _cleanFieldValue($field)
+    {
+        // http://stackoverflow.com/questions/4224141/php-removing-invalid-utf-8-characters-in-xml-using-filter
+        $valid_utf8 = '/([\x09\x0A\x0D\x20-\x7E]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF]|\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})|./x';
+
+        $field = preg_replace('#<br(\s?/)?>#i', ' ', $field);
+        $field = strip_tags($field);
+        $field = preg_replace('/[ ]{2,}/', ' ', $field);
+        $field = trim($field);
+        $exField = explode(self::CATEGORY_TREE_SEPARATOR, $field);
+        $newField = [];
+        foreach ($exField as $el) {
+            $newField[] = html_entity_decode($el, null, 'UTF-8');
+        }
+        $field = implode(self::CATEGORY_TREE_SEPARATOR, $newField );
+
+        return preg_replace($valid_utf8, '$1', $field);
+    }
 }
