@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.5.10
+ * @version    1.5.11
  */
 
 /**
  * Generator model for Doofinder Feed
  *
- * @version    1.5.10
+ * @version    1.5.11
  * @package    Doofinder_Feed
  */
 if (!defined('DS'))
@@ -751,7 +751,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $field = preg_replace('/[ ]{2,}/', ' ', $field);
         $field = trim($field);
         $exField = explode(self::CATEGORY_TREE_SEPARATOR, $field);
-        $newField = [];
+        $newField = array();
         foreach ($exField as $el) {
             $newField[] = html_entity_decode($el, null, 'UTF-8');
         }
