@@ -119,6 +119,8 @@ class Doofinder_Feed_Block_Adminhtml_Map_Additional extends Mage_Adminhtml_Block
 
     protected function _getAddRowButtonHtml()
     {
+        $container = isset($container) ? $container : null;
+
         if (!isset($this->_addRowButtonHtml[$container])) {
             $_cssClass = 'add';
 
