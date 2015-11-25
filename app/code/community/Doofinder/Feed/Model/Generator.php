@@ -751,7 +751,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $field = preg_replace('/[ ]{2,}/', ' ', $field);
         $field = trim($field);
         $exField = explode(self::CATEGORY_TREE_SEPARATOR, $field);
-        $newField = [];
+        $newField = array();
         foreach ($exField as $el) {
             $newField[] = html_entity_decode($el, null, 'UTF-8');
         }
