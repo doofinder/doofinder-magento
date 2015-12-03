@@ -558,6 +558,9 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
      */
     protected function cleanFieldValue($field)
     {
+        // Do nothing if field is empty
+        if (!$field) return $field;
+
         $cleaned = $this->cleanFieldValueArray((array) $field);
         return is_array($field) ? $cleaned : $cleaned[0];
     }
