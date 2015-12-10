@@ -93,8 +93,9 @@ class Doofinder_Feed_Model_Observers_Schedule
      * @param Doofinder_Feed_Model_Cron $process
      * @param boolean $reset
      * @param boolean $now
+     * @param boolean $force
      */
-    public function updateProcess($storeCode = 'default', $reset = false, $now = false)
+    public function updateProcess($storeCode = 'default', $reset = false, $now = false, $force = false)
     {
         // Get store
         $helper = Mage::helper('doofinder_feed');
@@ -116,16 +117,17 @@ class Doofinder_Feed_Model_Observers_Schedule
         }
 
         // Enable/disable process if it needs to
-        if ($now || $isEnabled) {
+        if ($isEnabled || $force) {
             if ($process->getStatus() == $helper::STATUS_DISABLED) {
                 $this->_enableProcess($process);
             }
         } else {
-            if ($process->getStatus() == $helper::STATUS_WAITING) {
+            if ($process->getStatus() != $helper::STATUS_DISABLED) {
+                Mage::getSingleton('adminhtml/session')->addSuccess($helper->__('Process for store "%s" has been disabled', $store->getName()));
                 $this->_removeTmpXml($storeCode);
                 $this->_disableProcess($process);
-                return $this;
             }
+            return $this;
         }
 
         // Do not process the schedule if it has insufficient file permissions
@@ -181,7 +183,7 @@ class Doofinder_Feed_Model_Observers_Schedule
     {
         $helper = Mage::helper('doofinder_feed');
         $process->setStatus($helper::STATUS_WAITING)->save();
-        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Process has been disabled'));
+        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Process has been enabled'));
     }
 
     /**
@@ -193,7 +195,7 @@ class Doofinder_Feed_Model_Observers_Schedule
     {
         $helper = Mage::helper('doofinder_feed');
         $process->setStatus($helper::STATUS_DISABLED)->save();
-        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Process has been enabled'));
+        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Process has been disabled'));
     }
 
     /**
