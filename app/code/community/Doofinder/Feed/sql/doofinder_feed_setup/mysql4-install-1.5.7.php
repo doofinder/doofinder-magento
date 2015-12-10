@@ -151,13 +151,13 @@ else
     ");
 }
 
-/**
- * Trigger feed generation
- */
-$scheduleObserver = Mage::getSingleton('doofinder_feed/observers_schedule');
+// /**
+//  * Trigger feed generation
+//  */
+// $scheduleObserver = Mage::getSingleton('doofinder_feed/observers_schedule');
 
-foreach (Mage::getModel('core/store')->getCollection() as $store) {
-    $scheduleObserver->updateProcess($store->getCode(), true, true);
-}
+// foreach (Mage::getModel('core/store')->getCollection() as $store) {
+//     $scheduleObserver->updateProcess($store->getCode(), true, true);
+// }
 
 $installer->endSetup();
