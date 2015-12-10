@@ -203,7 +203,7 @@
                 </attributes_mapping>
 
                 <schedule_settings translate="label">
-                    <label>Schedule Settings</label>
+                    <label>Schedule Settings (Beta!)</label>
                     <expanded>false</expanded>
                     <frontend_type>text</frontend_type>
                     <sort_order>20</sort_order>
