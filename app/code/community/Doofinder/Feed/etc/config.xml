@@ -125,7 +125,7 @@
         <doofinder>
             <feed>
 
-                <enabled>1</enabled>
+                <enabled>0</enabled>
                 <debug>1</debug>
 
                 <group_configurable_products>1</group_configurable_products>
