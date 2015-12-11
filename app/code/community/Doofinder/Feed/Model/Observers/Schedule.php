@@ -100,6 +100,7 @@ class Doofinder_Feed_Model_Observers_Schedule
         // Get store
         $helper = Mage::helper('doofinder_feed');
         $config = $helper->getStoreConfig($storeCode);
+        $store = Mage::getModel('core/store')->load($storeCode);
 
         // Override time if $now is enabled
         if ($now) {
@@ -123,6 +124,7 @@ class Doofinder_Feed_Model_Observers_Schedule
             }
         } else {
             if ($process->getStatus() != $helper::STATUS_DISABLED) {
+
                 Mage::getSingleton('adminhtml/session')->addSuccess($helper->__('Process for store "%s" has been disabled', $store->getName()));
                 $this->_removeTmpXml($storeCode);
                 $this->_disableProcess($process);
@@ -132,13 +134,12 @@ class Doofinder_Feed_Model_Observers_Schedule
 
         // Do not process the schedule if it has insufficient file permissions
         if (!$this->_checkFeedFilePermission($storeCode)) {
-            Mage::getSingleton('adminhtml/session')->addError($helper->__('Insufficient file permissions for store: %s. Check if the feed file is writeable', $storeCode));
+            Mage::getSingleton('adminhtml/session')->addError($helper->__('Insufficient file permissions for store: %s. Check if the feed file is writeable', $store->getName()));
             return $this;
         }
 
         // Reschedule the process if it needs to
         if ($reset || $process->getStatus() == $helper::STATUS_WAITING) {
-            $store = Mage::getModel('core/store')->load($storeCode);
             Mage::getSingleton('adminhtml/session')->addSuccess($helper->__('Process for store "%s" has been rescheduled', $store->getName()));
             $this->_removeTmpXml($storeCode);
             $this->_rescheduleProcess($config, $process);
