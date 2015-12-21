@@ -67,8 +67,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     public function run()
     {
-        if ($this->getConfigVar('enabled') != 1)
-            return;
+        // This must NOT depend on cron being enabled because it's used
+        // by the front controller!!!
 
         Doofinder_Feed_Model_Map_Product_Configurable::setGrouped($this->getData('grouped'));
         // Some config
