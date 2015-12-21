@@ -6,7 +6,7 @@
 /**
  * @category   controllers
  * @package    Doofinder_Feed
- * @version    1.5.11
+ * @version    1.5.12
  */
 
 class Doofinder_Feed_DoofinderFeedFeedController extends Mage_Adminhtml_Controller_Action
@@ -35,7 +35,7 @@ class Doofinder_Feed_DoofinderFeedFeedController extends Mage_Adminhtml_Controll
         $scheduleObserver = Mage::getSingleton('doofinder_feed/observers_schedule');
 
         foreach ($codes as $storeCode) {
-            $scheduleObserver->updateProcess($storeCode, true, true);
+            $scheduleObserver->updateProcess($storeCode, true, true, true);
         }
 
         $this->getResponse()->setBody('Feed generation has been scheduled.');
