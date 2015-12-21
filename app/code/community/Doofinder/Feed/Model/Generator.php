@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.5.11
+ * @version    1.5.12
  */
 
 /**
  * Generator model for Doofinder Feed
  *
- * @version    1.5.11
+ * @version    1.5.12
  * @package    Doofinder_Feed
  */
 if (!defined('DS'))
@@ -67,8 +67,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     public function run()
     {
-        if ($this->getConfigVar('enabled') != 1)
-            return;
+        // This must NOT depend on cron being enabled because it's used
+        // by the front controller!!!
 
         Doofinder_Feed_Model_Map_Product_Configurable::setGrouped($this->getData('grouped'));
         // Some config
