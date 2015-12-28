@@ -8,8 +8,7 @@ class Doofinder_Feed_Block_Settings_Panel_Cron extends Mage_Adminhtml_Block_Syst
     {
         $lastSchedule = Mage::getModel('cron/schedule')->getCollection()
             ->setOrder('finished_at', 'desc')
-            ->getFirstItem()
-            ->load();
+            ->getFirstItem();
 
         $message = '';
         if ($lastSchedule && count($lastSchedule->getData()) > 0) {
