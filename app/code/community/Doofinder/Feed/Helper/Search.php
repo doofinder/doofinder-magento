@@ -17,7 +17,7 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
         $ids = false;
 
         $df = new DoofinderApi($hashId, $apiKey);
-        $dfResults = $df->query($queryText, null, array('transformer' => 'onlyid'));
+        $dfResults = $df->query($queryText, null, array('transformer' => 'onlyid', 'filter' => array()));
 
         $ids = array();
         foreach($dfResults->getResults() as $result) {
