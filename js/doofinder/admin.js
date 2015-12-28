@@ -1,5 +1,15 @@
-(function() {
+;(function() {
   'use strict';
+
+  /**
+   * This file is part of Doofinder_Feed.
+   */
+
+  /**
+   * @category   Javascript
+   * @package    Doofinder_Feed
+   * @version    1.5.9
+   */
 
   var add_message = function(message_type, text) {
     var html = '' +

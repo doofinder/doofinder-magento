@@ -6,13 +6,13 @@
 /**
  * @category   controllers
  * @package    Doofinder_Feed
- * @version    1.5.8
+ * @version    1.5.12
  */
 
 /**
  * Feed controller for Doofinder Feed
  *
- * @version    1.5.8
+ * @version    1.5.12
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
@@ -100,16 +100,26 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
         {
             $settings = $helper->getStoreConfig($code);
 
-            $filepath = $filesPath.$settings['xmlName'];
-            $fileurl = $filesUrl.$settings['xmlName'];
+            if ($settings['enabled'])
+            {
+                $filepath = $filesPath.$settings['xmlName'];
+                $fileurl = $filesUrl.$settings['xmlName'];
+                $feedUrl = $filesUrl.$settings['xmlName'];
+                $feedExists = (bool) $this->_feedExists($filepath);
+            }
+            else
+            {
+                $feedUrl = Mage::getUrl('doofinder/feed', array('_store' => $code));
+                $feedExists = true;
+            }
 
             $oStore = Mage::app()->getStore($code);
             $L = Mage::getStoreConfig('general/locale/code', $oStore->getId());
             $storesConfiguration[$code] = array(
                 'language' => strtoupper(substr($L, 0, 2)),
                 'currency' => $oStore->getCurrentCurrencyCode(),
-                'feed' =>  $filesUrl.$settings['xmlName'],
-                'feed_exists' => (bool) $this->_feedExists($filepath),
+                'feed' =>  $feedUrl,
+                'feed_exists' => $feedExists,
             );
         }
 

@@ -1,4 +1,14 @@
 <?php
+/**
+ * This file is part of Doofinder_Feed.
+ */
+
+/**
+ * @category   blocks
+ * @package    Doofinder_Feed
+ * @version    1.5.12
+ */
+
 class Doofinder_Feed_Block_Settings_Panel_Message extends Mage_Adminhtml_Block_System_Config_Form_Field
 {
     /**

@@ -1,3 +1,13 @@
+/**
+ * This file is part of Doofinder_Feed.
+ */
+
+/**
+ * @category   CSS
+ * @package    Doofinder_Feed
+ * @version    1.5.9
+ */
+
 #doofinder_feed_additional_mapping_container input {
     max-width: 80px;
 }
