@@ -57,15 +57,16 @@ class DoofinderApi{
      * @param string $hashid the account's hashid
      * @param boolean $fromParams if set, the object is unserialized from GET or POST params
      * @param array $init_options. associative array with some options:
-     *                -'prefix' (default: 'dfParam_')=> the prefix to use when serializing.
-     *                -'queryParameter' (default: 'query') => the parameter used for querying
-     *                -'apiVersion' (default: '4')=> the api of the search server to query
-     *                -'restrictedRequest'(default: $_REQUEST):  =>restrict request object
-     *                         to look for params when unserializing. either 'get' or 'post'
+     *        -'prefix' (default: 'dfParam_')=> the prefix to use when serializing.
+     *        -'queryParameter' (default: 'query') => the parameter used for querying
+     *        -'apiVersion' (default: '4')=> the api of the search server to query
+     *        -'restrictedRequest'(default: $_REQUEST):  =>restrict request object
+     *                 to look for params when unserializing. either 'get' or 'post'
      * @throws DoofinderException if $hashid is not a md5 hash or api is no 4, 3.0 or 1.0
      */
     function __construct($hashid, $api_key, $fromParams=false, $init_options = array()){
         $zone_key_array = explode('-', $api_key);
+
         if(2 === count($zone_key_array)){
             $this->api_key = $zone_key_array[1];
             $this->zone = $zone_key_array[0];
@@ -179,13 +180,13 @@ class DoofinderApi{
      *
      * @param string $query the search query
      * @param int $page the page number or the results to show
-     * @param arrray $options query options:
-     *                   - 'rpp'=> number of results per page. default 10
-     *                   - 'timeout' => timeout after which the search server drops the conn.
-     *                                  defaults to 10 seconds
-     *                   - 'types' => types of index to search at. default: all.
-     *                   - 'filter' => filter to apply. ['color'=>['red','blue'], 'price'=>['from'=>33]]
-     *                   - any other param will be sent as a request parameter
+     * @param array $options query options:
+     *        - 'rpp'=> number of results per page. default 10
+     *        - 'timeout' => timeout after which the search server drops the conn.
+     *                       defaults to 10 seconds
+     *        - 'types' => types of index to search at. default: all.
+     *        - 'filter' => filter to apply. ['color'=>['red','blue'], 'price'=>['from'=>33]]
+     *        - any other param will be sent as a request parameter
      * @return DoofinderResults results
      */
     public function query($query=null, $page=null, $options = array()){
@@ -202,8 +203,11 @@ class DoofinderApi{
         $params = $this->search_options;
 
         // translate filters
-        foreach($params['filter'] as $filterName => $filterValue){
-            $params['filter'][$filterName] = $this->translateFilter($filterValue);
+        if(!empty($params['filter']))
+        {
+            foreach($params['filter'] as $filterName => $filterValue){
+                $params['filter'][$filterName] = $this->translateFilter($filterValue);
+            }
         }
 
         // no query? then match all documents
@@ -212,11 +216,10 @@ class DoofinderApi{
         }
 
         // if filters without query_name, pre-query first to obtain it.
-        if(!array_key_exists('query_name', $params) &&
-            array_key_exists('filter', $params) &&
-            $params['filter']){
+        if (empty($params['query_name']) && !empty($params['filter']))
+        {
             $filter = $params['filter'];
-            $params['filter'] = null;
+            unset($params['filter']);
             $dfResults = $this->apiCall($params);
             $params['query_name'] = $dfResults->getProperty('query_name');
             $params['filter'] = $filter;
@@ -332,7 +335,7 @@ class DoofinderApi{
      */
     public function removeTerm($filterName, $term){
         if($this->optionExists('filter') && isset($this->search_options['filter'][$filterName]) &&
-            in_array($term, $this->search_options['filter'][$filterName]))
+           in_array($term, $this->search_options['filter'][$filterName]))
         {
             function filter_me($value){
                 global $term;
@@ -400,7 +403,7 @@ class DoofinderApi{
      */
     public function fromQuerystring(){
         $doofinderReqParams = array_filter(array_keys($this->serializationArray),
-            array($this, 'belongsToDoofinder'));
+                                                      array($this, 'belongsToDoofinder'));
 
         foreach($doofinderReqParams as $dfReqParam){
             if($dfReqParam == $this->queryParameter){
@@ -625,28 +628,28 @@ class DoofinderResults{
             // mark "selected" true or false according to filters presence
             foreach($this->facets as $facetName => $facetProperties){
                 switch($facetProperties['_type']){
-                    case 'terms':
-                        foreach($facetProperties['terms'] as $pos => $term){
-                            if(isset($this->filter[$facetName]) && in_array($term['term'], $this->filter[$facetName])){
-                                $this->facets[$facetName]['terms'][$pos]['selected'] = true;
-                            } else {
-                                $this->facets[$facetName]['terms'][$pos]['selected'] = false;
-                            }
+                case 'terms':
+                    foreach($facetProperties['terms'] as $pos => $term){
+                        if(isset($this->filter[$facetName]) && in_array($term['term'], $this->filter[$facetName])){
+                            $this->facets[$facetName]['terms'][$pos]['selected'] = true;
+                        } else {
+                            $this->facets[$facetName]['terms'][$pos]['selected'] = false;
                         }
-                        break;
-                    case 'range':
-                        foreach($facetProperties['ranges'] as $pos => $range){
-                            $this->facets[$facetName]['ranges'][$pos]['selected_from'] = false;
-                            $this->facets[$facetName]['ranges'][$pos]['selected_to'] = false;
-                            if(isset($this->filter[$facetName]) && isset($this->filter[$facetName]['gte'])){
-                                $this->facets[$facetName]['ranges'][$pos]['selected_from'] = $this->filter[$facetName]['gte'];
-                            }
-                            if(isset($this->filter[$facetName]) && isset($this->filter[$facetName]['lte'])){
-                                $this->facets[$facetName]['ranges'][$pos]['selected_to'] = $this->filter[$facetName]['lte'];
-                            }
+                    }
+                    break;
+                case 'range':
+                    foreach($facetProperties['ranges'] as $pos => $range){
+                        $this->facets[$facetName]['ranges'][$pos]['selected_from'] = false;
+                        $this->facets[$facetName]['ranges'][$pos]['selected_to'] = false;
+                        if(isset($this->filter[$facetName]) && isset($this->filter[$facetName]['gte'])){
+                            $this->facets[$facetName]['ranges'][$pos]['selected_from'] = $this->filter[$facetName]['gte'];
+                        }
+                        if(isset($this->filter[$facetName]) && isset($this->filter[$facetName]['lte'])){
+                            $this->facets[$facetName]['ranges'][$pos]['selected_to'] = $this->filter[$facetName]['lte'];
+                        }
 
-                        }
-                        break;
+                    }
+                    break;
                 }
             }
         }
@@ -790,3 +793,4 @@ class DoofinderResults{
 class DoofinderException extends Exception{
 
 }
+
