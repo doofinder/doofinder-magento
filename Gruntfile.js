@@ -49,6 +49,7 @@ module.exports = function(grunt) {
                 'app/design/**/doofinder.xml',
                 'app/etc/modules/Doofinder_Feed.xml',
                 'js/doofinder/**',
+                'lib/Doofinder/**',
                 'skin/adminhtml/default/default/doofinder/**',
                 'var/connect/Doofinder_Feed.xml',
                 'var/connect/package.xml'
@@ -111,16 +112,30 @@ module.exports = function(grunt) {
                 files: ['app/**/*'],
                 tasks: ['clean:sync', 'copy:sync']
             }
+        },
+
+        marked: {
+            options: {
+                highlight: false,
+                sanitize: false
+            },
+            dist: {
+                files: {
+                    'tmp/README.html': 'README.md'
+                }
+            }
         }
     });
 
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-marked');
     grunt.loadNpmTasks('grunt-version');
 
     grunt.registerTask('default', ['clean:sync', 'copy:sync', 'watch:dev']);
     grunt.registerTask('sync', ['clean:sync', 'copy:sync']);
     grunt.registerTask('release:start', ['version', 'sync']);
     grunt.registerTask('release:finish', ['copy:release']);
+    grunt.registerTask('docs', ['marked:dist']);
 };

@@ -3,7 +3,7 @@
 
     <modules>
         <Doofinder_Feed>
-            <version>1.5.12</version>
+            <version>1.5.13</version>
         </Doofinder_Feed>
     </modules>
     <global>
@@ -28,6 +28,11 @@
                     </log>
                 </entities>
             </doofinder_feed_mysql4>
+             <catalogsearch_resource>
+                <rewrite>
+                    <fulltext>Doofinder_Feed_Model_CatalogSearch_Resource_Fulltext</fulltext>
+                </rewrite>
+            </catalogsearch_resource>
         </models>
         <resources>
             <doofinder_feed_write>
