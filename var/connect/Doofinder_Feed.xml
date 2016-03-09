@@ -1,5 +1,5 @@
 <_>
-   <form_key>niL7nOoW2rxS847a</form_key>
+   <form_key>lmI4B6C3aCah7txe</form_key>
    <name>Doofinder_Feed</name>
    <channel>community</channel>
    <version_ids>
@@ -49,9 +49,9 @@ You can get more info and create your account visiting the Doofinder site:
 http://www.doofinder.com</description>
    <license>Open Software License (OSL 3.0)</license>
    <license_uri>http://opensource.org/licenses/osl-3.0.php</license_uri>
-   <version>1.5.12</version>
+   <version>1.5.13</version>
    <stability>stable</stability>
-   <notes>Fixed bugs. Improvements in feed generation.</notes>
+   <notes>Use Doofinder for internal search. If your plan is exhausted or any error happens it falls back to the default Magento search.</notes>
    <authors>
       <name>
          <name>Carlos Escribano Rey</name>
@@ -80,7 +80,7 @@ http://www.doofinder.com</description>
             <max/>
          </max>
          <files>
-            <files>                                                                      </files>
+            <files>                                                                        </files>
          </files>
       </package>
       <extension>
@@ -104,6 +104,7 @@ http://www.doofinder.com</description>
          <target>magedesign</target>
          <target>mage</target>
          <target>mageskin</target>
+         <target>magelib</target>
       </target>
       <path>
          <path/>
@@ -113,6 +114,7 @@ http://www.doofinder.com</description>
          <path>frontend/base/default/layout/doofinder.xml</path>
          <path>js/doofinder</path>
          <path>adminhtml/default/default/doofinder</path>
+         <path>Doofinder</path>
       </path>
       <type>
          <type>file</type>
@@ -120,6 +122,7 @@ http://www.doofinder.com</description>
          <type>file</type>
          <type>file</type>
          <type>file</type>
+         <type>dir</type>
          <type>dir</type>
          <type>dir</type>
       </type>
@@ -131,8 +134,10 @@ http://www.doofinder.com</description>
          <include/>
          <include/>
          <include/>
+         <include/>
       </include>
       <ignore>
+         <ignore/>
          <ignore/>
          <ignore/>
          <ignore/>
