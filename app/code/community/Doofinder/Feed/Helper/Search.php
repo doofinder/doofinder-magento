@@ -4,6 +4,7 @@ require_once(Mage::getBaseDir('lib') . DS. 'Doofinder' . DS .'doofinder_api.php'
 class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
 {
     const DOOFINDER_PAGE_LIMIT = 100;
+    const DOOFINDER_RESULTS_LIMIT = 1000;
 
     protected $_lastSearch = null;
     protected $_lastResults = null;
@@ -58,7 +59,7 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
     {
         $ids = $this->retrieveIds($this->_lastResults);
 
-        while ($dfResults = $this->_lastSearch->nextPage()) {
+        while (count($ids) < $this::DOOFINDER_RESULTS_LIMIT && ($dfResults = $this->_lastSearch->nextPage())) {
             $ids = array_merge($ids, $this->retrieveIds($dfResults));
         }
 
