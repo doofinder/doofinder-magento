@@ -387,6 +387,7 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
             'enabled'   =>  Mage::getStoreConfig('doofinder_cron/schedule_settings/enabled', $storeCode),
             'display_price'     =>  Mage::getStoreConfig('doofinder_cron/feed_settings/display_price', $storeCode),
             'grouped'   =>  Mage::getStoreConfig('doofinder_cron/feed_settings/grouped', $storeCode),
+            'image_size'     =>  Mage::getStoreConfig('doofinder_cron/feed_settings/image_size', $storeCode),
             'stepSize'  =>  Mage::getStoreConfig('doofinder_cron/schedule_settings/step', $storeCode),
             'stepDelay' =>  Mage::getStoreConfig('doofinder_cron/schedule_settings/delay', $storeCode),
             'frequency' =>  Mage::getStoreConfig('doofinder_cron/schedule_settings/frequency', $storeCode),

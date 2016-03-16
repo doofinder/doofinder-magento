@@ -52,6 +52,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             'display_price' => (bool) $config['display_price'],
             'minimal_price' => $this->_getBoolean('minimal_price', false),
             'customer_group_id' => 0,
+            'image_size' => $config['image_size'],
         );
 
         $generator = Mage::getSingleton('doofinder_feed/generator', $options);
