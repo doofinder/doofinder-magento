@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.5.14
+ * @version    1.5.15
  */
 
 class Doofinder_Feed_Model_Observers_Feed
@@ -78,6 +78,7 @@ class Doofinder_Feed_Model_Observers_Feed
                 'grouped' => $this->_getBoolean($this->config['grouped']),
                 'display_price' => $this->_getBoolean($this->config['display_price']),
                 'minimal_price' => $this->_getBoolean('minimal_price', false),
+                'image_size' => $this->config['image_size'],
                 'customer_group_id' => 0,
             );
 

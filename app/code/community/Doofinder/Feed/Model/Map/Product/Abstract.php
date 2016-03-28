@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.5.14
+ * @version    1.5.15
  */
 
 /**
  * Abstract Product Map Model for Doofinder Feed
  *
- * @version    1.5.14
+ * @version    1.5.15
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
@@ -184,17 +184,33 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
         return $product->getUrlModel()->getUrl($product, array('_nosid' => true));
     }
 
-    protected function mapDirectiveImageLink()
+    protected function mapDirectiveImageLink($args, $attributeName = 'image')
     {
         $product = $this->getProduct();
         $image = $product->getData('image');
 
-        if ($image != 'no_selection' && $image != "")
-            return (string) Mage::helper('catalog/image')
-                ->init($product, 'image')
-                ->resize(120);
+        if ($image != 'no_selection' && $image != "") {
+            $image = Mage::helper('catalog/image')
+                ->init($product, $attributeName);
+
+            if ($size = $this->getGenerator()->getData('image_size')) {
+                $image->resize($size);
+            }
+
+            return (string) $image;
+        }
 
         return "";
+    }
+
+    protected function mapDirectiveImageLinkThumbnail($args)
+    {
+        return $this->mapDirectiveImageLink($args, 'thumbnail');
+    }
+
+    protected function mapDirectiveImageLinkSmall($args)
+    {
+        return $this->mapDirectiveImageLink($args, 'small_image');
     }
 
     public function collectProductPrices()

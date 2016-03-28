@@ -3,7 +3,7 @@
 
     <modules>
         <Doofinder_Feed>
-            <version>1.5.14</version>
+            <version>1.5.15</version>
         </Doofinder_Feed>
     </modules>
     <global>
@@ -148,8 +148,14 @@
                         <label><![CDATA[Product URL]]></label>
                     </df_directive_url>
                     <df_directive_image_link>
-                        <label><![CDATA[Product Image URL]]></label>
+                        <label><![CDATA[Product Image URL (Base)]]></label>
                     </df_directive_image_link>
+                    <df_directive_image_link_thumbnail>
+                        <label><![CDATA[Product Image URL (Thumbnail)]]></label>
+                    </df_directive_image_link_thumbnail>
+                    <df_directive_image_link_small>
+                        <label><![CDATA[Product Image URL (Small Image)]]></label>
+                    </df_directive_image_link_small>
                     <df_directive_sale_price>
                         <label><![CDATA[Sale Price]]></label>
                     </df_directive_sale_price>
@@ -230,6 +236,7 @@
             <feed_settings>
                 <display_price>1</display_price>
                 <grouped>0</grouped>
+                <image_size></image_size>
             </feed_settings>
             <attributes_mapping>
                 <id>df_directive_id</id>
