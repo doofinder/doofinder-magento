@@ -475,6 +475,16 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </instruction>
+
+                        <total_limit translate="label">
+                            <label>Total limit</label>
+                            <frontend_type>text</frontend_type>
+                            <comment>Number of results returned for search query.</comment>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </total_limit>
                     </fields>
                 </internal_settings>
             </groups>
