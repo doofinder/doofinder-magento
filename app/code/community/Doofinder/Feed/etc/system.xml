@@ -479,6 +479,7 @@
                         <total_limit translate="label">
                             <label>Total limit</label>
                             <frontend_type>text</frontend_type>
+                            <backend_model>doofinder_feed/system_config_backend_total_limit</backend_model>
                             <comment>Number of results returned for search query.</comment>
                             <sort_order>6</sort_order>
                             <show_in_default>1</show_in_default>
