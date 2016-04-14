@@ -3,6 +3,25 @@
 class Doofinder_Feed_Model_CatalogSearch_Resource_Fulltext extends Mage_CatalogSearch_Model_Resource_Fulltext
 {
     /**
+     * Get stored results select
+     *
+     * @param int $query_id
+     * @param int $attr
+     * @return Varien_Db_Select
+     */
+    protected function getStoredResultsSelect($query_id, $attr = 'product_id')
+    {
+        $adapter = $this->_getReadAdapter();
+
+        $select = $adapter->select()
+            ->from($this->getTable('catalogsearch/result'), $attr)
+            ->where('query_id = ?', $query_id)
+            ->order('relevance desc');
+
+        return $select;
+    }
+
+    /**
      * Get stored results in CatalogSearch cache
      *
      * @param int $query_id
@@ -12,12 +31,8 @@ class Doofinder_Feed_Model_CatalogSearch_Resource_Fulltext extends Mage_CatalogS
     protected function getStoredResults($query_id, $limit)
     {
         $adapter = $this->_getReadAdapter();
-
-        $select = $adapter->select()
-            ->from($this->getTable('catalogsearch/result'), 'product_id')
-            ->where('query_id = ?', $query_id)
-            ->limit($limit)
-            ->order('relevance desc');
+        $select = $this->getStoredResultsSelect($query_id);
+        $select->limit($limit);
 
         $results = array();
         foreach ($adapter->fetchAll($select) as $result) {
@@ -25,6 +40,20 @@ class Doofinder_Feed_Model_CatalogSearch_Resource_Fulltext extends Mage_CatalogS
         }
 
         return $results;
+    }
+
+    /**
+     * Get number of stored results in CatalogSearch cache
+     *
+     * @param int $query_id
+     * @return array
+     */
+    protected function getStoredResultsCount($query_id)
+    {
+        $adapter = $this->_getReadAdapter();
+        $select = $this->getStoredResultsSelect($query_id, 'COUNT(*)');
+
+        return (int) $adapter->fetchOne($select);
     }
 
     /**
@@ -51,9 +80,11 @@ class Doofinder_Feed_Model_CatalogSearch_Resource_Fulltext extends Mage_CatalogS
 
         if ($query->getIsProcessed()) {
             $storedResults = $this->getStoredResults($query->getId(), count($results));
+            $maxResults = Mage::getStoreConfig('doofinder_search/internal_settings/total_limit', Mage::app()->getStore());
 
-            // Compare results checksum
-            if ($this->calculateChecksum($results) == $this->calculateChecksum($storedResults)) {
+            // Compare results count and checksum
+            if (min($helper->getResultsCount(), $maxResults) == $this->getStoredResultsCount($query->getId()) &&
+                $this->calculateChecksum($results) == $this->calculateChecksum($storedResults)) {
                 return $this;
             }
 
