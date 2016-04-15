@@ -67,4 +67,14 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
 
         return $ids;
     }
+
+    /**
+     * Returns fetched results count
+     *
+     * @return int
+     */
+    public function getResultsCount()
+    {
+        return $this->_lastResults->getProperty('total');
+    }
 }
