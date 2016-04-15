@@ -3,7 +3,7 @@
 
     <modules>
         <Doofinder_Feed>
-            <version>1.5.15</version>
+            <version>1.5.16</version>
         </Doofinder_Feed>
     </modules>
     <global>
@@ -260,6 +260,11 @@
             <layer_settings>
                 <enabled>0</enabled>
             </layer_settings>
+
+            <internal_settings>
+                <request_limit>100</request_limit>
+                <total_limit>500</total_limit>
+            </internal_settings>
         </doofinder_search>
     </default>
 

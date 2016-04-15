@@ -22,10 +22,11 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
     {
         $hashId = Mage::getStoreConfig('doofinder_search/internal_settings/hash_id', Mage::app()->getStore());
         $apiKey = Mage::getStoreConfig('doofinder_search/internal_settings/api_key', Mage::app()->getStore());
+        $limit = Mage::getStoreConfig('doofinder_search/internal_settings/request_limit', Mage::app()->getStore());
         $ids = false;
 
         $df = new DoofinderApi($hashId, $apiKey);
-        $dfResults = $df->query($queryText, null, array('rpp' => $this::DOOFINDER_PAGE_LIMIT, 'transformer' => 'onlyid', 'filter' => array()));
+        $dfResults = $df->query($queryText, null, array('rpp' => $limit, 'transformer' => 'onlyid', 'filter' => array()));
 
         // Store objects
         $this->_lastSearch = $df;
@@ -57,12 +58,23 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
      */
     public function getAllResults()
     {
+        $limit = Mage::getStoreConfig('doofinder_search/internal_settings/total_limit', Mage::app()->getStore());
         $ids = $this->retrieveIds($this->_lastResults);
 
-        while (count($ids) < $this::DOOFINDER_RESULTS_LIMIT && ($dfResults = $this->_lastSearch->nextPage())) {
+        while (count($ids) < $limit && ($dfResults = $this->_lastSearch->nextPage())) {
             $ids = array_merge($ids, $this->retrieveIds($dfResults));
         }
 
         return $ids;
+    }
+
+    /**
+     * Returns fetched results count
+     *
+     * @return int
+     */
+    public function getResultsCount()
+    {
+        return $this->_lastResults->getProperty('total');
     }
 }
