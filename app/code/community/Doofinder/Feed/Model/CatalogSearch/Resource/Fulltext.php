@@ -92,7 +92,6 @@ class Doofinder_Feed_Model_CatalogSearch_Resource_Fulltext extends Mage_CatalogS
             $select = $adapter->select()
                 ->from($this->getTable('catalogsearch/result'), 'product_id')
                 ->where('query_id = ?', $query->getId());
-
             $adapter->query($adapter->deleteFromSelect($select, $this->getTable('catalogsearch/result')));
         }
 
@@ -112,7 +111,7 @@ class Doofinder_Feed_Model_CatalogSearch_Resource_Fulltext extends Mage_CatalogS
                     );
                 }
 
-                $adapter->insertMultiple($this->getTable('catalogsearch/result'), $data);
+                $adapter->insertOnDuplicate($this->getTable('catalogsearch/result'), $data);
             }
 
             $query->setIsProcessed(1);
