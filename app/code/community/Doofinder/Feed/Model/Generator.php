@@ -452,6 +452,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
         $categories = Mage::getModel('catalog/category')
             ->getCollection()
+            ->setStoreId($this->getStoreId())
             ->addIdFilter($ids)
             ->addAttributeToSort('path', 'asc')
             ->addAttributeToSelect('*');
