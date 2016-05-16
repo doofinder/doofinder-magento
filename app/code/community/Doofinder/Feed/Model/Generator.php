@@ -88,8 +88,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             $this->getData('_limit_')
         );
 
-        // Only close feed if there was at least one processed product
-        if ($this->getLastProcessedProductId() != $this->getData('_offset_')) {
+        // Only close feed if close empty flag is set to true or there was at least one processed product
+        if ($this->getData('close_empty') || $this->getLastProcessedProductId() != $this->getData('_offset_')) {
             $this->_closeFeed();
         }
 
@@ -174,6 +174,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                 Mage::throwException("There is no map definition for product with type {$row['type_id']}");
             }
 
+
             $product = Mage::getModel('catalog/product');
             $product->setData($row)
                 ->setStoreId($this->getStoreId())
@@ -223,6 +224,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     protected function _addProductToXml(
         Doofinder_Feed_Model_Map_Product_Abstract $productMap)
     {
+
         $iDumped = 0;
         $displayPrice = $this->getDisplayPrice();
 
@@ -622,11 +624,15 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     {
         $collection = $this->getProductCollection($offset, $limit);
 
+        if (count($this->getProducts()))
+            $collection->addAttributeToFilter('entity_id', array('in' => $this->getProducts()));
+
         if ($limit && $limit > 0)
             $collection->getSelect()->limit($limit, 0);
 
         if ($offset)
             $collection->addAttributeToFilter('entity_id', array('gt' => $offset));
+
 
         return $collection;
     }
@@ -694,8 +700,13 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $this->_fieldMap = array();
 
         $fields = $this->getConfigVar('fields');
-        $map = Mage::getStoreConfig('doofinder_cron/attributes_mapping', Mage::app()->getStore());
-        $additional = unserialize($map['additional']);
+
+        $map = Mage::getStoreConfig('doofinder_cron/attributes_mapping', $this->getStore());
+        $additional = [];
+        if (isset($map['additional'])) {
+            $additional = unserialize($map['additional']);
+        }
+
         unset($map['additional']);
 
         if (!empty($additional['additional_mapping']))
@@ -733,7 +744,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                 'field' => $key,
             );
         }
-
         return $this->_fieldMap;
     }
 

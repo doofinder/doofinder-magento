@@ -11,6 +11,7 @@
 
 class Doofinder_Feed_Model_Observers_Schedule
 {
+
     /**
      * Register missing / reset schedules after configuration saves.
      *

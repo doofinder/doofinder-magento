@@ -19,6 +19,40 @@ class Doofinder_Feed_Model_Observers_Feed
     private $productCount;
 
 
+    public function updateSearchEngineIndexes($observer) {
+        $product = $observer->getProduct();
+        $productId = $product->getId();
+        $store = Mage::getModel('core/store')->load($product->getStoreId());
+
+        $helper = Mage::helper('doofinder_feed');
+
+        $products[] = $productId;
+
+        // Get store code
+        $this->storeCode = $store->getCode();
+
+        // Get store config
+        $this->config = $helper->getStoreConfig($this->storeCode);
+
+        $options = array(
+            'close_empty' => true,
+            'products' => $products,
+            'store_code' => $this->config['storeCode'],
+            'grouped' => $this->_getBoolean($this->config['grouped']),
+            'display_price' => $this->_getBoolean($this->config['display_price']),
+            'minimal_price' => $this->_getBoolean('minimal_price', false),
+            'image_size' => $this->config['image_size'],
+            'customer_group_id' => 0,
+        );
+
+        $generator = Mage::getModel('doofinder_feed/generator', $options);
+
+        $xmlData = $generator->run();
+
+        
+
+    }
+
     public function generateFeed($observer)
     {
         $stores = Mage::app()->getStores();
