@@ -9,6 +9,8 @@
  * @version    1.5.17
  */
 
+require_once(Mage::getBaseDir('lib') . DS. 'Doofinder' . DS .'doofinder_management_api.php');
+
 class Doofinder_Feed_Model_Observers_Feed
 {
 
@@ -20,36 +22,89 @@ class Doofinder_Feed_Model_Observers_Feed
 
 
     public function updateSearchEngineIndexes($observer) {
-        $product = $observer->getProduct();
-        $productId = $product->getId();
-        $store = Mage::getModel('core/store')->load($product->getStoreId());
 
         $helper = Mage::helper('doofinder_feed');
 
-        $products[] = $productId;
+        $product = $observer->getProduct();
+        $products[] = $product->getId();
 
-        // Get store code
-        $this->storeCode = $store->getCode();
+        $storeCodes = [];
+        $store = Mage::getModel('core/store')->load($product->getStoreId());
 
-        // Get store config
-        $this->config = $helper->getStoreConfig($this->storeCode);
+        // If current store is admin then get an array of all possible stores for a website
+        if ($store->getCode() !== 'admin') {
+            $storeCodes[] = $store->getCode();
+        } else {
+            foreach(Mage::app()->getStores() as $store) {
+                $storeCodes[] = $store->getCode();
+            }
+        }
 
-        $options = array(
-            'close_empty' => true,
-            'products' => $products,
-            'store_code' => $this->config['storeCode'],
-            'grouped' => $this->_getBoolean($this->config['grouped']),
-            'display_price' => $this->_getBoolean($this->config['display_price']),
-            'minimal_price' => $this->_getBoolean('minimal_price', false),
-            'image_size' => $this->config['image_size'],
-            'customer_group_id' => 0,
-        );
+        // Get search engines
+        $apiKey = Mage::getStoreConfig('doofinder_search/internal_settings/api_key', Mage::app()->getStore());
+        $dma = new DoofinderManagementApi($apiKey);
+        $searchEngines = $dma->getSearchEngines();
 
-        $generator = Mage::getModel('doofinder_feed/generator', $options);
+        // Set engines array key as hashid
+        foreach ($searchEngines as $key => $searchEngine) {
+            $searchEngines[$searchEngine->hashid] = $searchEngine;
+            unset($searchEngines[$key]);
+        }
 
-        $xmlData = $generator->run();
 
-        
+        // Loop over all stores and update relevant search engines
+        foreach ($storeCodes as $storeCode) {
+            // Set store code
+            $this->storeCode = $storeCode;
+
+            // Get store config
+            $this->config = $helper->getStoreConfig($this->storeCode);
+
+            // Set options
+            $options = array(
+                'close_empty' => true, // close xml even if there are no items
+                'products' => $products, // list of products in feed
+                'store_code' => $this->config['storeCode'],
+                'grouped' => $this->_getBoolean($this->config['grouped']),
+                'display_price' => $this->_getBoolean($this->config['display_price']),
+                'minimal_price' => $this->_getBoolean('minimal_price', false),
+                'image_size' => $this->config['image_size'],
+                'customer_group_id' => 0,
+            );
+
+            $generator = Mage::getModel('doofinder_feed/generator', $options);
+
+            $xmlData = $generator->run();
+
+            if ($xmlData) {
+                $rss = simplexml_load_string($xmlData);
+
+                $hashId = Mage::getStoreConfig('doofinder_search/internal_settings/hash_id', $this->storeCode);
+
+                $searchEngine = $searchEngines[$hashId];
+
+                // Check if search engine exists and skip foreach iteration if not.
+                if (!$searchEngine) {
+                    $error = sprintf('Search engine with HashID %s doesn\'t exists. Please, check your configuration.', $hashId);
+                    Mage::getSingleton('adminhtml/session')->addError($error);
+                    continue;
+                }
+
+                // Declare array of products to update
+                $products = [];
+                foreach ($rss->channel->item as $item) {
+                    $product = [];
+                    foreach ($item as $key => $value) {
+                        $product[$key] = (string)$value;
+                    }
+                    $products[] = $product;
+                }
+                if (count($products))
+                    $searchEngine->updateItems('product', $products);
+
+            }
+        }
+
 
     }
 
