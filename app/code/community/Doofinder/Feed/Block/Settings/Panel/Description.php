@@ -11,6 +11,10 @@
 
 class Doofinder_Feed_Block_Settings_Panel_Description extends Mage_Adminhtml_Block_System_Config_Form_Field
 {
+    const INFO = 'info';
+    const WARNING = 'warning';
+
+    protected $level = self::INFO;
     protected $description = 'You can set the rest of the options for each store separately by modifying the Current Configuration Scope.';
 
     protected function _getElementHtml(Varien_Data_Form_Element_Abstract $element)
@@ -26,7 +30,7 @@ class Doofinder_Feed_Block_Settings_Panel_Description extends Mage_Adminhtml_Blo
         $name = $element->getName();
         $element->setScopeLabel('');
 
-        return '<p class="doofinder-info">' . $text . '</p>';
+        return '<p class="doofinder-' . $this->level . '">' . $text . '</p>';
     }
 
     public function render(Varien_Data_Form_Element_Abstract $element)

@@ -30,11 +30,21 @@
     font-size: 13px;
 }
 
+.doofinder-info,
+.doofinder-warning {
+  padding: 10px;
+  border: 1px solid transparent;
+  font-size: .95em !important;
+}
+
 .doofinder-info {
-    padding: 10px;
-    border: 1px solid #d6d6d6;
+    border-color: #d6d6d6;
     background-color: #fafafa;
     color: #333;
-    font-size: .95em !important;
-    font-weight: bold !important;
+}
+
+.doofinder-warning {
+    border-color: #EEE2BE;
+    background-color: #FFF9E9;
+    color: #5A4421;
 }

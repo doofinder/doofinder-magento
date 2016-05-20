@@ -11,5 +11,6 @@
 
 class Doofinder_Feed_Block_Settings_Panel_LayerDescription extends Doofinder_Feed_Block_Settings_Panel_Description
 {
-  protected $description = 'The layer script must be configured separately for each store view by modifying the Current Configuration Scope.';
+  protected $level = self::WARNING;
+  protected $description = '<b>IMPORTANT:</b> You must configure a different Layer script for each store view. Use the "Current Configuration Scope" selector at the top left side of the page to choose a store view.';
 }
