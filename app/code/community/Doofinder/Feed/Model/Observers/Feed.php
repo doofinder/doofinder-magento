@@ -28,7 +28,7 @@ class Doofinder_Feed_Model_Observers_Feed
         $product = $observer->getProduct();
         $products[] = $product->getId();
 
-        $storeCodes = [];
+        $storeCodes = array();
         $store = Mage::getModel('core/store')->load($product->getStoreId());
 
         // If current store is admin then get an array of all possible stores for a website
@@ -91,9 +91,9 @@ class Doofinder_Feed_Model_Observers_Feed
                 }
 
                 // Declare array of products to update
-                $products = [];
+                $products = array();
                 foreach ($rss->channel->item as $item) {
-                    $product = [];
+                    $product = array();
                     foreach ($item as $key => $value) {
                         $product[$key] = (string)$value;
                     }
