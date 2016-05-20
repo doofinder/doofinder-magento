@@ -28,7 +28,7 @@
                     </log>
                 </entities>
             </doofinder_feed_mysql4>
-             <catalogsearch_resource>
+            <catalogsearch_resource>
                 <rewrite>
                     <fulltext>Doofinder_Feed_Model_CatalogSearch_Resource_Fulltext</fulltext>
                 </rewrite>
@@ -70,6 +70,14 @@
                     </doofinder_feed>
                 </observers>
             </admin_system_config_changed_section_doofinder_cron>
+            <catalog_product_save_after>
+                <observers>
+                    <doofinder_feed>
+                        <class>doofinder_feed/observers_feed</class>
+                        <method>updateSearchEngineIndexes</method>
+                    </doofinder_feed>
+                </observers>
+            </catalog_product_save_after>
         </events>
     </global>
 
