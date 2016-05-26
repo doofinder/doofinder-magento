@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.5.18
+ * @version    1.5.19
  */
 
 require_once(Mage::getBaseDir('lib') . DS. 'Doofinder' . DS .'doofinder_management_api.php');
