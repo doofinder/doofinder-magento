@@ -57,8 +57,17 @@ class Doofinder_Feed_Model_Observers_Feed
             // Set store code
             $this->storeCode = $storeCode;
 
+            $engineEnabled = Mage::getStoreConfig('doofinder_search/internal_settings/enable', $storeCode);
+
+            // Skip search engine indexes update if internal search is disabled
+            if (!(bool)$engineEnabled) {
+                continue;
+            }
+
             // Get store config
             $this->config = $helper->getStoreConfig($this->storeCode);
+
+
 
             // Set options
             $options = array(
@@ -80,6 +89,15 @@ class Doofinder_Feed_Model_Observers_Feed
                 $rss = simplexml_load_string($xmlData);
 
                 $hashId = Mage::getStoreConfig('doofinder_search/internal_settings/hash_id', $this->storeCode);
+                if ($hashId === '') {
+
+                    $warning = sprintf('HashID is not set for the \'%s\' store view, therefore, search indexes haven\'t been
+                    updated for
+                    this store view. To fix this problem set HashID for a given stor view or disable Internal Search in Doofinder
+                    Search Configuration.', $this->storeCode);
+                    Mage::getSingleton('adminhtml/session')->addWarning($warning);
+                    continue;
+                }
 
                 $searchEngine = $searchEngines[$hashId];
 
