@@ -245,6 +245,7 @@
                 <display_price>1</display_price>
                 <grouped>0</grouped>
                 <image_size></image_size>
+                <atomic_updates_enabled>0</atomic_updates_enabled>
             </feed_settings>
             <attributes_mapping>
                 <id>df_directive_id</id>
