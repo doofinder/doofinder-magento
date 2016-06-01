@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.5.19
+ * @version    1.5.20
  */
 
 class Doofinder_Feed_Model_Adminhtml_System_Config_Backend_Cron extends Mage_Core_Model_Config_Data {
