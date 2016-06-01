@@ -40,6 +40,21 @@ class Doofinder_Feed_Model_Observers_Feed
             }
         }
 
+        // Filter out disabled stores
+        foreach (array_keys($storeCodes) as $key) {
+            $storeCode = $storeCodes[$key];
+
+            $engineEnabled = Mage::getStoreConfig('doofinder_search/internal_settings/enable', $storeCode);
+            $atomicUpdatesEnabled = Mage::getStoreConfig('doofinder_cron/feed_settings/atomic_updates_enabled', $storeCode);
+
+            if (!$engineEnabled || !$atomicUpdatesEnabled) {
+                unset($storeCodes[$key]);
+            }
+        }
+
+        // Terminate updates where there is no store enabled
+        if (empty($storeCodes)) return;
+
         // Get search engines
         $apiKey = Mage::getStoreConfig('doofinder_search/internal_settings/api_key', Mage::app()->getStore());
         $dma = new DoofinderManagementApi($apiKey);
@@ -56,13 +71,6 @@ class Doofinder_Feed_Model_Observers_Feed
         foreach ($storeCodes as $storeCode) {
             // Set store code
             $this->storeCode = $storeCode;
-
-            $engineEnabled = Mage::getStoreConfig('doofinder_search/internal_settings/enable', $storeCode);
-
-            // Skip search engine indexes update if internal search is disabled
-            if (!(bool)$engineEnabled) {
-                continue;
-            }
 
             // Get store config
             $this->config = $helper->getStoreConfig($this->storeCode);
