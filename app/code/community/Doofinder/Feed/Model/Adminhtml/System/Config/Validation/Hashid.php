@@ -1,6 +1,6 @@
 <?php
 
-class Doofinder_Feed_Model_Adminhtml_System_Config_Validation_HashId extends Mage_Core_Model_Config_Data {
+class Doofinder_Feed_Model_Adminhtml_System_Config_Validation_Hashid extends Mage_Core_Model_Config_Data {
     public function save() {
         // Hash id to save
         $hashId = $this->getValue();
