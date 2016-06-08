@@ -306,12 +306,15 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                         $value = implode(self::VALUE_SEPARATOR, array_filter($value));
                     }
 
-
-
                     $written = @$this->_oXmlWriter->writeCData($value);
                     if ( ! $written )
                     {
                         $this->_oXmlWriter->writeComment("Cannot write the value for the $field field.");
+
+                        $msg = "Cannot write the value for the $field field, encoded value: " . json_encode($value);
+                        if (!in_array($msg, $this->getErrors())) {
+                            $this->logError($msg);
+                        }
                     }
 
                     $this->_oXmlWriter->endElement();
