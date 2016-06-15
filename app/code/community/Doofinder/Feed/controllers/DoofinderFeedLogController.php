@@ -6,7 +6,7 @@
 /**
  * @category   controllers
  * @package    Doofinder_Feed
- * @version    1.5.21
+ * @version    1.5.22
  */
 
 class Doofinder_Feed_DoofinderFeedLogController extends Mage_Adminhtml_Controller_Action
