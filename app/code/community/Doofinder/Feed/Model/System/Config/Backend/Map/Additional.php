@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.5.22
+ * @version    1.6.0
  */
 
 class Doofinder_Feed_Model_System_Config_Backend_Map_Additional extends Mage_Adminhtml_Model_System_Config_Backend_Serialized
