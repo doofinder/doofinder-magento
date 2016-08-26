@@ -158,6 +158,9 @@ class Doofinder_Feed_Model_Observers_Feed
         // Get store code
         $this->storeCode = $process->getStoreCode();
 
+        // Set current store
+        Mage::app()->setCurrentStore(Mage::app()->getStore($this->storeCode)->getId());
+
         // Get store config
         $this->config = $helper->getStoreConfig($this->storeCode);
 
