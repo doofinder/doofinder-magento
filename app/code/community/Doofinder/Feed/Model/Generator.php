@@ -61,6 +61,18 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $this->_errors[] = $message;
     }
 
+    /**
+     * Log to doofinder generator logfile only once
+     *
+     * @param string $message
+     */
+    public function logErrorOnce($message)
+    {
+        if (!in_array($message, $this->getErrors())) {
+            $this->logError($message);
+        }
+    }
+
     //
     // public::Export
     //
@@ -298,23 +310,25 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
                     $this->_oXmlWriter->startElement($field);
 
-                    if ($field != 'categories')
+                    // Make sure $value is a flat array
+                    if (!is_array($value))
                     {
-                        if (!is_array($value))
-                            $value = array($value);
-
-                        $value = implode(self::VALUE_SEPARATOR, array_filter($value));
+                        $value = array($value);
                     }
+                    else if (!$this->_isArrayFlat($value))
+                    {
+                        $this->logErrorOnce("Value of $field field is a multidimensional array, encoded value: " . json_encode($value));
+                        $value = $this->_flattenArray($value);
+                    }
+
+                    $value = implode(self::VALUE_SEPARATOR, array_filter($value));
 
                     $written = @$this->_oXmlWriter->writeCData($value);
                     if ( ! $written )
                     {
                         $this->_oXmlWriter->writeComment("Cannot write the value for the $field field.");
 
-                        $msg = "Cannot write the value for the $field field, encoded value: " . json_encode($value);
-                        if (!in_array($msg, $this->getErrors())) {
-                            $this->logError($msg);
-                        }
+                        $this->logErrorOnce("Cannot write the value for the $field field, encoded value: " . json_encode($value));
                     }
 
                     $this->_oXmlWriter->endElement();
@@ -772,5 +786,41 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $field = implode(self::CATEGORY_TREE_SEPARATOR, $newField );
 
         return preg_replace($valid_utf8, '$1', $field);
+    }
+
+    /**
+     * Check if array is flat (not multidimensional)
+     *
+     * @param array $arr
+     * @return boolean
+     */
+    protected function _isArrayFlat(array $arr)
+    {
+        $isFlat = true;
+
+        foreach ($arr as $item)
+        {
+            if (is_array($item))
+            {
+                $isFlat = false;
+                break;
+            }
+        }
+
+        return $isFlat;
+    }
+
+    /**
+     * Flatten array recursively
+     *
+     * @notice This requires PHP5.3+
+     *
+     * @param array @arr
+     * @return array
+     */
+    protected function _flattenArray(array $arr) {
+        $flattenedArray = array();
+        array_walk_recursive($arr, function($item) use (&$flattenedArray) { $flattenedArray[] = $item; });
+        return $flattenedArray;
     }
 }
