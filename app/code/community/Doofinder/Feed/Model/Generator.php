@@ -421,8 +421,19 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $prodCategories = Mage::getResourceModel('catalog/category_collection')
             ->addIdFilter($product->getCategoryIds())
             ->addFieldToFilter('path', array('like' => $this->_oRootCategory->getPath() . '/%'))
-            ->addFieldToFilter('is_active', array('eq'=>'1'))
-            ->getItems();
+            ->addFieldToFilter('is_active', array('eq'=>'1'));
+
+        $include_in_menu = Mage::getStoreConfig(
+            'doofinder_cron/feed_settings/categories_in_navigation',
+            $this->getStoreId()
+        );
+
+        if($include_in_menu == 1) {
+            $prodCategories->addFieldToFilter('include_in_menu', array('eq'=> '1'));
+        }
+
+        $prodCategories = $prodCategories->getItems();
+
         $prodCategories = array_keys($prodCategories);
 
         foreach ($prodCategories as $id)
