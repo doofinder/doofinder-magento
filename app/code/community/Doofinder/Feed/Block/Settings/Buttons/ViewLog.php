@@ -6,7 +6,7 @@
 /**
  * @category   blocks
  * @package    Doofinder_Feed
- * @version    1.6.1
+ * @version    1.6.2
  */
 
 class Doofinder_Feed_Block_Settings_Buttons_ViewLog extends Mage_Adminhtml_Block_System_Config_Form_Field

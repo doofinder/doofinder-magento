@@ -219,8 +219,9 @@
                             <show_in_store>1</show_in_store>
                         </atomic_updates_enabled>
                         <categories_in_navigation translate="label">
-                            <label>Export categories only present in navigation menus</label>
+                            <label>Export only categories present in navigation menus</label>
                             <frontend_type>select</frontend_type>
+                            <comment>Whether this option is enabled or not, only active categories will be exported.</comment>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>10</sort_order>
                             <show_in_default>1</show_in_default>
