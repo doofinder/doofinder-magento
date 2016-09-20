@@ -3,7 +3,7 @@
 
     <modules>
         <Doofinder_Feed>
-            <version>1.6.1</version>
+            <version>1.6.2</version>
         </Doofinder_Feed>
     </modules>
     <global>
@@ -246,6 +246,7 @@
                 <grouped>0</grouped>
                 <image_size></image_size>
                 <atomic_updates_enabled>0</atomic_updates_enabled>
+                <categories_in_navigation>0</categories_in_navigation>
             </feed_settings>
             <attributes_mapping>
                 <id>df_directive_id</id>

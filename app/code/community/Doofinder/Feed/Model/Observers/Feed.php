@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.6.1
+ * @version    1.6.2
  */
 
 require_once(Mage::getBaseDir('lib') . DS. 'Doofinder' . DS .'doofinder_management_api.php');
@@ -157,6 +157,9 @@ class Doofinder_Feed_Model_Observers_Feed
 
         // Get store code
         $this->storeCode = $process->getStoreCode();
+
+        // Set store context
+        Mage::app()->setCurrentStore($this->storeCode);
 
         // Get store config
         $this->config = $helper->getStoreConfig($this->storeCode);
