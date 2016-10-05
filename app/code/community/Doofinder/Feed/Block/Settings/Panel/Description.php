@@ -39,4 +39,16 @@ class Doofinder_Feed_Block_Settings_Panel_Description extends Mage_Adminhtml_Blo
                 '<td class="value" colspan="3">' . $this->_getElementHtml($element) . '</td>';
         return $this->_decorateRowHtml($element, $html);
     }
+
+    /**
+     * Decorate field row html
+     *
+     * @param Varien_Data_Form_Element_Abstract $element
+     * @param string $html
+     * @return string
+     */
+    protected function _decorateRowHtml($element, $html)
+    {
+        return '<tr id="row_' . $element->getHtmlId() . '">' . $html . '</tr>';
+    }
 }
