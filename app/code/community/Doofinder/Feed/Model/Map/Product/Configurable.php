@@ -126,26 +126,28 @@ class Doofinder_Feed_Model_Map_Product_Configurable
         return $rows;
     }
 
-    protected function _mapGrouped($name, $value, $masterData)
+    protected function _mapGrouped($name, $childValue, $masterData)
     {
-        if (!is_array($masterData[$name]))
-        {
-            if ($masterData[$name] != $value)
-            {
-                if (strlen($masterData[$name]))
-                    $masterData[$name] = array(
-                        $masterData[$name],
-                        $value
-                    );
-                else
-                    $masterData[$name] = $value;
-            }
+        $value = $masterData[$name];
+
+        if (!is_array($value)) {
+            $value = array($value);
         }
-        else
-        {
-            if (!in_array($value, $masterData[$name]))
-                $masterData[$name][] = $value;
+        if (!is_array($childValue)) {
+            $childValue = array($childValue);
         }
+
+        $value = array_merge($value, $childValue);
+
+        // Remove duplicates
+        $value = array_values(array_unique($value));
+
+        // Remove array if value is single
+        if (count($value) == 1) {
+            $value = $value[0];
+        }
+
+        $masterData[$name] = $value;
         return $masterData;
     }
 
