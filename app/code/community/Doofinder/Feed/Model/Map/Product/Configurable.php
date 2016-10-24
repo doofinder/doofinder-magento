@@ -120,8 +120,13 @@ class Doofinder_Feed_Model_Map_Product_Configurable
             }
         }
 
-        if (!$grouped)
+        if (!$grouped) {
+            // Make sure boost field has single value
+            if (isset($masterData['boost']) && is_array($masterData['boost'])) {
+                $masterData['boost'] = max($masterData['boost']);
+            }
             $rows[] = $masterData; // Add the complete master data object
+        }
 
         return $rows;
     }
