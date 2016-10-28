@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.6.5
+ * @version    1.6.6
  */
 
 /**
  * Generator model for Doofinder Feed
  *
- * @version    1.6.5
+ * @version    1.6.6
  * @package    Doofinder_Feed
  */
 if (!defined('DS'))
@@ -335,6 +335,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                 }
 
                 $this->_oXmlWriter->endElement();
+                $this->_flushFeed(true);
 
                 $iDumped++;
             }
@@ -548,9 +549,14 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         }
     }
 
-    protected function _flushFeed()
+    protected function _flushFeed($break = false)
     {
         $this->_response .= $this->_oXmlWriter->flush(true);
+
+        if ($break)
+        {
+          $this->_response .= PHP_EOL;
+        }
     }
 
     protected function _closeFeed()
