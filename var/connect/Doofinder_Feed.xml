@@ -1,5 +1,5 @@
 <_>
-   <form_key>ubVEKj6WrKi7g5En</form_key>
+   <form_key>wUjAhLuYRj0NwcUX</form_key>
    <name>Doofinder_Feed</name>
    <channel>community</channel>
    <version_ids>
@@ -49,9 +49,9 @@ You can get more info and create your account visiting the Doofinder site:
 http://www.doofinder.com</description>
    <license>Open Software License (OSL 3.0)</license>
    <license_uri>http://opensource.org/licenses/osl-3.0.php</license_uri>
-   <version>1.6.6</version>
+   <version>1.6.7</version>
    <stability>stable</stability>
-   <notes>Dumps one item per line to avoid errors with big feeds when trying to detect XML&apos;s main tag.</notes>
+   <notes>Added check to avoid caching non-existing products on search.</notes>
    <authors>
       <name>
          <name>Carlos Escribano Rey</name>
@@ -80,7 +80,7 @@ http://www.doofinder.com</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                         </files>
+            <files>                                                                                          </files>
          </files>
       </package>
       <extension>
