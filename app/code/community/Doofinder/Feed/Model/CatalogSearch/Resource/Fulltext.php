@@ -103,6 +103,17 @@ class Doofinder_Feed_Model_CatalogSearch_Resource_Fulltext extends Mage_CatalogS
             if (!empty($results)) {
                 $data = array();
                 $relevance = count($results);
+
+                // Filter out ids to only those that exists in db
+                $productCollection = Mage::getModel('catalog/product')->getCollection()
+                    ->addAttributeToSelect('entity_id')
+                    ->addAttributeToFilter('entity_id', array('in' => $results))
+                    ->load();
+                foreach ($productCollection as $product) {
+                    $productIds[] = $product->getId();
+                }
+                $results = array_intersect($results, $productIds);
+
                 foreach($results as $product_id) {
                     $data[] = array(
                         'query_id'   => $query->getId(),
