@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.6.9
+ * @version    1.6.10
  */
 
 /**
  * Abstract Product Map Model for Doofinder Feed
  *
- * @version    1.6.9
+ * @version    1.6.10
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
@@ -187,7 +187,7 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
     protected function mapDirectiveImageLink($args, $attributeName = 'image')
     {
         $product = $this->getProduct();
-        $image = $product->getData('image');
+        $image = $product->getData($attributeName);
 
         if ($image != 'no_selection' && $image != "") {
             $image = Mage::helper('catalog/image')

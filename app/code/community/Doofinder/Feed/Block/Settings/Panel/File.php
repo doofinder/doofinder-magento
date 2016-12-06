@@ -6,7 +6,7 @@
 /**
  * @category   blocks
  * @package    Doofinder_Feed
- * @version    1.6.9
+ * @version    1.6.10
  */
 
 class Doofinder_Feed_Block_Settings_Panel_File extends Mage_Adminhtml_Block_System_Config_Form_Field
