@@ -10,4 +10,4 @@ This extension:
 
 More info about how to install and configure here:
 
-<http://www.doofinder.com/support/topics/plugins/magento>
+<http://www.doofinder.com/support/plugins/magento>

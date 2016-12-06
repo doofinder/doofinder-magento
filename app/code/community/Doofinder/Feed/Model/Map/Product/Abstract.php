@@ -187,7 +187,7 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
     protected function mapDirectiveImageLink($args, $attributeName = 'image')
     {
         $product = $this->getProduct();
-        $image = $product->getData('image');
+        $image = $product->getData($attributeName);
 
         if ($image != 'no_selection' && $image != "") {
             $image = Mage::helper('catalog/image')
