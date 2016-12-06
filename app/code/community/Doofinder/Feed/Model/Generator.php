@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.6.9
+ * @version    1.6.10
  */
 
 /**
  * Generator model for Doofinder Feed
  *
- * @version    1.6.9
+ * @version    1.6.10
  * @package    Doofinder_Feed
  */
 if (!defined('DS'))
