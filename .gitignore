@@ -1,4 +1,5 @@
 localconfig.json
 node_modules
+sites
 var/connect/*.tgz
 tmp
