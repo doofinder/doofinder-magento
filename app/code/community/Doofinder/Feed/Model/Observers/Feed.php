@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.6.11
+ * @version    1.6.12
  */
 
 require_once(Mage::getBaseDir('lib') . DS. 'Doofinder' . DS .'doofinder_management_api.php');
@@ -153,8 +153,6 @@ class Doofinder_Feed_Model_Observers_Feed
             return;
         }
 
-        $scheduleId = $process->getScheduleId();
-
         // Get store code
         $this->storeCode = $process->getStoreCode();
 
@@ -167,13 +165,6 @@ class Doofinder_Feed_Model_Observers_Feed
         try {
             // Clear out the message
             $process->setMessage($helper::MSG_EMPTY);
-
-            // Get data model for store cron
-            $dataModel = Mage::getModel('cron/schedule');
-
-
-            // Get store cron data
-            $data = $dataModel->load($scheduleId);
 
             // Get current offset
             $offset = intval($process->getOffset());
