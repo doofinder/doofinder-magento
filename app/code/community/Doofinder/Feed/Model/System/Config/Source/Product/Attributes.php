@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.6.11
+ * @version    1.6.12
  */
 
 class Doofinder_Feed_Model_System_Config_Source_Product_Attributes
