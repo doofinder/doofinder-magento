@@ -1,5 +1,4 @@
 <?php
-require_once(Mage::getBaseDir('lib') . DS. 'Doofinder' . DS .'doofinder_api.php');
 
 class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
 {
@@ -23,28 +22,27 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
         $hashId = Mage::getStoreConfig('doofinder_search/internal_settings/hash_id', Mage::app()->getStore());
         $apiKey = Mage::getStoreConfig('doofinder_search/internal_settings/api_key', Mage::app()->getStore());
         $limit = Mage::getStoreConfig('doofinder_search/internal_settings/request_limit', Mage::app()->getStore());
-        $ids = false;
 
-        $df = new DoofinderApi($hashId, $apiKey);
-        $dfResults = $df->query($queryText, null, array('rpp' => $limit, 'transformer' => 'onlyid', 'filter' => array()));
+        $client = new \Doofinder\Api\Search\Client($hashId, $apiKey);
+        $results = $client->query($queryText, null, ['rpp' => $limit, 'transformer' => 'onlyid', 'filter' => []]);
 
         // Store objects
-        $this->_lastSearch = $df;
-        $this->_lastResults = $dfResults;
+        $this->_lastSearch = $client;
+        $this->_lastResults = $results;
 
-        return $this->retrieveIds($dfResults);
+        return $this->retrieveIds($results);
     }
 
     /**
      * Retrieve ids from Doofinder Results
      *
-     * @param DoofinderResults $dfResults
+     * @param \Doofinder\Api\Search\Results $results
      * @return array
      */
-    protected function retrieveIds(DoofinderResults $dfResults)
+    protected function retrieveIds(DoofinderResults $results)
     {
-        $ids = array();
-        foreach($dfResults->getResults() as $result) {
+        $ids = [];
+        foreach ($results->getResults() as $result) {
             $ids[] = $result['id'];
         }
 
@@ -61,8 +59,8 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
         $limit = Mage::getStoreConfig('doofinder_search/internal_settings/total_limit', Mage::app()->getStore());
         $ids = $this->retrieveIds($this->_lastResults);
 
-        while (count($ids) < $limit && ($dfResults = $this->_lastSearch->nextPage())) {
-            $ids = array_merge($ids, $this->retrieveIds($dfResults));
+        while (count($ids) < $limit && ($results = $this->_lastSearch->nextPage())) {
+            $ids = array_merge($ids, $this->retrieveIds($results));
         }
 
         return $ids;
