@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.6.12
+ * @version    1.6.13
  */
 
 class Doofinder_Feed_Model_Cron extends Mage_Core_Model_Abstract {

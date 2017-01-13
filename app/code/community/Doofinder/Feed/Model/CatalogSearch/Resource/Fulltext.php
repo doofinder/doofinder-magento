@@ -149,7 +149,14 @@ class Doofinder_Feed_Model_CatalogSearch_Resource_Fulltext extends Mage_CatalogS
      */
     protected function setResults(array $results)
     {
-        $this->_foundData = array_combine($results, array_fill(0, count($results), 0));
+        $data = array();
+        $relevance = count($results);
+        
+        foreach ($results as $productId) {
+                $data[$productId] = $relevance--;
+        }
+
+        $this->_foundData = $data;
     }
 
     /**
