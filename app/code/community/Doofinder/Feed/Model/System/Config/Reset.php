@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.6.13
+ * @version    1.7.2
  */
 
 class Doofinder_Feed_Model_System_Config_Reset extends Mage_Core_Model_Config_Data
