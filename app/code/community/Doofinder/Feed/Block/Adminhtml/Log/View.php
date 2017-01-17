@@ -6,7 +6,7 @@
 /**
  * @category   blocks
  * @package    Doofinder_Feed
- * @version    1.6.13
+ * @version    1.7.2
  */
 
 class Doofinder_Feed_Block_Adminhtml_Log_View extends Mage_Adminhtml_Block_Widget_Grid
