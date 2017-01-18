@@ -9,6 +9,43 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
     protected $_lastResults = null;
 
     /**
+     * @var \Doofinder\Api\Management\SearchEngine[]
+     */
+    protected $_searchEngines = null;
+
+    /**
+     * Load Doofinder PHP library
+     */
+    protected function loadDoofinderLibrary()
+    {
+        require_once(Mage::getBaseDir('lib') . DS. 'php-doofinder' . DS .'autoload.php');
+    }
+
+    /**
+     * Get api key
+     *
+     * @param string $storeCode
+     * @return string
+     */
+    protected function getApiKey($storeCode = null)
+    {
+        $storeCode = $storeCode === null ? Mage::app()->getStore() : $storeCode;
+        return Mage::getStoreConfig('doofinder_search/internal_settings/api_key', $storeCode);
+    }
+
+    /**
+     * Get hash id
+     *
+     * @param string $storeCode
+     * @return string
+     */
+    protected function getHashId($storeCode = null)
+    {
+        $storeCode = $storeCode === null ? Mage::app()->getStore() : $storeCode;
+        return Mage::getStoreConfig('doofinder_search/internal_settings/hash_id', $storeCode);
+    }
+
+    /**
      * Perform a doofinder search on given key.
      *
      * @param string $queryText
@@ -19,10 +56,11 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
      */
     public function performDoofinderSearch($queryText)
     {
-        $hashId = Mage::getStoreConfig('doofinder_search/internal_settings/hash_id', Mage::app()->getStore());
-        $apiKey = Mage::getStoreConfig('doofinder_search/internal_settings/api_key', Mage::app()->getStore());
+        $hashId = $this->getHashId();
+        $apiKey = $this->getApiKey();
         $limit = Mage::getStoreConfig('doofinder_search/internal_settings/request_limit', Mage::app()->getStore());
 
+        $this->loadDoofinderLibrary();
         $client = new \Doofinder\Api\Search\Client($hashId, $apiKey);
         $results = $client->query($queryText, null, ['rpp' => $limit, 'transformer' => 'onlyid', 'filter' => []]);
 
@@ -74,5 +112,34 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
     public function getResultsCount()
     {
         return $this->_lastResults->getProperty('total');
+    }
+
+    /**
+     * Get Doofinder Search Engine
+     *
+     * @param string $storeCode
+     * @return \Doofinder\Api\Management\SearchEngine
+     */
+    public function getDoofinderSearchEngine($storeCode)
+    {
+        if ($this->_searchEngines === null) {
+            $this->_searchEngines = [];
+
+            // Create DoofinderManagementApi instance
+            $this->loadDoofinderLibrary();
+            $doofinderManagementApi = new \Doofinder\Api\Management\Client($this->getApiKey($storeCode));
+
+            foreach ($doofinderManagementApi->getSearchEngines() as $searchEngine) {
+                $this->_searchEngines[$searchEngine->hashid] = $searchEngine;
+            }
+        }
+
+        // Prepare SearchEngine instance
+        $hashId = $this->getHashId($storeCode);
+        if (!empty($this->_searchEngines[$hashId])) {
+            return $this->_searchEngines[$hashId];
+        }
+
+        return false;
     }
 }
