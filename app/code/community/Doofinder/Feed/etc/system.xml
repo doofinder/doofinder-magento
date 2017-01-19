@@ -180,6 +180,15 @@
                     <show_in_website>0</show_in_website>
                     <show_in_store>1</show_in_store>
                     <fields>
+                        <password translate="label">
+                            <label>Password</label>
+                            <comment>Protect feed with given password.</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </password>
                         <display_price translate="label">
                             <label>Export Product Prices</label>
                             <frontend_type>select</frontend_type>
