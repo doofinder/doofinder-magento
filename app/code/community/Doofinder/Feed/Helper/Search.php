@@ -77,7 +77,7 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
      * @param \Doofinder\Api\Search\Results $results
      * @return array
      */
-    protected function retrieveIds(DoofinderResults $results)
+    protected function retrieveIds(\Doofinder\Api\Search\Results $results)
     {
         $ids = [];
         foreach ($results->getResults() as $result) {
