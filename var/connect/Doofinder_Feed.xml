@@ -1,5 +1,5 @@
 <_>
-   <form_key>m3MpvNr45CtqXpYl</form_key>
+   <form_key>cBH75YRx7JHyFURS</form_key>
    <name>Doofinder_Feed</name>
    <channel>community</channel>
    <version_ids>
@@ -63,7 +63,7 @@ http://www.doofinder.com</description>
          <email>carlos@doofinder.com</email>
       </email>
    </authors>
-   <depends_php_min>5.2.0</depends_php_min>
+   <depends_php_min>5.4.0</depends_php_min>
    <depends_php_max>6.0.0</depends_php_max>
    <depends>
       <package>
@@ -80,7 +80,7 @@ http://www.doofinder.com</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                                 </files>
+            <files>                                                                                                    </files>
          </files>
       </package>
       <extension>
@@ -114,7 +114,7 @@ http://www.doofinder.com</description>
          <path>frontend/base/default/layout/doofinder.xml</path>
          <path>js/doofinder</path>
          <path>adminhtml/default/default/doofinder</path>
-         <path>Doofinder</path>
+         <path>php-doofinder</path>
       </path>
       <type>
          <type>file</type>

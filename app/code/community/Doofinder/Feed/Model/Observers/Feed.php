@@ -9,8 +9,6 @@
  * @version    1.7.2
  */
 
-require_once(Mage::getBaseDir('lib') . DS. 'Doofinder' . DS .'doofinder_management_api.php');
-
 class Doofinder_Feed_Model_Observers_Feed
 {
 
@@ -55,18 +53,6 @@ class Doofinder_Feed_Model_Observers_Feed
         // Terminate updates where there is no store enabled
         if (empty($storeCodes)) return;
 
-        // Get search engines
-        $apiKey = Mage::getStoreConfig('doofinder_search/internal_settings/api_key', Mage::app()->getStore());
-        $dma = new DoofinderManagementApi($apiKey);
-        $searchEngines = $dma->getSearchEngines();
-
-        // Set engines array key as hashid
-        foreach ($searchEngines as $key => $searchEngine) {
-            $searchEngines[$searchEngine->hashid] = $searchEngine;
-            unset($searchEngines[$key]);
-        }
-
-
         // Loop over all stores and update relevant search engines
         foreach ($storeCodes as $storeCode) {
             // Set store code
@@ -107,7 +93,7 @@ class Doofinder_Feed_Model_Observers_Feed
                     continue;
                 }
 
-                $searchEngine = $searchEngines[$hashId];
+                $searchEngine = Mage::helper('doofinder_feed/search')->getDoofinderSearchEngine($this->storeCode);
 
                 // Check if search engine exists and skip foreach iteration if not.
                 if (!$searchEngine) {
