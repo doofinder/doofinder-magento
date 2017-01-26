@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.7.2
+ * @version    1.8.0
  */
 
 /**
  * Abstract Product Map Model for Doofinder Feed
  *
- * @version    1.7.2
+ * @version    1.8.0
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
@@ -309,8 +309,7 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
             $stock_status = $defaultVal;
             $stock_status = trim(strtolower($stock_status));
 
-            if (false === array_search($stock_status,
-                    $this->getConfig()->getAllowedStockStatuses()))
+            if (false === array_search($stock_status, (array) $this->getConfig()->getAllowedStockStatuses()))
                 $stock_status = $this->getConfig()->getOutOfStockStatus();
 
             $fieldData = $stock_status;
@@ -340,8 +339,7 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
         $defaultVal = isset($map['default_value']) ? $map['default_value'] : "";
         $defaultVal = trim(strtolower($defaultVal));
 
-        if (false === array_search($defaultVal,
-                $this->getConfig()->getAllowedConditions()))
+        if (false === array_search($defaultVal, (array) $this->getConfig()->getAllowedConditions()))
             $defaultVal = $this->getConfig()->getConditionNew();
 
         $fieldData = $defaultVal;
