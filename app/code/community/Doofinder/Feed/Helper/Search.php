@@ -18,7 +18,7 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
      */
     protected function loadDoofinderLibrary()
     {
-        require_once(Mage::getBaseDir('lib') . DS. 'php-doofinder' . DS .'autoload.php');
+        spl_autoload_register(array($this, 'autoload'), true, true);
     }
 
     /**
@@ -141,5 +141,28 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
         }
 
         return false;
+    }
+
+    /**
+     * Autoloader for 'php-doofinder' library
+     */
+    protected function autoload($className)
+    {
+        $libraryPrefix = 'Doofinder\\Api\\';
+        $libraryDirectory = Mage::getBaseDir('lib') . DS. 'php-doofinder' . DS . 'src' . DS;
+
+        $len = strlen($libraryPrefix);
+
+        // Binary safe comparison of $len first characters
+        if (strncmp($libraryPrefix, $className, $len) !== 0) {
+            return;
+        }
+
+        $classPath = str_replace('\\', '/', substr($className, $len)) . '.php';
+        $file = $libraryDirectory . $classPath;
+
+        if (file_exists($file)) {
+            require $file;
+        }
     }
 }
