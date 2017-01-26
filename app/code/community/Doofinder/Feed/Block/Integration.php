@@ -6,7 +6,7 @@
 /**
  * @category   blocks
  * @package    Doofinder_Feed
- * @version    1.7.2
+ * @version    1.8.0
  */
 
 class Doofinder_Feed_Block_Integration extends Mage_Core_Block_Abstract
