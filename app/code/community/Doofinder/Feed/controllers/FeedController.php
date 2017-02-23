@@ -99,7 +99,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 
         foreach ($storeCodes as $code)
         {
-            $settings = $helper->getStoreConfig($code);
+            $settings = $helper->getStoreConfig($code, false);
 
             if ($settings['enabled'])
             {

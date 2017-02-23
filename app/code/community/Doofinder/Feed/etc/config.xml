@@ -242,6 +242,7 @@
                 <reset>0</reset>
             </schedule_settings>
             <feed_settings>
+                <passwrod></passwrod>
                 <display_price>1</display_price>
                 <grouped>0</grouped>
                 <image_size></image_size>
