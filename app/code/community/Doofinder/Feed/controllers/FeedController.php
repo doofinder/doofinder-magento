@@ -38,9 +38,27 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             ->setHeader('Content-type', 'application/xml; charset="utf-8"', true);
     }
 
+    /**
+     * Check password
+     *
+     * @param string $storeCode
+     * @return boolean
+     */
+    protected function _checkPassword($storeCode)
+    {
+        $password = Mage::getStoreConfig('doofinder_cron/feed_settings/password', $storeCode);
+        return !$password || $this->getRequest()->getParam('password') == $password;
+    }
+
     public function indexAction()
     {
         $storeCode = $this->_getStoreCode();
+
+        // Do not proceed if password check fails
+        if (!$this->_checkPassword($storeCode)) {
+            return $this->_forward('defaultNoRoute');
+        }
+
         $config = Mage::helper('doofinder_feed')->getStoreConfig($storeCode);
 
         // Set options for cron generator
