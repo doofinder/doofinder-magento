@@ -6,13 +6,13 @@
 /**
  * @category   controllers
  * @package    Doofinder_Feed
- * @version    1.8.0
+ * @version    1.8.1
  */
 
 /**
  * Feed controller for Doofinder Feed
  *
- * @version    1.8.0
+ * @version    1.8.1
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
@@ -38,9 +38,27 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
             ->setHeader('Content-type', 'application/xml; charset="utf-8"', true);
     }
 
+    /**
+     * Check password
+     *
+     * @param string $storeCode
+     * @return boolean
+     */
+    protected function _checkPassword($storeCode)
+    {
+        $password = Mage::getStoreConfig('doofinder_cron/feed_settings/password', $storeCode);
+        return !$password || $this->getRequest()->getParam('password') == $password;
+    }
+
     public function indexAction()
     {
         $storeCode = $this->_getStoreCode();
+
+        // Do not proceed if password check fails
+        if (!$this->_checkPassword($storeCode)) {
+            return $this->_forward('defaultNoRoute');
+        }
+
         $config = Mage::helper('doofinder_feed')->getStoreConfig($storeCode);
 
         // Set options for cron generator
@@ -99,7 +117,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 
         foreach ($storeCodes as $code)
         {
-            $settings = $helper->getStoreConfig($code);
+            $settings = $helper->getStoreConfig($code, false);
 
             if ($settings['enabled'])
             {
@@ -116,11 +134,13 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 
             $oStore = Mage::app()->getStore($code);
             $L = Mage::getStoreConfig('general/locale/code', $oStore->getId());
+            $password = Mage::getStoreConfig('doofinder_cron/feed_settings/password', $code);
             $storesConfiguration[$code] = array(
                 'language' => strtoupper(substr($L, 0, 2)),
                 'currency' => $oStore->getCurrentCurrencyCode(),
                 'feed' =>  $feedUrl,
                 'feed_exists' => $feedExists,
+                'secured' => !empty($password),
             );
         }
 

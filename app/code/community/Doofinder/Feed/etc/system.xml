@@ -180,6 +180,16 @@
                     <show_in_website>0</show_in_website>
                     <show_in_store>1</show_in_store>
                     <fields>
+                        <password translate="label">
+                            <label>Security Phrase</label>
+                            <frontend_type>text</frontend_type>
+                            <backend_model>doofinder_feed/system_config_backend_password</backend_model>
+                            <sort_order>0</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Protect feed with given phrase. If set, the URL of the feed must include "password=security_phrase" as a parameter.</comment>
+                        </password>
                         <display_price translate="label">
                             <label>Export Product Prices</label>
                             <frontend_type>select</frontend_type>

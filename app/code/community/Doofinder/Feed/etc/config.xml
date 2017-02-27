@@ -3,7 +3,7 @@
 
     <modules>
         <Doofinder_Feed>
-            <version>1.8.0</version>
+            <version>1.8.1</version>
         </Doofinder_Feed>
     </modules>
     <global>
@@ -242,6 +242,7 @@
                 <reset>0</reset>
             </schedule_settings>
             <feed_settings>
+                <password></password>
                 <display_price>1</display_price>
                 <grouped>0</grouped>
                 <image_size></image_size>

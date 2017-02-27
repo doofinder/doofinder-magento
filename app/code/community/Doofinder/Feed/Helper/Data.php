@@ -6,13 +6,13 @@
 /**
  * @category   Helpers
  * @package    Doofinder_Feed
- * @version    1.8.0
+ * @version    1.8.1
  */
 
 /**
  * Data helper for Doofinder Feed
  *
- * @version    1.8.0
+ * @version    1.8.1
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
@@ -379,9 +379,10 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * Gets store config for cron settings.
      * @param string $storeCode
+     * @param boolean $withPassword = true
      * @return array
      */
-    public function getStoreConfig($storeCode = '') {
+    public function getStoreConfig($storeCode = '', $withPassword = true) {
         $xmlName = Mage::getStoreConfig('doofinder_cron/schedule_settings/name', $storeCode);
         $config = array(
             'enabled'   =>  Mage::getStoreConfig('doofinder_cron/schedule_settings/enabled', $storeCode),
@@ -393,7 +394,7 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
             'frequency' =>  Mage::getStoreConfig('doofinder_cron/schedule_settings/frequency', $storeCode),
             'time'      =>  explode(',', Mage::getStoreConfig('doofinder_cron/schedule_settings/time', $storeCode)),
             'storeCode' =>  $storeCode,
-            'xmlName'   =>  $this->_processXmlName($xmlName, $storeCode),
+            'xmlName'   =>  $this->_processXmlName($xmlName, $storeCode, $withPassword),
             'reset'     =>  Mage::getStoreConfig('doofinder_cron/schedule_settings/reset', $storeCode),
         );
         return $config;
@@ -401,13 +402,20 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
     /**
      * Process xml filename
-     * @param string $name
+     * @param string $name = 'doofinder-{store_code}.xml'
+     * @param string $code = 'default'
+     * @param boolean $withPassword = true
      * @return bool
      */
-    private function _processXmlName($name = 'doofinder-{store_code}.xml', $code = 'default') {
+    private function _processXmlName($name = 'doofinder-{store_code}.xml', $code = 'default', $withPassword = true) {
         $pattern = '/\{\s*store_code\s*\}/';
 
-        $newName = preg_replace($pattern, $code, $name);
+        $replacement = $code;
+        if ($withPassword && ($password = Mage::getStoreConfig('doofinder_cron/feed_settings/password', $storeCode))) {
+            $replacement .= '-' . $password;
+        }
+
+        $newName = preg_replace($pattern, $replacement, $name);
         return $newName;
     }
 
