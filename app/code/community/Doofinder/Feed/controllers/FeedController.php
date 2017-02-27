@@ -6,13 +6,13 @@
 /**
  * @category   controllers
  * @package    Doofinder_Feed
- * @version    1.8.0
+ * @version    1.8.1
  */
 
 /**
  * Feed controller for Doofinder Feed
  *
- * @version    1.8.0
+ * @version    1.8.1
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
@@ -134,11 +134,13 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
 
             $oStore = Mage::app()->getStore($code);
             $L = Mage::getStoreConfig('general/locale/code', $oStore->getId());
+            $password = Mage::getStoreConfig('doofinder_cron/feed_settings/password', $code);
             $storesConfiguration[$code] = array(
                 'language' => strtoupper(substr($L, 0, 2)),
                 'currency' => $oStore->getCurrentCurrencyCode(),
                 'feed' =>  $feedUrl,
                 'feed_exists' => $feedExists,
+                'secured' => !empty($password),
             );
         }
 
