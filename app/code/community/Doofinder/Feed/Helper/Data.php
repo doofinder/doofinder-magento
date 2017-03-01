@@ -411,7 +411,7 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         $pattern = '/\{\s*store_code\s*\}/';
 
         $replacement = $code;
-        if ($withPassword && ($password = Mage::getStoreConfig('doofinder_cron/feed_settings/password', $storeCode))) {
+        if ($withPassword && ($password = Mage::getStoreConfig('doofinder_cron/feed_settings/password', $code))) {
             $replacement .= '-' . $password;
         }
 
