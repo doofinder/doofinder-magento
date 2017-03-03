@@ -6,7 +6,7 @@
 /**
  * @category   blocks
  * @package    Doofinder_Feed
- * @version    1.8.1
+ * @version    1.8.2
  */
 
 class Doofinder_Feed_Block_Adminhtml_Map_Additional extends Mage_Adminhtml_Block_System_Config_Form_Field
