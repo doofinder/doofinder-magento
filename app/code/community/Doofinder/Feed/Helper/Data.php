@@ -404,19 +404,56 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
      * Process xml filename
      * @param string $name = 'doofinder-{store_code}.xml'
      * @param string $code = 'default'
-     * @param boolean $withPassword = true
+     * @param string|boolean $password = true
      * @return bool
      */
-    private function _processXmlName($name = 'doofinder-{store_code}.xml', $code = 'default', $withPassword = true) {
+    private function _processXmlName($name = 'doofinder-{store_code}.xml', $code = 'default', $password = true) {
         $pattern = '/\{\s*store_code\s*\}/';
 
+        if ($password === true) {
+            $password = Mage::getStoreConfig('doofinder_cron/feed_settings/password', $storeCode);
+        }
+
         $replacement = $code;
-        if ($withPassword && ($password = Mage::getStoreConfig('doofinder_cron/feed_settings/password', $code))) {
+        if ($password && strlen($password)) {
             $replacement .= '-' . $password;
         }
 
         $newName = preg_replace($pattern, $replacement, $name);
         return $newName;
+    }
+
+    /**
+     * Change feed file password
+     *
+     * @param string $storeCode
+     * @param string $oldPassword
+     * @param string $newPassword
+     */
+    public function changeXmlPassword($storeCode, $oldPassword, $newPassword) {
+        $xmlName = Mage::getStoreConfig('doofinder_cron/schedule_settings/name', $storeCode);
+        $dir = $this->getFeedDirectory();
+
+        $oldFilepath = $dir . DS . $this->_processXmlName($xmlName, $storeCode, $oldPassword);
+        $newFilename = $this->_processXmlName($xmlName, $storeCode, $newPassword);
+        $newFilepath = $dir . DS . $newFilename;
+
+        if (file_exists($oldFilepath)) {
+            if (!file_exists($newFilepath) && !rename($oldFilepath, $newFilepath)) {
+                throw new \Magento\Framework\Exception\LocalizedException(__(
+                    'Feed file could not be renamed accordingly to new %s value because file permission issues or file with name %s already exists.',
+                    $this->getData('field_config/label'),
+                    $newFilename
+                ));
+            }
+
+            $process = Mage::getModel('doofinder_feed/cron')->load($storeCode, 'store_code');
+            if ($process->getId()) {
+                $process
+                    ->setLastFeedName($newFilename)
+                    ->save();
+            }
+        }
     }
 
     /**
