@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.2
+ * @version    1.8.3
  */
 
 class Doofinder_Feed_Model_Observers_Feed
@@ -129,7 +129,9 @@ class Doofinder_Feed_Model_Observers_Feed
         $collection = Mage::getModel('doofinder_feed/cron')->getCollection();
         $collection
             ->addFieldToFilter('status', array('in' => array($helper::STATUS_PENDING, $helper::STATUS_RUNNING)))
-            ->addFieldToFilter('next_iteration', array('lteq' => Mage::getModel('core/date')->date('Y-m-d H:i:s')))
+            ->addFieldToFilter('next_iteration', array(
+                'lteq' => $helper->getScheduledAt(array(date('H') + $helper->getTimezoneOffset(), date('i'), date('s')))
+            ))
             ->setOrder('next_iteration', 'asc');
         $collection->getSelect()->limit(1);
 
