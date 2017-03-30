@@ -120,6 +120,42 @@ class Doofinder_Feed_Model_Observers_Feed
 
     }
 
+    /**
+     * Lock process
+     *
+     * Locking process ensures that no other
+     * cron job runs it at the same time
+     *
+     * @param Doofinder_Feed_Model_Cron
+     * @param boolean $remove = false - Should the lock be removed instead of created
+     */
+    protected function lockProcess(Doofinder_Feed_Model_Cron $process, $remove = false)
+    {
+        $helper = Mage::helper('doofinder_feed');
+        $lockFilepath = $helper->getFeedLockPath($process->getStoreCode());
+
+        // Create lock file
+        if (!$remove) {
+            if (file_exists($lockFilepath)) {
+                Mage::throwException($helper->__('Process for store %s is already locked', $process->getStoreCode()));
+            }
+
+            touch($lockFilepath);
+        } else {
+            unlink($lockFilepath);
+        }
+    }
+
+    /**
+     * Unlock process
+     *
+     * @param Doofinder_Feed_Model_Cron
+     */
+    protected function unlockProcess(Doofinder_Feed_Model_Cron $process)
+    {
+        return $this->lockProcess($process, true);
+    }
+
     public function generateFeed($observer)
     {
         $stores = Mage::app()->getStores();
@@ -140,6 +176,9 @@ class Doofinder_Feed_Model_Observers_Feed
         if (!$process || !$process->getId()) {
             return;
         }
+
+        // Lock process
+        $this->lockProcess($process);
 
         // Get store code
         $this->storeCode = $process->getStoreCode();
@@ -237,6 +276,9 @@ class Doofinder_Feed_Model_Observers_Feed
             $process->setMessage('#error#' . $e->getMessage());
             $helper->createNewSchedule($process);
         }
+
+        // Unlock process
+        $this->unlockProcess($process);
     }
 
     /**
