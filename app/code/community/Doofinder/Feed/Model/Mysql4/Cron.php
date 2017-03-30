@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.3
+ * @version    1.8.4
  */
 
 class Doofinder_Feed_Model_Mysql4_Cron extends Mage_Core_Model_Mysql4_Abstract {
