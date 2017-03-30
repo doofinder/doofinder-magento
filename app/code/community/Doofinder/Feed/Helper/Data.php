@@ -6,13 +6,13 @@
 /**
  * @category   Helpers
  * @package    Doofinder_Feed
- * @version    1.8.3
+ * @version    1.8.4
  */
 
 /**
  * Data helper for Doofinder Feed
  *
- * @version    1.8.3
+ * @version    1.8.4
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
@@ -411,7 +411,7 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         $pattern = '/\{\s*store_code\s*\}/';
 
         if ($password === true) {
-            $password = Mage::getStoreConfig('doofinder_cron/feed_settings/password', $storeCode);
+            $password = Mage::getStoreConfig('doofinder_cron/feed_settings/password', $code);
         }
 
         $replacement = $code;
@@ -576,6 +576,16 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
     public function getFeedTemporaryPath($storeCode)
     {
         return $this->getFeedPath($storeCode) . '.tmp';
+    }
+
+    /**
+     * Get path to feed lock file.
+     *
+     * @return string
+     */
+    public function getFeedLockPath($storeCode)
+    {
+        return $this->getFeedPath($storeCode) . '.lock';
     }
 
     /**

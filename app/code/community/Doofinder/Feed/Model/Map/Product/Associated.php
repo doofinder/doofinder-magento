@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.3
+ * @version    1.8.4
  */
 
 /**
  * Associated Product Map Model for Doofinder Feed
  *
- * @version    1.8.3
+ * @version    1.8.4
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Model_Map_Product_Associated
@@ -107,18 +107,17 @@ class Doofinder_Feed_Model_Map_Product_Associated
         return $value;
     }
 
-    public function mapFieldAvailability($params = array())
+    public function mapDirectiveAvailability($params = array())
     {
         $args = array('map' => $params['map']);
-        $value = "";
-        $value = $this->getParentMap()->mapField('availability');
+        $value = $this->getParentMap()->mapDirectiveAvailability($args);
+
         // gets out of stock if parent is out of stock
-        if (strcasecmp($this->getConfig()->getOutOfStockStatus(), $value) == 0)
+        if ($this->getConfig()->getOutOfStockStatus() == $value) {
             return $value;
+        }
 
-        $value = $this->getCellValue($args);
-
-        return $value;
+        return parent::mapDirectiveAvailability($params);
     }
 
     public function mapFieldBrand($params = array())
