@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.4
+ * @version    1.8.5
  */
 
 /**
  * Configurable Product Map Model for Doofinder Feed
  *
- * @version    1.8.4
+ * @version    1.8.5
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Model_Map_Product_Configurable
@@ -87,8 +87,12 @@ class Doofinder_Feed_Model_Map_Product_Configurable
             $masterData = current($masterData);
 
             // Only add the master data is we don't group products
-            if ($grouped)
+            if ($grouped) {
                 $rows[] = $masterData;
+            } else {
+                // Don't use parents availability
+                $masterData['availability'] = null;
+            }
         }
 
         // Map all child products
@@ -125,6 +129,15 @@ class Doofinder_Feed_Model_Map_Product_Configurable
             if (isset($masterData['boost']) && is_array($masterData['boost'])) {
                 $masterData['boost'] = max($masterData['boost']);
             }
+            // Make sure availability has single value
+            if (isset($masterData['availability']) && is_array($masterData['availability'])) {
+                if (in_array($this->getConfig()->getInStockStatus(), $masterData['availability'])) {
+                    $masterData['availability'] = $this->getConfig()->getInStockStatus();
+                } else {
+                    $masterData['availability'] = $this->getConfig()->getOutOfStockStatus();
+                }
+            }
+
             $rows[] = $masterData; // Add the complete master data object
         }
 
