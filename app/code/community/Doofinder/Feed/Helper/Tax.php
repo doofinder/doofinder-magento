@@ -6,7 +6,7 @@
 /**
  * @category   Helpers
  * @package    Doofinder_Feed
- * @version    1.8.5
+ * @version    1.8.6
  */
 
 class Doofinder_Feed_Helper_Tax extends Mage_Tax_Helper_Data
