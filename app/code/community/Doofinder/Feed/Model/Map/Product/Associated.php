@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.6
+ * @version    1.8.7
  */
 
 /**
  * Associated Product Map Model for Doofinder Feed
  *
- * @version    1.8.6
+ * @version    1.8.7
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Model_Map_Product_Associated
