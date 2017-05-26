@@ -21,9 +21,24 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
     protected $skip = false;
     protected $_attributeSetModel;
 
+    /**
+     * @var Doofinder_Feed_Helper_Log
+     */
+    protected $_log;
+
+    /**
+     * Initialize log
+     */
+    public function _construct()
+    {
+        parent::_construct();
+        $this->_log = Mage::helper('doofinder_feed/log');
+    }
 
     public function initialize()
     {
+        $this->_log->_debugEnabled && $this->_log->debug(sprintf('Initializing %s for product %d', get_called_class(), $this->getProduct()->getId()));
+
         $currency_code = Mage::app()
             ->getStore($this->getData('store_code'))
             ->getCurrentCurrencyCode();
@@ -47,9 +62,13 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
 
     public function map()
     {
+        $this->_log->_debugEnabled && $this->_log->debug(sprintf('Mapping product %d', $this->getProduct()->getId()));
+
         $this->_beforeMap();
         $rows = $this->_map();
         $this->_afterMap($rows);
+
+        $this->_log->_debugEnabled && $this->_log->debug(sprintf('Map for product %d: %s', $this->getProduct()->getId(), json_encode($rows)));
 
         return $rows;
     }
