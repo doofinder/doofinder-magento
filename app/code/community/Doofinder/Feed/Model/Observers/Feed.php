@@ -19,6 +19,75 @@ class Doofinder_Feed_Model_Observers_Feed
     private $productCount;
 
 
+    /**
+     * Update product index in given store context
+     *
+     * @param Mage_Catalog_Model_Product $product
+     * @param string $storeCode
+     */
+    protected function updateProductIndex($product, $storeCode)
+    {
+        $helper = Mage::helper('doofinder_feed');
+
+        // Set store code
+        $this->storeCode = $storeCode;
+
+        // Get store config
+        $this->config = $helper->getStoreConfig($this->storeCode);
+
+        // Set options
+        $options = array(
+            'close_empty' => true, // close xml even if there are no items
+            'products' => $products, // list of products in feed
+            'store_code' => $this->config['storeCode'],
+            'grouped' => $this->_getBoolean($this->config['grouped']),
+            'display_price' => $this->_getBoolean($this->config['display_price']),
+            'minimal_price' => $this->_getBoolean('minimal_price', false),
+            'image_size' => $this->config['image_size'],
+            'customer_group_id' => 0,
+        );
+
+        $generator = Mage::getModel('doofinder_feed/generator', $options);
+
+        $xmlData = $generator->run();
+
+        if ($xmlData) {
+            $rss = simplexml_load_string($xmlData);
+
+            $hashId = Mage::getStoreConfig('doofinder_search/internal_settings/hash_id', $this->storeCode);
+            if ($hashId === '') {
+
+                $warning = sprintf('HashID is not set for the \'%s\' store view, therefore, search indexes haven\'t been
+                updated for
+                this store view. To fix this problem set HashID for a given stor view or disable Internal Search in Doofinder
+                Search Configuration.', $this->storeCode);
+                Mage::getSingleton('adminhtml/session')->addWarning($warning);
+                return;
+            }
+
+            $searchEngine = Mage::helper('doofinder_feed/search')->getDoofinderSearchEngine($this->storeCode);
+
+            // Check if search engine exists and skip foreach iteration if not.
+            if (!$searchEngine) {
+                $warning = sprintf('Search engine with HashID %s doesn\'t exists. Please, check your configuration.', $hashId);
+                Mage::getSingleton('adminhtml/session')->addWarning($warning);
+                return;
+            }
+
+            // Declare array of products to update
+            $products = array();
+            foreach ($rss->channel->item as $item) {
+                $product = array();
+                foreach ($item as $key => $value) {
+                    $product[$key] = (string)$value;
+                }
+                $products[] = $product;
+            }
+            if (count($products))
+                $searchEngine->updateItems('product', $products);
+        }
+    } 
+
     public function updateSearchEngineIndexes($observer) {
 
         $helper = Mage::helper('doofinder_feed');
@@ -55,69 +124,13 @@ class Doofinder_Feed_Model_Observers_Feed
 
         // Loop over all stores and update relevant search engines
         foreach ($storeCodes as $storeCode) {
-            // Set store code
-            $this->storeCode = $storeCode;
-
-            // Get store config
-            $this->config = $helper->getStoreConfig($this->storeCode);
-
-
-
-            // Set options
-            $options = array(
-                'close_empty' => true, // close xml even if there are no items
-                'products' => $products, // list of products in feed
-                'store_code' => $this->config['storeCode'],
-                'grouped' => $this->_getBoolean($this->config['grouped']),
-                'display_price' => $this->_getBoolean($this->config['display_price']),
-                'minimal_price' => $this->_getBoolean('minimal_price', false),
-                'image_size' => $this->config['image_size'],
-                'customer_group_id' => 0,
-            );
-
-            $generator = Mage::getModel('doofinder_feed/generator', $options);
-
-            $xmlData = $generator->run();
-
-            if ($xmlData) {
-                $rss = simplexml_load_string($xmlData);
-
-                $hashId = Mage::getStoreConfig('doofinder_search/internal_settings/hash_id', $this->storeCode);
-                if ($hashId === '') {
-
-                    $warning = sprintf('HashID is not set for the \'%s\' store view, therefore, search indexes haven\'t been
-                    updated for
-                    this store view. To fix this problem set HashID for a given stor view or disable Internal Search in Doofinder
-                    Search Configuration.', $this->storeCode);
-                    Mage::getSingleton('adminhtml/session')->addWarning($warning);
-                    continue;
-                }
-
-                $searchEngine = Mage::helper('doofinder_feed/search')->getDoofinderSearchEngine($this->storeCode);
-
-                // Check if search engine exists and skip foreach iteration if not.
-                if (!$searchEngine) {
-                    $error = sprintf('Search engine with HashID %s doesn\'t exists. Please, check your configuration.', $hashId);
-                    Mage::getSingleton('adminhtml/session')->addError($error);
-                    continue;
-                }
-
-                // Declare array of products to update
-                $products = array();
-                foreach ($rss->channel->item as $item) {
-                    $product = array();
-                    foreach ($item as $key => $value) {
-                        $product[$key] = (string)$value;
-                    }
-                    $products[] = $product;
-                }
-                if (count($products))
-                    $searchEngine->updateItems('product', $products);
-
+            try {
+                $this->updateProductIndex($product, $storeCode);
+            } catch (Exception $e) {
+                $warning = $helper->__('There was an error during product indexing: %s', $e->getMessage());
+                Mage::getSingleton('adminhtml/session')->addWarning($error);
             }
         }
-
-
     }
 
     /**
