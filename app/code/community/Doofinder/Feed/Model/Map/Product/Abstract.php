@@ -247,11 +247,8 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
 
         $store = Mage::app()->getStore($this->getStoreCode());
 
-        // Convert price to store currency
-        $price = Mage::helper('core')->currencyByStore($price, $store, false, false);
-
-        // Format price with store currency
-        return $store->getCurrentCurrency()->format($price, array('display' => Zend_Currency::NO_SYMBOL), false);
+        // Return price converted to store currency
+        return Mage::helper('core')->currencyByStore($price, $store, false, false);
     }
 
     protected function mapFieldPrice()

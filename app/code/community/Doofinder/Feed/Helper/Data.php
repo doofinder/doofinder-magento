@@ -78,7 +78,8 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
             $tax = $taxHelper->getPriceDisplayType() != Mage_Tax_Model_Config::DISPLAY_TYPE_EXCLUDING_TAX;
         }
 
-        return $taxHelper->getPrice($product, $price, $tax);
+        // Return raw price with/without tax - no price rounding here
+        return $taxHelper->getPrice($product, $price, $tax, null, null, null, null, null, false);
     }
 
     /**
