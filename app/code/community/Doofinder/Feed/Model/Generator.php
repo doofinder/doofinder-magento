@@ -51,6 +51,20 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     protected $_lastProcessedProductId;
 
     /**
+     * @var Doofinder_Feed_Helper_Log
+     */
+    protected $_log;
+
+    /**
+     * Initialize log
+     */
+    public function _construct()
+    {
+        parent::_construct();
+        $this->_log = Mage::helper('doofinder_feed/log');
+    }
+
+    /**
      * Log to doofinder generator logfile
      *
      * @param string $message
@@ -58,6 +72,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
      */
     public function logError($message)
     {
+        $this->_log->debug($message);
         $this->_errors[] = $message;
     }
 
@@ -79,6 +94,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     public function run()
     {
+        $this->_log->debug("Running generator");
+
         // This must NOT depend on cron being enabled because it's used
         // by the front controller!!!
 
@@ -93,6 +110,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         // Clear errors
         $this->_errors = array();
 
+        $this->_log->debug("Starting products processig");
+
         // Perform run
         $this->_initFeed();
         $this->_batchProcessProducts(
@@ -100,10 +119,15 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             $this->getData('_limit_')
         );
 
+        $this->_log->debug("Products processig done");
+
         // Only close feed if close empty flag is set to true or there was at least one processed product
         if ($this->getData('close_empty') || $this->getLastProcessedProductId() != $this->getData('_offset_')) {
+            $this->_log->debug("Closing xml feed");
             $this->_closeFeed();
         }
+
+        $this->_log->debug("Generator finished");
 
         return $this->_response;
     }
@@ -175,6 +199,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         try
         {
             $row = $args['row'];
+            $this->_log->_debugEnabled && $this->_log->debug(sprintf('Adding product %d to feed', $row['entity_id']));
 
             $this->_lastProcessedProductId = $row['entity_id'];
 
@@ -205,6 +230,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                 $this->_iDumped++;
 
             $map->unsetData();
+
+            $this->_log->_debugEnabled && $this->_log->debug(sprintf('Product %d added to feed', $row['entity_id']));
         }
         catch (Exception $e)
         {
@@ -236,6 +263,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     protected function _addProductToXml(
         Doofinder_Feed_Model_Map_Product_Abstract $productMap)
     {
+        $this->_log->_debugEnabled && $this->_log->debug(sprintf('Adding product %d to xml', $productMap->getProduct()->getId()));
 
         $iDumped = 0;
         $displayPrice = $this->getDisplayPrice();
@@ -244,6 +272,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         {
             if ($productMap->isSkip())
             {
+                $this->_log->_debugEnabled && $this->_log->debug(sprintf('Product %d skipped', $productMap->getProduct()->getId()));
                 $this->_iSkipped++;
                 return $this;
             }
@@ -339,11 +368,12 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
                 $iDumped++;
             }
+
+            $this->_log->_debugEnabled && $this->_log->debug(sprintf('Product %d added to xml', $productMap->getProduct()->getId()));
         }
         catch (Exception $e)
         {
-            if ($this->getConfigVar('debug') == 1)
-                $this->_debug($e->getMessage());
+            $this->logError($e->getMessage());
         }
 
         return $iDumped > 0;
@@ -530,6 +560,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $this->_oXmlWriter->openMemory();
         if (!$this->getData('_offset_'))
         {
+            $this->_log->debug('Opening feed');
+
             $this->_oXmlWriter->startDocument('1.0', 'UTF-8');
 
             // Output the parent rss tag
@@ -575,13 +607,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                 $this->_response .= '</channel></rss>';
             }
         }
-    }
-
-    protected function _debug($m)
-    {
-        // $this->_response .= '<pre>';
-        // var_dump($m);
-        // $this->_response .= '</pre>';
     }
 
     protected function _sanitizeData($data)
@@ -634,8 +659,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         }
         catch (Exception $e)
         {
-            $e->setMessage('Invalid Store Code.');
-            $this->_stopOnException($e);
+            $this->logError(sprintf('Invalid store code %s', $this->getData('store_code')));
         }
     }
 
@@ -779,11 +803,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             );
         }
         return $this->_fieldMap;
-    }
-
-    protected function _stopOnException(Exception $e)
-    {
-        Mage::logError($e->getMessage());
     }
 
     protected function _cleanFieldValue($field)

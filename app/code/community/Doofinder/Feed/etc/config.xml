@@ -254,6 +254,7 @@
                 <atomic_updates_enabled>0</atomic_updates_enabled>
                 <categories_in_navigation>0</categories_in_navigation>
                 <price_tax_mode>0</price_tax_mode>
+                <debug>0</debug>
             </feed_settings>
             <attributes_mapping>
                 <id>df_directive_id</id>
