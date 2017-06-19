@@ -6,7 +6,7 @@
 /**
  * @category   controllers
  * @package    Doofinder_Feed
- * @version    1.8.7
+ * @version    1.8.8
  */
 
 class Doofinder_Feed_DoofinderFeedFeedController extends Mage_Adminhtml_Controller_Action
@@ -39,5 +39,30 @@ class Doofinder_Feed_DoofinderFeedFeedController extends Mage_Adminhtml_Controll
         }
 
         $this->getResponse()->setBody('Feed generation has been scheduled.');
+    }
+
+    /**
+     * Remove feed lock action
+     */
+    public function removeLockAction()
+    {
+        $response = $this->getResponse();
+        $storeCode = $this->getRequest()->getParam('store', false);
+
+        if (!$storeCode) {
+            $response->setBody('No store code given.');
+            return;
+        }
+
+        $lockPath = Mage::helper('doofinder_feed')->getFeedLockPath($storeCode);
+
+        if (file_exists($lockPath)) {
+            unlink($lockPath);
+        } else {
+            $response->setBody('Lock file not exists.');
+            return;
+        }
+
+        $response->setBody('Feed lock file has been removed.');
     }
 }

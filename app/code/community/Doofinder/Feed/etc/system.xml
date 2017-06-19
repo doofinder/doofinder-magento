@@ -248,6 +248,16 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
                         </categories_in_navigation>
+                        <debug>
+                            <label>Debug</label>
+                            <frontend_type>select</frontend_type>
+                            <comment>Debug mode with intensively verbose logging. Use with care.</comment>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>12</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </debug>
                     </fields>
                 </feed_settings>
 
@@ -423,6 +433,25 @@
                         </view_log>
                     </fields>
                 </panel>
+                <advanced translate="label">
+                    <label>Advanced</label>
+                    <expanded>false</expanded>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>40</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <locks>
+                            <label>Locks</label>
+                            <frontend_model>doofinder_feed/settings_locks</frontend_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </locks>
+                    </fields>
+                </advanced>
             </groups>
         </doofinder_cron>
         <doofinder_search translate="label" module="doofinder_feed">
