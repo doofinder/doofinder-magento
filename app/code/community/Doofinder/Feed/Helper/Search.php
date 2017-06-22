@@ -62,13 +62,19 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
 
         $this->loadDoofinderLibrary();
         $client = new \Doofinder\Api\Search\Client($hashId, $apiKey);
-        $results = $client->query($queryText, null, ['rpp' => $limit, 'transformer' => 'onlyid', 'filter' => []]);
 
-        // Store objects
-        $this->_lastSearch = $client;
-        $this->_lastResults = $results;
+        try {
+            $results = $client->query($queryText, null, ['rpp' => $limit, 'transformer' => 'onlyid', 'filter' => []]);
+        } catch (\Doofinder\Api\Search\Error $e) {
+            $results = null;
+            Mage::logException($e);
+        } finally {
+            // Store objects
+            $this->_lastSearch = $client;
+            $this->_lastResults = $results;
+        }
 
-        return $this->retrieveIds($results);
+        return $results ? $this->retrieveIds($results) : array();
     }
 
     /**
@@ -94,6 +100,10 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
      */
     public function getAllResults()
     {
+        if (!$this->_lastResults) {
+            return array();
+        }
+
         $limit = Mage::getStoreConfig('doofinder_search/internal_settings/total_limit', Mage::app()->getStore());
         $ids = $this->retrieveIds($this->_lastResults);
 
@@ -111,7 +121,7 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
      */
     public function getResultsCount()
     {
-        return $this->_lastResults->getProperty('total');
+        return $this->_lastResults ? $this->_lastResults->getProperty('total') : 0;
     }
 
     /**
