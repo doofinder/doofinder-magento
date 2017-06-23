@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.9
+ * @version    1.8.10
  */
 
 class Doofinder_Feed_Model_Observers_Feed
@@ -264,10 +264,12 @@ class Doofinder_Feed_Model_Observers_Feed
 
             $generator = Mage::getModel('doofinder_feed/generator', $options);
 
+
             try {
                 $xmlData = $generator->run();
-            } finally {
-                $this->_log->_debugEnabled && $this->_log->debug(sprintf('Generator run failed with errors: %s', json_encode($generator->getErrors())));
+            } catch (Exception $e) {
+                $this->_log->_debugEnabled && $this->_log->debug(sprintf('Generator run failed with exception "%s" and following errors: %s', $e->getMessage(), json_encode($generator->getErrors())));
+                throw $e;
             }
 
             // If there were errors log them
