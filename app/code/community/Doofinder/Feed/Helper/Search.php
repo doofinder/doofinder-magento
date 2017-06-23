@@ -68,11 +68,11 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
         } catch (\Doofinder\Api\Search\Error $e) {
             $results = null;
             Mage::logException($e);
-        } finally {
-            // Store objects
-            $this->_lastSearch = $client;
-            $this->_lastResults = $results;
         }
+        
+        // Store objects
+        $this->_lastSearch = $client;
+        $this->_lastResults = $results;
 
         return $results ? $this->retrieveIds($results) : array();
     }
