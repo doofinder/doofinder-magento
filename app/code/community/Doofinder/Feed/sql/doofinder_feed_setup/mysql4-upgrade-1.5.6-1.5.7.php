@@ -13,7 +13,9 @@ $collection = Mage::getModel('cron/schedule')->getCollection()
     ->addFieldToFilter('job_code', Doofinder_Feed_Helper_Data::JOB_CODE);
 
 foreach ($collection->getItems() as $item) {
+    // @codingStandardsIgnoreStart
     $item->delete();
+    // @codingStandardsIgnoreEnd
 }
 
 $installer->endSetup();

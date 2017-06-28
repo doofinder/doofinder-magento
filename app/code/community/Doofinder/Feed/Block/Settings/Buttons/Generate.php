@@ -35,7 +35,11 @@ class Doofinder_Feed_Block_Settings_Buttons_Generate extends Mage_Adminhtml_Bloc
                     ->setType('button')
                     ->setClass('generate-feed')
                     ->setLabel('Start Feed Generation Now')
-                    ->setOnClick("confirm('No changes will be saved, feed will be rescheduled (if there\'s a process running it will be stopped and the feed will be reset). Do you want to proceed?') && generateFeed()")
+                    ->setOnClick(
+                        "confirm('No changes will be saved, feed will be rescheduled " .
+                        "(if there\'s a process running it will be stopped and the feed " .
+                        "will be reset). Do you want to proceed?') && generateFeed()"
+                    )
                     ->setAfterHtml($script)
                     ->toHtml();
         return $html;

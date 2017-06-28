@@ -8,7 +8,8 @@
  * @package    Doofinder_Feed
  * @version    1.8.10
  */
-
-class Doofinder_Feed_Model_Resource_Mysql4_Setup extends Mage_Core_Model_Resource_Setup {
-
+// @codingStandardsIgnoreStart
+class Doofinder_Feed_Model_Resource_Mysql4_Setup extends Mage_Core_Model_Resource_Setup
+{
+// @codingStandardsIgnoreEnd
 }

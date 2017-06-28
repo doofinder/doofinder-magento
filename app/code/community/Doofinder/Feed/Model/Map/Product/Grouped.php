@@ -25,7 +25,6 @@ class Doofinder_Feed_Model_Map_Product_Grouped
      */
     public function getPrice()
     {
-        // $price = $this->calcGroupPrice($this->getProduct());
         $price = $this->getMinPrice($this->getProduct());
 
         if ($price <= 0)
@@ -37,9 +36,9 @@ class Doofinder_Feed_Model_Map_Product_Grouped
     public function calcGroupPrice($product)
     {
         $price = 0.0;
-        $ap = $product->getTypeInstance()->getAssociatedProducts();
+        $associates = $product->getTypeInstance()->getAssociatedProducts();
 
-        foreach ($ap as $associatedProduct)
+        foreach ($associates as $associatedProduct)
             $price += $associatedProduct->getPrice();
 
         return $price; // Total price
@@ -49,14 +48,13 @@ class Doofinder_Feed_Model_Map_Product_Grouped
     {
         $price = null;
 
-        foreach ($product->getTypeInstance()->getAssociatedProducts() as $ap)
-        {
-            if (is_null($price))
+        foreach ($product->getTypeInstance()->getAssociatedProducts() as $ap) {
+            if ($price === null)
                 $price = $ap->getPrice();
             else
                 $price = min($price, $ap->getPrice());
         }
 
-        return is_null($price) ? 0.0 : $price;
+        return $price === null ? 0.0 : $price;
     }
 }

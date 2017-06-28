@@ -35,13 +35,14 @@ class Doofinder_Feed_Block_Settings_Panel_Message extends Mage_Adminhtml_Block_S
                         break;
 
                     case 'message':
-                        $msg = Mage::helper('doofinder_feed')->__('Process not created yet, it will be created automatically by cron job');
+                        $msg = Mage::helper('doofinder_feed')->__(
+                            'Process not created yet, it will be created automatically by cron job'
+                        );
                         break;
 
                     default:
                         $msg = '';
                 }
-
             } else {
                 $msg = $process->getData($field);
             }
@@ -56,11 +57,12 @@ class Doofinder_Feed_Block_Settings_Panel_Message extends Mage_Adminhtml_Block_S
 
             $html = "<p class='{$class}'>{$msg}</p>";
         }
+
         return $html;
     }
 
-    private function _getField($name = null) {
-
+    protected function _getField($name = null)
+    {
         $pattern = '/groups\[panel\]\[fields\]\[([a-z_-]*)\]\[value\]/';
         $preg = preg_match($pattern, $name, $match);
         if ($preg && isset($match[1])) {

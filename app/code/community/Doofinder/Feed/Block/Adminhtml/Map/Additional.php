@@ -32,13 +32,14 @@ class Doofinder_Feed_Block_Adminhtml_Map_Additional extends Mage_Adminhtml_Block
 
         $html .= '<table>';
         $html .= '<thead><tr>';
-        $html .= '<th>' . $this->__('Label') . '</th><th>' . $this->__('Field') . '</th><th>' . $this->__('Attribute') . '</th>';
+        $html .= '<th>' . $this->__('Label') . '</th>';
+        $html .= '<th>' . $this->__('Field') . '</th><th>' . $this->__('Attribute') . '</th>';
         $html .= '</tr></thead>';
         $html .= '<tbody id="doofinder_feed_additional_mapping_container">';
 
         $count = 0;
         if ($this->_getValue('additional_mapping')) {
-            foreach ($this->_getValue('additional_mapping') as $i => $f) {
+            for ($i = count($this->_getValue('additional_mapping')); $i > 0; $i--) {
                 $html .= $this->_getRowTemplateHtml($count++);
             }
         }
@@ -46,23 +47,25 @@ class Doofinder_Feed_Block_Adminhtml_Map_Additional extends Mage_Adminhtml_Block
         $html .= '</tbody></table>';
         $html .= $this->_getAddRowButtonHtml();
 
-        $html .= '<script type="text/javascript">';
-        ob_start();
-        ?>
-            var DoofinderFeedMapAdditionalRowGenerator = function() {
-                this.count = <?php print $count; ?>;
-            };
+        $html .= "<script type=\"text/javascript\">
+                    var DoofinderFeedMapAdditionalRowGenerator = function() {
+                      this.count = $count;
+                    };
 
-            DoofinderFeedMapAdditionalRowGenerator.prototype.add = function() {
-                var html = $('doofinder_feed_additional_mapping_template').innerHTML;
-                html = html.replace(/\[additional_mapping\]\[-1\]/g, '[additional_mapping][' + (this.count++) + ']');
-                Element.insert($('doofinder_feed_additional_mapping_container'), {bottom: html});
-            };
+                    DoofinderFeedMapAdditionalRowGenerator.prototype.add = function() {
+                      var html = $('doofinder_feed_additional_mapping_template').innerHTML;
+                      html = html.replace(
+                        /\[additional_mapping\]\[-1\]/g,
+                        '[additional_mapping][' + (this.count++) + ']'
+                      );
+                      Element.insert(
+                        $('doofinder_feed_additional_mapping_container'),
+                        {bottom: html}
+                      );
+                    };
 
-            var doofinderFeedMapAdditionalRowGenerator = new DoofinderFeedMapAdditionalRowGenerator();
-        <?php
-        $html .= ob_get_clean();
-        $html .= '</script>';
+                    var doofinderFeedMapAdditionalRowGenerator = new DoofinderFeedMapAdditionalRowGenerator();
+                 </script>";
 
         return $html;
     }
@@ -88,11 +91,17 @@ class Doofinder_Feed_Block_Adminhtml_Map_Additional extends Mage_Adminhtml_Block
             . $this->getElement()->getName() . '[additional_mapping][' . $rowIndex . '][field]" value="'
             . $value['field'] . '" ' . $this->_getDisabled() . '/> ';
         $html .= '</td><td>';
-        $html .= '<select name="'
-            . $this->getElement()->getName() . '[additional_mapping][' . $rowIndex . '][attribute]" ' . $this->_getDisabled() . '>';
-        foreach (Mage::getSingleton('doofinder_feed/system_config_source_product_attributes')->toOptionArray() as $key => $label) {
-            $html .= '<option value="' . $key . '"'. ($value['attribute'] == $key ? 'selected="selected"' : '') . '>' . $label . '</option>';
+        $html .= '<select name="' . $this->getElement()->getName();
+        $html .= '[additional_mapping][' . $rowIndex . '][attribute]" ';
+        $html .= $this->_getDisabled() . '>';
+
+        $attributes = Mage::getSingleton('doofinder_feed/system_config_source_product_attributes');
+        foreach ($attributes->toOptionArray() as $key => $label) {
+            $html .= '<option value="' . $key . '"';
+            $html .= ($value['attribute'] == $key ? 'selected="selected"' : '');
+            $html .= '>' . $label . '</option>';
         }
+
         $html .= '</select> ';
         $html .= '</td><td>';
         $html .= $this->_getRemoveRowButtonHtml();
@@ -136,13 +145,16 @@ class Doofinder_Feed_Block_Adminhtml_Map_Additional extends Mage_Adminhtml_Block
                 ->setDisabled($this->_getDisabled())
                 ->toHtml();
         }
+
         return $this->_addRowButtonHtml[$container];
     }
 
     protected function _getRemoveRowButtonHtml()
     {
         if (!$this->_removeRowButtonHtml) {
+            // @codingStandardsIgnoreStart
             $_cssClass = 'delete v-middle';
+            // @codingStandardsIgnoreEnd
 
             if (version_compare(Mage::getVersion(), '1.6', '<')) {
                 $_cssClass .= ' ' . $this->_getDisabled();
@@ -156,6 +168,7 @@ class Doofinder_Feed_Block_Adminhtml_Map_Additional extends Mage_Adminhtml_Block
                 ->setDisabled($this->_getDisabled())
                 ->toHtml();
         }
+
         return $this->_removeRowButtonHtml;
     }
 }

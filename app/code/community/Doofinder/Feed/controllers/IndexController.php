@@ -22,10 +22,16 @@ class Doofinder_Feed_IndexController extends Mage_Core_Controller_Front_Action
         $this->_redirect('/');
     }
 
-    public function testAction() {
+    /**
+     * @SuppressWarnings(PHPMD)
+     */
+    public function testAction()
+    {
         $allStores = Mage::app()->getStores();
         foreach ($allStores as $store) {
+            // @codingStandardsIgnoreStart
             var_dump($store->getCode());
+            // @codingStandardsIgnoreEnd
         }
 
     }
