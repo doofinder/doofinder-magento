@@ -98,13 +98,7 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
             ->where('val.attribute_id = ?', $attributeId);
         // @codingStandardsIgnoreEnd
 
-        $value = $this->getConnRead()->fetchCol($query);
-        if (is_array($value) && (!isset($value[0]) || $value[0] === null))
-            $value = null;
-        elseif (is_array($value) && isset($value[0]))
-            $value = $value[0];
-        else if (is_array($value) && count($value) == 0)
-            $value = null;
+        $value = $this->getValueFromQuery($query);
 
         if ($value === null && $storeId != Mage_Core_Model_App::ADMIN_STORE_ID && $strict === false) {
             return $this->getProductAttributeValueBySql(
@@ -206,13 +200,7 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
             ->where('opt.store_id = ?', $storeId);
         // @codingStandardsIgnoreEnd
 
-        $value = $this->getConnRead()->fetchCol($query);
-        if (is_array($value) && (!isset($value[0]) || $value[0] === null))
-            $value = null;
-        elseif (is_array($value) && isset($value[0]))
-            $value = $value[0];
-        else if (is_array($value) && count($value) == 0)
-            $value = null;
+        $value = $this->getValueFromQuery($query);
 
         if ($value === null && $storeId != Mage_Core_Model_App::ADMIN_STORE_ID && $strict === false) {
             return $this->getProductAttributeSelectValue(
@@ -475,5 +463,21 @@ class Doofinder_Feed_Model_Tools extends Varien_Object
 
             return "Unknown";
         }
+    }
+
+    /**
+     * Get value from query
+     */
+    protected function getValueFromQuery($query)
+    {
+        $value = $this->getConnRead()->fetchCol($query);
+        if (is_array($value) && (!isset($value[0]) || $value[0] === null))
+            $value = null;
+        elseif (is_array($value) && isset($value[0]))
+            $value = $value[0];
+        else if (is_array($value) && count($value) == 0)
+            $value = null;
+
+        return $value;
     }
 }
