@@ -1,0 +1,15 @@
+# behat.yml
+default:
+  autoload:
+    '': %paths.base%/bootstrap
+  extensions:
+    Behat\MinkExtension:
+      base_url: http://localhost
+      browser_name: chrome
+      goutte: ~
+      default_session: goutte
+      files_path: %paths.base%/files
+  suites:
+    default:
+      paths:
+        - %paths.base%/features
