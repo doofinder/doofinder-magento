@@ -64,12 +64,15 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
         $client = new \Doofinder\Api\Search\Client($hashId, $apiKey);
 
         try {
-            $results = $client->query($queryText, null, ['rpp' => $limit, 'transformer' => 'onlyid', 'filter' => []]);
+            $queryArgs = array('rpp' => $limit, 'transformer' => 'onlyid', 'filter' => array());
+            // @codingStandardsIgnoreStart
+            $results = $client->query($queryText, null, $queryArgs);
+            // @codingStandardsIgnoreEnd
         } catch (\Doofinder\Api\Search\Error $e) {
             $results = null;
             Mage::logException($e);
         }
-        
+
         // Store objects
         $this->_lastSearch = $client;
         $this->_lastResults = $results;
@@ -85,7 +88,7 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
      */
     protected function retrieveIds(\Doofinder\Api\Search\Results $results)
     {
-        $ids = [];
+        $ids = array();
         foreach ($results->getResults() as $result) {
             $ids[] = $result['id'];
         }
@@ -133,13 +136,13 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
     public function getDoofinderSearchEngine($storeCode)
     {
         if ($this->_searchEngines === null) {
-            $this->_searchEngines = [];
+            $this->_searchEngines = array();
 
             // Create DoofinderManagementApi instance
             $this->loadDoofinderLibrary();
-            $doofinderManagementApi = new \Doofinder\Api\Management\Client($this->getApiKey($storeCode));
+            $api = new \Doofinder\Api\Management\Client($this->getApiKey($storeCode));
 
-            foreach ($doofinderManagementApi->getSearchEngines() as $searchEngine) {
+            foreach ($api->getSearchEngines() as $searchEngine) {
                 $this->_searchEngines[$searchEngine->hashid] = $searchEngine;
             }
         }
@@ -171,8 +174,10 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
         $classPath = str_replace('\\', '/', substr($className, $len)) . '.php';
         $file = $libraryDirectory . $classPath;
 
+        // @codingStandardsIgnoreStart
         if (file_exists($file)) {
             require $file;
         }
+        // @codingStandardsIgnoreEnd
     }
 }

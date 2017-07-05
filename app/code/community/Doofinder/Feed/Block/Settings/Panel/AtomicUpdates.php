@@ -6,7 +6,7 @@
 /**
  * @category   blocks
  * @package    Doofinder_Feed
- * @version    1.8.10
+ * @version    1.8.11
  */
 
 class Doofinder_Feed_Block_Settings_Panel_AtomicUpdates extends Mage_Adminhtml_Block_System_Config_Form_Field
@@ -22,13 +22,23 @@ class Doofinder_Feed_Block_Settings_Panel_AtomicUpdates extends Mage_Adminhtml_B
         $messages = array();
         foreach (Mage::app()->getStores() as $store) {
             if ($store->getIsActive()) {
-                $engineEnabled = Mage::getStoreConfig('doofinder_search/internal_settings/enable', $store->getCode());
-                $atomicUpdatesEnabled = Mage::getStoreConfig('doofinder_cron/feed_settings/atomic_updates_enabled', $store->getCode());
+                $engineEnabled = Mage::getStoreConfig(
+                    'doofinder_search/internal_settings/enable',
+                    $store->getCode()
+                );
+                $atomicUpdatesEnabled = Mage::getStoreConfig(
+                    'doofinder_cron/feed_settings/atomic_updates_enabled',
+                    $store->getCode()
+                );
 
                 if (!$engineEnabled || !$atomicUpdatesEnabled) {
                     $message = $helper->__('Atomic updates are <strong>disabled</strong>.');
                 } else {
-                    $message = $helper->__('Atomic updates are <strong>enabled</strong>. Your products will be automatically indexed when they are created, updated or deleted.');
+                    $message = $helper->__(
+                        'Atomic updates are <strong>enabled</strong>. ' .
+                        'Your products will be automatically indexed when ' .
+                        'they are created, updated or deleted.'
+                    );
                 }
 
                 $messages[$store->getName()] = $message;
@@ -43,6 +53,7 @@ class Doofinder_Feed_Block_Settings_Panel_AtomicUpdates extends Mage_Adminhtml_B
         foreach ($messages as $name => $message) {
             $html .= '<li><strong>' . $name . ':</strong><p>' . $message . '</p></li>';
         }
+
         $html .= '</ul>';
 
         return $html;

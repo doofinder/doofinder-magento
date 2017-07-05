@@ -20,7 +20,7 @@
 }
 
 #row_doofinder_cron_schedule_settings_time .df-separator:before {
-    content: " : "
+    content: " : ";
 }
 
 #row_doofinder_search_layer_settings_script textarea {
@@ -34,7 +34,7 @@
 .doofinder-warning {
   padding: 10px;
   border: 1px solid transparent;
-  font-size: .95em !important;
+  font-size: 0.95em !important;
 }
 
 .doofinder-info {
@@ -44,7 +44,7 @@
 }
 
 .doofinder-warning {
-    border-color: #EEE2BE;
-    background-color: #FFF9E9;
-    color: #5A4421;
+    border-color: #eee2be;
+    background-color: #fff9e9;
+    color: #5a4421;
 }

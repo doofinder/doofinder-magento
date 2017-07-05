@@ -6,10 +6,14 @@
 /**
  * @category   blocks
  * @package    Doofinder_Feed
- * @version    1.8.10
+ * @version    1.8.11
  */
 
 class Doofinder_Feed_Block_Settings_Panel_CronDescription extends Doofinder_Feed_Block_Settings_Panel_Description
 {
-  protected $description = 'THIS FEATURE IS CURRENTLY IN BETA.<br>Feeds can be generated directly in your server to save computer resources. See <a href="http://www.doofinder.com/support/topics/plugins/magento">this article</a> for more information.';
+  protected $_description = 'THIS FEATURE IS CURRENTLY IN BETA.<br>' .
+                            'Feeds can be generated directly in your ' .
+                            'server to save computer resources. ' .
+                            'See <a href="http://www.doofinder.com/support/topics/plugins/magento">' .
+                            'this article</a> for more information.';
 }

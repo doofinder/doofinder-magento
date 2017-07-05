@@ -6,7 +6,7 @@
 /**
  * @category   blocks
  * @package    Doofinder_Feed
- * @version    1.8.10
+ * @version    1.8.11
  */
 
 class Doofinder_Feed_Block_Settings_Panel_Datetime extends Mage_Adminhtml_Block_System_Config_Form_Field
@@ -25,18 +25,23 @@ class Doofinder_Feed_Block_Settings_Panel_Datetime extends Mage_Adminhtml_Block_
                 $msg = $datetime;
 
                 try {
-                    $dateTimestamp = Mage::getModel('core/date')->timestamp(strtotime($datetime));
-                    $msg = Mage::helper('core')->formatDate(date('Y-m-d  H:i:s', $dateTimestamp), null, true);
-                } catch (Exception $e) {}
+                    // @codingStandardsIgnoreStart
+                    $date = Mage::getSingleton('core/date')->date(null, $datetime);
+                    // @codingStandardsIgnoreEnd
+                    $msg = Mage::helper('core')->formatDate($date, null, true);
+                } catch (Exception $e) {
+                    Mage::logException($e);
+                }
 
                 $class = 'feed-datetime';
                 $html = "<p class='{$class}'>{$msg}</p>";
             }
         }
+
         return $html;
     }
 
-    private function _getField($name = null)
+    protected function _getField($name = null)
     {
         $pattern = '/groups\[panel\]\[fields\]\[([a-z_-]*)\]\[value\]/';
         $preg = preg_match($pattern, $name, $match);

@@ -6,27 +6,17 @@
 /**
  * @category   Helpers
  * @package    Doofinder_Feed
- * @version    1.8.10
+ * @version    1.8.11
  */
 
 /**
  * Data helper for Doofinder Feed
  *
- * @version    1.8.10
+ * @version    1.8.11
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 {
-    private $store = null;
-
-    private $currencyConvert = false;
-
-    private $useMinimalPrice = false;
-
-    private $groupConfigurables = true;
-
-    private $minTierPrice = null;
-
     const CRON_DAILY     =    Mage_Adminhtml_Model_System_Config_Source_Cron_Frequency::CRON_DAILY;
     const CRON_WEEKLY    =    Mage_Adminhtml_Model_System_Config_Source_Cron_Frequency::CRON_WEEKLY;
     const CRON_MONTHLY   =    Mage_Adminhtml_Model_System_Config_Source_Cron_Frequency::CRON_MONTHLY;
@@ -88,7 +78,8 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
      * @param boolean $withPassword = true
      * @return array
      */
-    public function getStoreConfig($storeCode = '', $withPassword = true) {
+    public function getStoreConfig($storeCode = '', $withPassword = true)
+    {
         $xmlName = Mage::getStoreConfig('doofinder_cron/schedule_settings/name', $storeCode);
         $config = array(
             'enabled'   =>  Mage::getStoreConfig('doofinder_cron/schedule_settings/enabled', $storeCode),
@@ -113,7 +104,8 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
      * @param string|boolean $password = true
      * @return bool
      */
-    private function _processXmlName($name = 'doofinder-{store_code}.xml', $code = 'default', $password = true) {
+    protected function _processXmlName($name = 'doofinder-{store_code}.xml', $code = 'default', $password = true)
+    {
         $pattern = '/\{\s*store_code\s*\}/';
 
         if ($password === true) {
@@ -121,7 +113,7 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         $replacement = $code;
-        if ($password && strlen($password)) {
+        if ($password) {
             $replacement .= '-' . $password;
         }
 
@@ -136,7 +128,8 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
      * @param string $oldPassword
      * @param string $newPassword
      */
-    public function changeXmlPassword($storeCode, $oldPassword, $newPassword) {
+    public function changeXmlPassword($storeCode, $oldPassword, $newPassword)
+    {
         $xmlName = Mage::getStoreConfig('doofinder_cron/schedule_settings/name', $storeCode);
         $dir = $this->getFeedDirectory();
 
@@ -144,13 +137,16 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         $newFilename = $this->_processXmlName($xmlName, $storeCode, $newPassword);
         $newFilepath = $dir . DS . $newFilename;
 
-        if (file_exists($oldFilepath)) {
-            if (!file_exists($newFilepath) && !rename($oldFilepath, $newFilepath)) {
-                throw new \Magento\Framework\Exception\LocalizedException(__(
-                    'Feed file could not be renamed accordingly to new %s value because file permission issues or file with name %s already exists.',
+        $fileIo = new Varien_Io_File();
+        if ($fileIo->fileExists($oldFilepath)) {
+            if (!$fileIo->fileExists($newFilepath) && !$fileIo->mv($oldFilepath, $newFilepath)) {
+                $msg = __(
+                    'Feed file could not be renamed accordingly to new %s ' .
+                    'value because file permission issues or file with name %s already exists.',
                     $this->getData('field_config/label'),
                     $newFilename
-                ));
+                );
+                throw new \Magento\Framework\Exception\LocalizedException($msg);
             }
 
             $process = Mage::getModel('doofinder_feed/cron')->load($storeCode, 'store_code');
@@ -163,44 +159,32 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Create cron expr string
-     * @param string $time
-     * @return mixed
-     */
-    private function _getCronExpr($time = null, $frequency = null) {
-
-        if (!$time) return false;
-        $time = explode(',', $time);
-
-        $cronExprArray = array(
-            intval($time[1]),
-            intval($time[0]),
-            ($frequency == self::CRON_MONTHLY) ? '1' : '*',
-            '*',
-            ($frequency == self::CRON_WEEKLY) ? '1' : '*',
-        );
-        $cronExprString = join(' ', $cronExprArray);
-
-        return $cronExprString;
-    }
-
-    /**
      * Creates new schedule entry.
      * @param Doofinder_Feed_Model_Cron $process
      */
-
-    public function createNewSchedule(Doofinder_Feed_Model_Cron $process) {
+    public function createNewSchedule(Doofinder_Feed_Model_Cron $process)
+    {
         $helper = Mage::helper('doofinder_feed');
+        $date = Mage::getSingleton('core/date');
 
         $config = $helper->getStoreConfig($process->getStoreCode());
 
         // Set new schedule time
-        $delayInMin = intval($config['stepDelay']);
-        $timescheduled = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i") + $delayInMin, date("s"), date("m"), date("d"), date("Y")));
+        $delayInMin = (int) $config['stepDelay'];
+        // @codingStandardsIgnoreStart
+        $timestamp = mktime(
+            $date->date("H"),
+            $date->date("i") + $delayInMin,
+            $date->date("s"),
+            $date->date("m"),
+            $date->date("d"),
+            $date->date("Y")
+        );
+        $timescheduled = $date->date(null,  $timestamp);
+        // @codingStandardsIgnoreEnd
 
         // Prepare new process data
         $status = $helper::STATUS_RUNNING;
-        $nextRun = '-';
 
         // Set process data and save
         $process->setStatus($status)
@@ -208,14 +192,22 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
             ->setNextIteration($timescheduled)
             ->save();
 
-        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Scheduling the next step for %s', $timescheduled));
+        Mage::helper('doofinder_feed/log')->log(
+            $process,
+            Doofinder_Feed_Helper_Log::STATUS,
+            $helper->__('Scheduling the next step for %s', $timescheduled)
+        );
     }
 
-    public function getScheduledAt($time = null, $frequency = null, $timezoneOffset = true) {
-        $parts = array($time[0], $time[1], $time[2], date('m'), date('d'));
+    public function getScheduledAt($time = null, $frequency = null, $timezoneOffset = true)
+    {
+        $date = Mage::getSingleton('core/date');
+        // @codingStandardsIgnoreStart
+        $parts = array($time[0], $time[1], $time[2], $date->date('m'), $date->date('d'));
+        // @codingStandardsIgnoreEnd
         $offset = $this->getTimezoneOffset();
 
-        $now = time();
+        $now = $date->timestamp();
         $start = mktime($parts[0] - $offset, $parts[1], $parts[2], $parts[3], $parts[4]);
 
         if ($start < $now) {
@@ -238,15 +230,20 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
             $parts[0] -= $offset;
         }
 
-        return strftime("%Y-%m-%d %H:%M:%S", mktime($parts[0], $parts[1], $parts[2], $parts[3], $parts[4]));
+        // @codingStandardsIgnoreStart
+        return $date->date(null, mktime($parts[0], $parts[1], $parts[2], $parts[3], $parts[4]));
+        // @codingStandardsIgnoreEnd
     }
 
-    public function getTimezoneOffset() {
+    public function getTimezoneOffset()
+    {
         $timezone = Mage::getStoreConfig('general/locale/timezone');
         $backTimezone = date_default_timezone_get();
         // Set relative timezone
         date_default_timezone_set($timezone);
-        $offset = (date('Z') / 60 / 60);
+        // @codingStandardsIgnoreStart
+        $offset = (Mage::getSingleton('core/date')->date('Z') / 60 / 60);
+        // @codingStandardsIgnoreEnd
         // Revoke server timezone
         date_default_timezone_set($backTimezone);
         return $offset;
@@ -303,10 +300,7 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
     public function createFeedDirectory()
     {
         $dir = $this->getFeedDirectory();
-
-        if ((!file_exists($dir) && !mkdir($dir, 0777, true)) || !is_dir($dir)) {
-           Mage::throwException('Could not create directory: '.$dir);
-        }
+        (new Varien_Io_File())->checkAndCreateFolder($dir, 0777);
 
         return true;
     }

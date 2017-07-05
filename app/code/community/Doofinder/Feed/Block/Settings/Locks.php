@@ -6,7 +6,7 @@
 /**
  * @category   blocks
  * @package    Doofinder_Feed
- * @version    1.8.10
+ * @version    1.8.11
  */
 
 class Doofinder_Feed_Block_Settings_Locks extends Mage_Adminhtml_Block_System_Config_Form_Field
@@ -22,15 +22,14 @@ class Doofinder_Feed_Block_Settings_Locks extends Mage_Adminhtml_Block_System_Co
         $helper = Mage::helper('doofinder_feed');
 
         $this->setElement($element);
-        $name = $element->getName();
         $element->setScopeLabel('');
 
-        $store_code = Mage::app()->getRequest()->getParam('store');
+        $storeCode = Mage::app()->getRequest()->getParam('store');
 
         $stores = array();
 
-        if ($store_code) {
-            $stores[$store_code] = Mage::getModel('core/store')->load($store_code);
+        if ($storeCode) {
+            $stores[$storeCode] = Mage::getModel('core/store')->load($storeCode);
         } else {
             foreach (Mage::app()->getStores() as $store) {
                 if ($store->getIsActive()) {
@@ -42,12 +41,15 @@ class Doofinder_Feed_Block_Settings_Locks extends Mage_Adminhtml_Block_System_Co
         $locks = array();
 
         foreach ($stores as $store) {
-            if (file_exists($helper->getFeedLockPath($store->getCode()))) {
+            if ((new Varien_Io_File())->fileExists($helper->getFeedLockPath($store->getCode()))) {
                 $msg = $this->getLayout()->createBlock('adminhtml/widget_button')
                     ->setType('button')
                     ->setClass('remove-lock')
                     ->setLabel($helper->__('Remove lock'))
-                    ->setOnClick("confirm('Removing lock file may cause inconsistencies in generated feed. Proceed?') && removeFeedLock('" . $store->getCode() . "')")
+                    ->setOnClick(
+                        'confirm(\'Removing lock file may cause inconsistencies in generated feed. Proceed?\') ' .
+                        ' && removeFeedLock(\'' . $store->getCode() . '\')'
+                    )
                     ->toHtml();
             } else {
                 $msg = $helper->__('Lock file for store <em>%s</em> does not exist.', $store->getCode());
@@ -63,6 +65,7 @@ class Doofinder_Feed_Block_Settings_Locks extends Mage_Adminhtml_Block_System_Co
             foreach ($locks as $code => $file) {
                 $html .= '<li><b>' . $stores[$code]->getName() . ':</b><div>' . $file . '</div></li>';
             }
+
             $html .= '</ul>';
         } else {
             $html .= reset($locks);

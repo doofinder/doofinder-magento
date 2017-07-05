@@ -6,7 +6,7 @@
 /**
  * @category   blocks
  * @package    Doofinder_Feed
- * @version    1.8.10
+ * @version    1.8.11
  */
 
 class Doofinder_Feed_Block_Settings_Panel_DynamicFeedUrl extends Mage_Adminhtml_Block_System_Config_Form_Field
@@ -16,7 +16,6 @@ class Doofinder_Feed_Block_Settings_Panel_DynamicFeedUrl extends Mage_Adminhtml_
         $helper = Mage::helper('doofinder_feed');
 
         $this->setElement($element);
-        $name = $element->getName();
         $element->setScopeLabel('');
 
         $html = '<ul>';
@@ -34,9 +33,14 @@ class Doofinder_Feed_Block_Settings_Panel_DynamicFeedUrl extends Mage_Adminhtml_
                 $html .= '<li><strong>' . $store->getName() . ':</strong><p>' . $anchor . '</p></li>';
             }
         }
+
         $html .= '</ul>';
         $html .= '<p>';
-        $html .= $helper->__('If cron feed doesn\'t work for you, use these URLs to dynamically index your content from Doofinder. Contact support if you need help.');
+        $html .= $helper->__(
+            'If cron feed doesn\'t work for you, use these URLs to ' .
+            'dynamically index your content from Doofinder. ' .
+            'Contact support if you need help.'
+        );
         $html .= '</p>';
 
         return $html;

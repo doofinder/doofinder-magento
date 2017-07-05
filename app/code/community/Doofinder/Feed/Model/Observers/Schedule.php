@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.10
+ * @version    1.8.11
  */
 
 class Doofinder_Feed_Model_Observers_Schedule
@@ -68,22 +68,10 @@ class Doofinder_Feed_Model_Observers_Schedule
      * @param string $storeCode
      * @return Doofinder_Feed_Model_Cron
      */
-    private function _getProcessByStoreCode($storeCode = 'default')
+    protected function _getProcessByStoreCode($storeCode = 'default')
     {
         $process = Mage::getModel('doofinder_feed/cron')->load($storeCode, 'store_code');
         return $process->getId() ? $process : null;
-    }
-
-    /**
-     * Checks if process is registered in doofinder cron table
-     *
-     * @param string $storeCode
-     * @return bool
-     */
-    private function _isProcessRegistered($storeCode = 'default')
-    {
-        $process = $this->_getProcessByStoreCode($storeCode);
-        return $process ? true : false;
     }
 
     /**
@@ -91,6 +79,7 @@ class Doofinder_Feed_Model_Observers_Schedule
      * If process does not exits - create it.
      * Reschedule the process if it needs it.
      *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @param Doofinder_Feed_Model_Cron $process
      * @param boolean $reset
      * @param boolean $now
@@ -102,10 +91,17 @@ class Doofinder_Feed_Model_Observers_Schedule
         $helper = Mage::helper('doofinder_feed');
         $config = $helper->getStoreConfig($storeCode);
         $store = Mage::getModel('core/store')->load($storeCode);
+        $date = Mage::getSingleton('core/date');
 
         // Override time if $now is enabled
         if ($now) {
-            $config['time'] = array(date('H') + $helper->getTimezoneOffset(), date('i'), date('s'));
+            $config['time'] = array(
+                // @codingStandardsIgnoreStart
+                $date->date('H') + $helper->getTimezoneOffset(),
+                $date->date('i'),
+                $date->date('s')
+                // @codingStandardsIgnoreEnd
+            );
         }
 
         $isEnabled = (bool) $config['enabled'];
@@ -125,23 +121,33 @@ class Doofinder_Feed_Model_Observers_Schedule
             }
         } else {
             if ($process->getStatus() != $helper::STATUS_DISABLED) {
-
-                Mage::getSingleton('adminhtml/session')->addSuccess($helper->__('Process for store "%s" has been disabled', $store->getName()));
+                Mage::getSingleton('adminhtml/session')->addSuccess(
+                    $helper->__('Process for store "%s" has been disabled', $store->getName())
+                );
                 $this->_removeTmpXml($storeCode);
                 $this->_disableProcess($process);
             }
+
             return $this;
         }
 
         // Do not process the schedule if it has insufficient file permissions
         if (!$this->_checkFeedFilePermission($storeCode)) {
-            Mage::getSingleton('adminhtml/session')->addError($helper->__('Insufficient file permissions for store: %s. Check if the feed file is writeable', $store->getName()));
+            Mage::getSingleton('adminhtml/session')->addError(
+                $helper->__(
+                    'Insufficient file permissions for store: %s. ' .
+                    'Check if the feed file is writeable',
+                    $store->getName()
+                )
+            );
             return $this;
         }
 
         // Reschedule the process if it needs to
         if ($reset || $process->getStatus() == $helper::STATUS_WAITING) {
-            Mage::getSingleton('adminhtml/session')->addSuccess($helper->__('Process for store "%s" has been rescheduled', $store->getName()));
+            Mage::getSingleton('adminhtml/session')->addSuccess(
+                $helper->__('Process for store "%s" has been rescheduled', $store->getName())
+            );
             $this->_removeTmpXml($storeCode);
             $this->_rescheduleProcess($config, $process);
         }
@@ -152,7 +158,7 @@ class Doofinder_Feed_Model_Observers_Schedule
      *
      * @return Doofinder_Feed_Model_Cron
      */
-    private function _registerProcess($storeCode = 'default')
+    protected function _registerProcess($storeCode = 'default')
     {
         $helper = Mage::helper('doofinder_feed');
         $config = $helper->getStoreConfig($storeCode);
@@ -171,7 +177,11 @@ class Doofinder_Feed_Model_Observers_Schedule
         );
         $process = Mage::getModel('doofinder_feed/cron')->setData($data)->save();
 
-        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Process has been registered'));
+        Mage::helper('doofinder_feed/log')->log(
+            $process,
+            Doofinder_Feed_Helper_Log::STATUS,
+            $helper->__('Process has been registered')
+        );
 
         return $process;
     }
@@ -181,11 +191,15 @@ class Doofinder_Feed_Model_Observers_Schedule
      *
      * @param Doofinder_Feed_Model_Cron $process
      */
-    private function _enableProcess(Doofinder_Feed_Model_Cron $process)
+    protected function _enableProcess(Doofinder_Feed_Model_Cron $process)
     {
         $helper = Mage::helper('doofinder_feed');
         $process->setStatus($helper::STATUS_WAITING)->save();
-        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Process has been enabled'));
+        Mage::helper('doofinder_feed/log')->log(
+            $process,
+            Doofinder_Feed_Helper_Log::STATUS,
+            $helper->__('Process has been enabled')
+        );
     }
 
     /**
@@ -193,11 +207,15 @@ class Doofinder_Feed_Model_Observers_Schedule
      *
      * @param Doofinder_Feed_Model_Cron $process
      */
-    private function _disableProcess(Doofinder_Feed_Model_Cron $process)
+    protected function _disableProcess(Doofinder_Feed_Model_Cron $process)
     {
         $helper = Mage::helper('doofinder_feed');
         $process->setStatus($helper::STATUS_DISABLED)->save();
-        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Process has been disabled'));
+        Mage::helper('doofinder_feed/log')->log(
+            $process,
+            Doofinder_Feed_Helper_Log::STATUS,
+            $helper->__('Process has been disabled')
+        );
     }
 
     /**
@@ -206,21 +224,26 @@ class Doofinder_Feed_Model_Observers_Schedule
      * @param string $store_code
      * @return bool
      */
-    private function _removeTmpXml($store_code = null)
+    protected function _removeTmpXml($storeCode = null)
     {
-        if (empty($store_code)) {
+        if (empty($storeCode)) {
             return false;
         }
+
         $helper = Mage::helper('doofinder_feed');
-        $config = $helper->getStoreConfig($store_code);
+        $config = $helper->getStoreConfig($storeCode);
         $filePath = Mage::getBaseDir('media').DS.'doofinder'.DS.$config['xmlName'].'.tmp';
-        if (file_exists($filePath)) {
-            $success = unlink($filePath);
+        $fileIo = new Varien_Io_File();
+        if ($fileIo->fileExists($filePath)) {
+            $success = $fileIo->rm($filePath);
             if ($success) {
                 Mage::getSingleton('core/session')->addSuccess("Temporary xml file: {$filePath} has beed removed.");
                 return true;
             } else {
-                Mage::getSingleton('core/session')->addError("Could not remove {$filePath}; This can lead to some errors. Remove this file manually.");
+                Mage::getSingleton('core/session')->addError(
+                    "Could not remove {$filePath}; This can lead to some errors. " .
+                    "Remove this file manually."
+                );
                 return false;
             }
         }
@@ -247,7 +270,10 @@ class Doofinder_Feed_Model_Observers_Schedule
         $path = $helper->getFeedPath($storeCode);
         $tmpPath = $helper->getFeedTemporaryPath($storeCode);
 
-        return is_writeable($dir) && (!file_exists($path) || is_writeable($path)) && (!file_exists($tmpPath) || is_writeable($tmpPath));
+        $fileIo = new Varien_Io_File();
+        return $fileIo->isWriteable($dir)
+               && (!$fileIo->fileExists($path) || $fileIo->isWriteable($path))
+               && (!$fileIo->fileExists($tmpPath) || $fileIo->isWriteable($tmpPath));
     }
 
     /**
@@ -260,9 +286,7 @@ class Doofinder_Feed_Model_Observers_Schedule
     {
         $helper = Mage::helper('doofinder_feed');
 
-        $timecreated   = strftime("%Y-%m-%d %H:%M:%S",  mktime(date("H"), date("i"), date("s"), date("m"), date("d"), date("Y")));
         $timescheduled = $helper->getScheduledAt($config['time'], $config['frequency']);
-        $jobCode = $helper::JOB_CODE;
 
         $process->setStatus($helper::STATUS_PENDING)
             ->setComplete('0%')
@@ -273,6 +297,10 @@ class Doofinder_Feed_Model_Observers_Schedule
             ->setErrorStack(0)
             ->save();
 
-        Mage::helper('doofinder_feed/log')->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Process has been scheduled'));
+        Mage::helper('doofinder_feed/log')->log(
+            $process,
+            Doofinder_Feed_Helper_Log::STATUS,
+            $helper->__('Process has been scheduled')
+        );
     }
 }

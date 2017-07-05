@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.10
+ * @version    1.8.11
  */
 
 class Doofinder_Feed_Model_System_Config_Source_Feed_Pricetaxmode
@@ -22,10 +22,10 @@ class Doofinder_Feed_Model_System_Config_Source_Feed_Pricetaxmode
      */
     public function toOptionArray()
     {
-        return [
-            ['value' => 0, 'label' => __('Auto')],
-            ['value' => 1, 'label' => __('With Tax')],
-            ['value' => -1, 'label' => __('Without Tax')],
-        ];
+        return array(
+            array('value' => 0, 'label' => __('Auto')),
+            array('value' => 1, 'label' => __('With Tax')),
+            array('value' => -1, 'label' => __('Without Tax')),
+        );
     }
 }

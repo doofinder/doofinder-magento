@@ -6,7 +6,7 @@
 /**
  * @category   blocks
  * @package    Doofinder_Feed
- * @version    1.8.10
+ * @version    1.8.11
  */
 
 class Doofinder_Feed_Block_Integration extends Mage_Core_Block_Abstract
@@ -22,9 +22,13 @@ class Doofinder_Feed_Block_Integration extends Mage_Core_Block_Abstract
         $script = Mage::getStoreConfig('doofinder_search/layer_settings/script', Mage::app()->getStore());
 
         if ($enabled) {
-            $script .= '<script type="text/javascript">';
-            $script .= "if (typeof Varien.searchForm !== 'undefined') Varien.searchForm.prototype.initAutocomplete = function() { $('search_autocomplete').hide(); };";
-            $script .= '</script>';
+            $script .= "<script type=\"text/javascript\">
+                        if (typeof Varien.searchForm !== 'undefined') {
+                          Varien.searchForm.prototype.initAutocomplete = function() {
+                            $('search_autocomplete').hide();
+                          };
+                        }
+                        </script>";
 
             return $script;
         } else {

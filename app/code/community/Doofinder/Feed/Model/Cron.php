@@ -6,18 +6,20 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.10
+ * @version    1.8.11
  */
 
-class Doofinder_Feed_Model_Cron extends Mage_Core_Model_Abstract {
+class Doofinder_Feed_Model_Cron extends Mage_Core_Model_Abstract
+{
 
 
-    protected function _construct() {
+    protected function _construct()
+    {
         $this->_init('doofinder_feed/cron');
-
     }
 
-    public function modeDisabled() {
+    public function modeDisabled()
+    {
         $helper = Mage::helper('doofinder_feed');
         $this->setStatus($helper::STATUS_DISABLED)
             ->setOffset(0)
@@ -28,7 +30,8 @@ class Doofinder_Feed_Model_Cron extends Mage_Core_Model_Abstract {
             ->save();
     }
 
-    public function modeWaiting() {
+    public function modeWaiting()
+    {
         $helper = Mage::helper('doofinder_feed');
         $this->setStatus($helper::STATUS_WAITING)
             ->setMessage($helper::MSG_WAITING)

@@ -6,12 +6,14 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.10
+ * @version    1.8.11
  */
-
-class Doofinder_Feed_Model_Mysql4_Cron extends Mage_Core_Model_Mysql4_Abstract {
-
-    protected function _construct() {
+// @codingStandardsIgnoreStart
+class Doofinder_Feed_Model_Mysql4_Cron extends Mage_Core_Model_Mysql4_Abstract
+{
+// @codingStandardsIgnoreEnd
+    protected function _construct()
+    {
         $this->_init('doofinder_feed/cron', 'id');
     }
 }

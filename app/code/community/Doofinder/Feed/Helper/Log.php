@@ -6,13 +6,13 @@
 /**
  * @category   Helpers
  * @package    Doofinder_Feed
- * @version    1.8.10
+ * @version    1.8.11
  */
 
 /**
  * Log helper for Doofinder Feed
  *
- * @version    1.8.10
+ * @version    1.8.11
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Helper_Log extends Mage_Core_Helper_Abstract
@@ -24,14 +24,14 @@ class Doofinder_Feed_Helper_Log extends Mage_Core_Helper_Abstract
     /**
      * @var boolean
      */
-    public $_debugEnabled;
+    public $debugEnabled;
 
     /**
      * Constructor
      */
-    function __construct()
+    public function __construct()
     {
-        $this->_debugEnabled = Mage::getStoreConfig('doofinder_cron/feed_settings/debug', false);
+        $this->debugEnabled = Mage::getStoreConfig('doofinder_cron/feed_settings/debug', false);
     }
 
     /**
@@ -42,11 +42,11 @@ class Doofinder_Feed_Helper_Log extends Mage_Core_Helper_Abstract
      * @param string $message
      * @param boolean $debug Pass message to debug log
      */
-    function log(Doofinder_Feed_Model_Cron $process, $type, $message, $debug = true)
+    public function log(Doofinder_Feed_Model_Cron $process, $type, $message, $debug = true)
     {
         $debug && $this->debug(sprintf('log(%d, %s) %s', $process->getId(), $type, $message));
 
-        $entry = Mage::getModel('doofinder_feed/log')
+        Mage::getModel('doofinder_feed/log')
             ->setProcessId($process->getId())
             ->setType($type)
             ->setMessage($message)
@@ -60,7 +60,7 @@ class Doofinder_Feed_Helper_Log extends Mage_Core_Helper_Abstract
      *
      * @return array
      */
-    function listLogTypes()
+    public function listLogTypes()
     {
         return array(
             static::STATUS => $this->__('Status'),
@@ -74,9 +74,9 @@ class Doofinder_Feed_Helper_Log extends Mage_Core_Helper_Abstract
      *
      * @param string $msg
      */
-    function debug($msg)
+    public function debug($msg)
     {
-        if (!$this->_debugEnabled) {
+        if (!$this->debugEnabled) {
             return;
         }
 

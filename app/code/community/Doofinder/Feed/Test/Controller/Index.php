@@ -25,9 +25,6 @@ class Doofinder_Feed_Test_Controller_Index extends EcomDev_PHPUnit_Test_Case_Con
     {
         $this->dispatch('doofinder/feed');
         $this->assertRequestRoute('doofinder_feed/feed/index');
-        // var_dump($this->getResponse());
-        // $this->reset;
-        // $this->assertRequestRoute('cms');
     }
 
     /**
@@ -42,6 +39,5 @@ class Doofinder_Feed_Test_Controller_Index extends EcomDev_PHPUnit_Test_Case_Con
     {
         $this->dispatch('doofinder/feed/config');
         $this->assertRequestRoute('doofinder_feed/feed/config');
-        // $this->assertRequestRoute('cms');
     }
 }

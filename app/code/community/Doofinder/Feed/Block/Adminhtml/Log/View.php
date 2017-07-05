@@ -6,7 +6,7 @@
 /**
  * @category   blocks
  * @package    Doofinder_Feed
- * @version    1.8.10
+ * @version    1.8.11
  */
 
 class Doofinder_Feed_Block_Adminhtml_Log_View extends Mage_Adminhtml_Block_Widget_Grid
@@ -28,7 +28,9 @@ class Doofinder_Feed_Block_Adminhtml_Log_View extends Mage_Adminhtml_Block_Widge
         $collection = Mage::getResourceModel('doofinder_feed/log_collection');
 
         if ($this->_processId) {
+            // @codingStandardsIgnoreStart
             $collection->getSelect()->where("process_id = $this->_processId");
+            // @codingStandardsIgnoreEnd
         }
 
         $this->setCollection($collection);
@@ -38,38 +40,53 @@ class Doofinder_Feed_Block_Adminhtml_Log_View extends Mage_Adminhtml_Block_Widge
 
     protected function _prepareColumns()
     {
-        $this->addColumn('id', array(
-            'header'    => Mage::helper('doofinder_feed')->__('ID'),
-            'index'     => 'id',
-            'type'  => 'number',
-        ));
+        $this->addColumn(
+            'id',
+            array(
+                'header'    => Mage::helper('doofinder_feed')->__('ID'),
+                'index'     => 'id',
+                'type'  => 'number',
+            )
+        );
 
         if (!$this->_processId) {
-            $this->addColumn('process_id', array(
-                'header'    => Mage::helper('doofinder_feed')->__('Process ID'),
-                'index'     => 'process_id',
-                'type'  => 'number',
-            ));
+            $this->addColumn(
+                'process_id',
+                array(
+                    'header'    => Mage::helper('doofinder_feed')->__('Process ID'),
+                    'index'     => 'process_id',
+                    'type'  => 'number',
+                )
+            );
         }
 
-        $this->addColumn('time', array(
-            'header'    => Mage::helper('doofinder_feed')->__('Time'),
-            'index'     => 'time',
-            'type'  => 'datetime',
-        ));
+        $this->addColumn(
+            'time',
+            array(
+                'header'    => Mage::helper('doofinder_feed')->__('Time'),
+                'index'     => 'time',
+                'type'  => 'datetime',
+            )
+        );
 
-        $this->addColumn('type', array(
-            'header'    => Mage::helper('doofinder_feed')->__('Type'),
-            'index'     => 'type',
-            'type'  => 'options',
-            'options' => Mage::helper('doofinder_feed/log')->listLogTypes(),
-        ));
+        $this->addColumn(
+            'type',
+            array(
+                'header'    => Mage::helper('doofinder_feed')->__('Type'),
+                'index'     => 'type',
+                'type'  => 'options',
+                'options' => Mage::helper('doofinder_feed/log')->listLogTypes(),
+            )
+        );
 
-        $this->addColumn('message', array(
-            'header'    => Mage::helper('doofinder_feed')->__('Message'),
-            'index'     => 'message',
-            'type'  => 'text',
-        ));
+        $this->addColumn(
+            'message',
+            array(
+                'header'    => Mage::helper('doofinder_feed')->__('Message'),
+                'index'     => 'message',
+                'type'  => 'text',
+            )
+        );
 
         return parent::_prepareColumns();
     }

@@ -6,11 +6,19 @@
 /**
  * @category   controllers
  * @package    Doofinder_Feed
- * @version    1.8.10
+ * @version    1.8.11
  */
 
 class Doofinder_Feed_DoofinderFeedFeedController extends Mage_Adminhtml_Controller_Action
 {
+    /**
+     * Override _isAllowed method
+     */
+    protected function _isAllowed()
+    {
+        return true;
+    }
+
     /**
      * Generate feed action
      */
@@ -56,8 +64,9 @@ class Doofinder_Feed_DoofinderFeedFeedController extends Mage_Adminhtml_Controll
 
         $lockPath = Mage::helper('doofinder_feed')->getFeedLockPath($storeCode);
 
-        if (file_exists($lockPath)) {
-            unlink($lockPath);
+        $fileIo = new Varien_Io_File();
+        if ($fileIo->fileExists($lockPath)) {
+            $fileIo->rm($lockPath);
         } else {
             $response->setBody('Lock file not exists.');
             return;

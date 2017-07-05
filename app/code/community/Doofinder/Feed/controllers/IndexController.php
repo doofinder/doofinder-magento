@@ -6,13 +6,13 @@
 /**
  * @category   controllers
  * @package    Doofinder_Feed
- * @version    1.8.10
+ * @version    1.8.11
  */
 
 /**
  * Index controller for Doofinder Feed
  *
- * @version    1.8.10
+ * @version    1.8.11
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_IndexController extends Mage_Core_Controller_Front_Action
@@ -22,10 +22,16 @@ class Doofinder_Feed_IndexController extends Mage_Core_Controller_Front_Action
         $this->_redirect('/');
     }
 
-    public function testAction() {
+    /**
+     * @SuppressWarnings(PHPMD)
+     */
+    public function testAction()
+    {
         $allStores = Mage::app()->getStores();
         foreach ($allStores as $store) {
+            // @codingStandardsIgnoreStart
             var_dump($store->getCode());
+            // @codingStandardsIgnoreEnd
         }
 
     }
