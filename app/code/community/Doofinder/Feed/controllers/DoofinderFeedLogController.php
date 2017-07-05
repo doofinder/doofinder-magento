@@ -12,6 +12,14 @@
 class Doofinder_Feed_DoofinderFeedLogController extends Mage_Adminhtml_Controller_Action
 {
     /**
+     * Override _isAllowed method
+     */
+    protected function _isAllowed()
+    {
+        return true;
+    }
+
+    /**
      * View log for specified process.
      */
     public function viewAction()

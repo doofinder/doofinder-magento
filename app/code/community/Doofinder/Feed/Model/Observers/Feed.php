@@ -12,11 +12,11 @@
 class Doofinder_Feed_Model_Observers_Feed
 {
 
-    private $config;
+    protected $_config;
 
-    private $storeCode;
+    protected $_storeCode;
 
-    private $productCount;
+    protected $_productCount;
 
     /**
      * @var Doofinder_Feed_Helper_Log
@@ -34,6 +34,7 @@ class Doofinder_Feed_Model_Observers_Feed
     /**
      * Update product index in given store context
      *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @param Mage_Catalog_Model_Product $product
      * @param string $storeCode
      */
@@ -42,49 +43,58 @@ class Doofinder_Feed_Model_Observers_Feed
         $helper = Mage::helper('doofinder_feed');
 
         // Set store code
-        $this->storeCode = $storeCode;
+        $this->_storeCode = $storeCode;
 
         // Get store config
-        $this->config = $helper->getStoreConfig($this->storeCode);
+        $this->_config = $helper->getStoreConfig($this->_storeCode);
 
         // Set options
         $options = array(
             'close_empty' => true, // close xml even if there are no items
             'products' => array($product->getId()), // list of products in feed
-            'store_code' => $this->config['storeCode'],
-            'grouped' => $this->_getBoolean($this->config['grouped']),
-            'display_price' => $this->_getBoolean($this->config['display_price']),
+            'store_code' => $this->_config['storeCode'],
+            'grouped' => $this->_getBoolean($this->_config['grouped']),
+            'display_price' => $this->_getBoolean($this->_config['display_price']),
             'minimal_price' => $this->_getBoolean('minimal_price', false),
-            'image_size' => $this->config['image_size'],
+            'image_size' => $this->_config['image_size'],
             'customer_group_id' => 0,
         );
 
         $generator = Mage::getModel('doofinder_feed/generator', $options);
 
-        $this->_log->_debugEnabled && $this->_log->debug(sprintf('Starting atomic update for product %d in store %s', $product->getId(), $storeCode));
+        $this->_log->debugEnabled && $this->_log->debug(
+            sprintf('Starting atomic update for product %d in store %s', $product->getId(), $storeCode)
+        );
 
         $xmlData = $generator->run();
 
         if ($xmlData) {
             $rss = simplexml_load_string($xmlData);
 
-            $hashId = Mage::getStoreConfig('doofinder_search/internal_settings/hash_id', $this->storeCode);
+            $hashId = Mage::getStoreConfig('doofinder_search/internal_settings/hash_id', $this->_storeCode);
             if ($hashId === '') {
-
-                $warning = sprintf('HashID is not set for the \'%s\' store view, therefore, search indexes haven\'t been
-                updated for
-                this store view. To fix this problem set HashID for a given stor view or disable Internal Search in Doofinder
-                Search Configuration.', $this->storeCode);
+                $warning = sprintf(
+                    'HashID is not set for the \'%s\' store view, ' .
+                    'therefore, search indexes haven\'t been updated for ' .
+                    'this store view. To fix this problem set HashID for ' .
+                    'a given stor view or disable Internal Search in ' .
+                    'Doofinder Search Configuration.',
+                    $this->_storeCode
+                );
                 $this->_log->debug($warning);
                 Mage::getSingleton('adminhtml/session')->addWarning($warning);
                 return;
             }
 
-            $searchEngine = Mage::helper('doofinder_feed/search')->getDoofinderSearchEngine($this->storeCode);
+            $searchEngine = Mage::helper('doofinder_feed/search')->getDoofinderSearchEngine($this->_storeCode);
 
             // Check if search engine exists and skip foreach iteration if not.
             if (!$searchEngine) {
-                $warning = sprintf('Search engine with HashID %s doesn\'t exists. Please, check your configuration.', $hashId);
+                $warning = sprintf(
+                    'Search engine with HashID %s doesn\'t exists. ' .
+                    'Please, check your configuration.',
+                    $hashId
+                );
                 $this->_log->debug($warning);
                 Mage::getSingleton('adminhtml/session')->addWarning($warning);
                 return;
@@ -97,20 +107,31 @@ class Doofinder_Feed_Model_Observers_Feed
                 foreach ($item as $key => $value) {
                     $_product[$key] = (string)$value;
                 }
+
                 $products[] = $_product;
             }
-            if (count($products)) {
+
+            if (!empty($products)) {
                 $searchEngine->updateItems('product', $products);
-                $this->_log->_debugEnabled && $this->_log->debug(sprintf('Atomic update for product %d in store %s done with: %s', $product->getId(), $storeCode, json_encode($products)));
+                $this->_log->debugEnabled && $this->_log->debug(
+                    sprintf(
+                        'Atomic update for product %d in store %s done with: %s',
+                        $product->getId(),
+                        $storeCode,
+                        json_encode($products)
+                    )
+                );
                 return;
             }
 
-            $this->_log->_debugEnabled && $this->_log->debug(sprintf('Atomic update for product %d in store %s failed with no data', $product->getId(), $storeCode));
+            $this->_log->debugEnabled && $this->_log->debug(
+                sprintf('Atomic update for product %d in store %s failed with no data', $product->getId(), $storeCode)
+            );
         }
     }
 
-    public function updateSearchEngineIndexes($observer) {
-
+    public function updateSearchEngineIndexes($observer)
+    {
         $helper = Mage::helper('doofinder_feed');
 
         $product = $observer->getProduct();
@@ -122,7 +143,7 @@ class Doofinder_Feed_Model_Observers_Feed
         if ($store->getCode() !== 'admin') {
             $storeCodes[] = $store->getCode();
         } else {
-            foreach(Mage::app()->getStores() as $store) {
+            foreach (Mage::app()->getStores() as $store) {
                 $storeCodes[] = $store->getCode();
             }
         }
@@ -131,8 +152,14 @@ class Doofinder_Feed_Model_Observers_Feed
         foreach (array_keys($storeCodes) as $key) {
             $storeCode = $storeCodes[$key];
 
-            $engineEnabled = Mage::getStoreConfig('doofinder_search/internal_settings/enable', $storeCode);
-            $atomicUpdatesEnabled = Mage::getStoreConfig('doofinder_cron/feed_settings/atomic_updates_enabled', $storeCode);
+            $engineEnabled = Mage::getStoreConfig(
+                'doofinder_search/internal_settings/enable',
+                $storeCode
+            );
+            $atomicUpdatesEnabled = Mage::getStoreConfig(
+                'doofinder_cron/feed_settings/atomic_updates_enabled',
+                $storeCode
+            );
 
             if (!$engineEnabled || !$atomicUpdatesEnabled) {
                 unset($storeCodes[$key]);
@@ -147,7 +174,11 @@ class Doofinder_Feed_Model_Observers_Feed
             try {
                 $this->updateProductIndex($product, $storeCode);
             } catch (Exception $e) {
-                $warning = $helper->__('There was an error during product %d indexing: %s', $product->getId(), $e->getMessage());
+                $warning = $helper->__(
+                    'There was an error during product %d indexing: %s',
+                    $product->getId(),
+                    $e->getMessage()
+                );
                 $this->_log->debug($warning);
                 Mage::getSingleton('adminhtml/session')->addWarning($warning);
             }
@@ -170,17 +201,23 @@ class Doofinder_Feed_Model_Observers_Feed
 
         // Create lock file
         if (!$remove) {
-            $this->_log->_debugEnabled && $this->_log->debug(sprintf('Locking cron process for store %s', $process->getStoreCode()));
+            $this->_log->debugEnabled && $this->_log->debug(
+                sprintf('Locking cron process for store %s', $process->getStoreCode())
+            );
 
-            if (file_exists($lockFilepath)) {
+            if ((new Varien_Io_File())->fileExists($lockFilepath)) {
                 Mage::throwException($helper->__('Process for store %s is already locked', $process->getStoreCode()));
             }
 
+            // @codingStandardsIgnoreStart
             touch($lockFilepath);
+            // @codingStandardsIgnoreEnd
         } else {
-            $this->_log->_debugEnabled && $this->_log->debug(sprintf('Unlocking cron process for store %s locked', $process->getStoreCode()));
+            $this->_log->debugEnabled && $this->_log->debug(
+                sprintf('Unlocking cron process for store %s locked', $process->getStoreCode())
+            );
 
-            unlink($lockFilepath);
+            (new Varien_Io_File())->rm($lockFilepath);
         }
     }
 
@@ -194,20 +231,41 @@ class Doofinder_Feed_Model_Observers_Feed
         return $this->lockProcess($process, true);
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    // @codingStandardsIgnoreStart
     public function generateFeed($observer)
     {
-        $stores = Mage::app()->getStores();
+    // @codingStandardsIgnoreEnd
         $helper = Mage::helper('doofinder_feed');
+        $date = Mage::getSingleton('core/date');
 
         // Get doofinder process model
         $collection = Mage::getModel('doofinder_feed/cron')->getCollection();
         $collection
             ->addFieldToFilter('status', array('in' => array($helper::STATUS_PENDING, $helper::STATUS_RUNNING)))
-            ->addFieldToFilter('next_iteration', array(
-                'lteq' => $helper->getScheduledAt(array(date('H') + $helper->getTimezoneOffset(), date('i'), date('s')))
-            ))
+            ->addFieldToFilter(
+                'next_iteration',
+                array(
+                    'lteq' => $helper->getScheduledAt(
+                        array(
+                            // @codingStandardsIgnoreStart
+                            $date->date('H') + $helper->getTimezoneOffset(),
+                            $date->date('i'),
+                            $date->date('s')
+                            // @codingStandardsIgnoreEnd
+                        )
+                    )
+                )
+            )
             ->setOrder('next_iteration', 'asc');
+        // @codingStandardsIgnoreStart
         $collection->getSelect()->limit(1);
+        // @codingStandardsIgnoreEnd
 
         $process = $collection->fetchItem();
 
@@ -216,49 +274,52 @@ class Doofinder_Feed_Model_Observers_Feed
             return;
         }
 
-        $this->_log->_debugEnabled && $this->_log->debug(sprintf('Starting cron process for store %s', $process->getStoreCode()));
+        $this->_log->debugEnabled && $this->_log->debug(
+            sprintf('Starting cron process for store %s', $process->getStoreCode())
+        );
 
         try {
             // Lock process
             $this->lockProcess($process);
 
             // Get store code
-            $this->storeCode = $process->getStoreCode();
+            $this->_storeCode = $process->getStoreCode();
 
             // Set store context
-            Mage::app()->setCurrentStore($this->storeCode);
+            Mage::app()->setCurrentStore($this->_storeCode);
 
             // Get store config
-            $this->config = $helper->getStoreConfig($this->storeCode);
+            $this->_config = $helper->getStoreConfig($this->_storeCode);
 
             // Clear out the message
             $process->setMessage($helper::MSG_EMPTY);
 
             // Get current offset
-            $offset = intval($process->getOffset());
+            $offset = (int) $process->getOffset();
 
             // Get step size
-            $stepSize = intval($this->config['stepSize']);
+            $stepSize = (int) $this->_config['stepSize'];
 
             // Set paths
-            $path = $helper->getFeedPath($this->storeCode);
-            $tmpPath = $helper->getFeedTemporaryPath($this->storeCode);
+            $path = $helper->getFeedPath($this->_storeCode);
+            $tmpPath = $helper->getFeedTemporaryPath($this->_storeCode);
 
-            $this->_log->_debugEnabled && $this->_log->debug(sprintf('Feed path for store %s: ', $process->getStoreCode(), $path));
-            $this->_log->_debugEnabled && $this->_log->debug(sprintf('Temporary feed path for store %s: ', $process->getStoreCode(), $path));
-
-            // Get job code
-            $jobCode = $helper::JOB_CODE;
+            $this->_log->debugEnabled && $this->_log->debug(
+                sprintf('Feed path for store %s: ', $process->getStoreCode(), $path)
+            );
+            $this->_log->debugEnabled && $this->_log->debug(
+                sprintf('Temporary feed path for store %s: ', $process->getStoreCode(), $path)
+            );
 
             // Set options for cron generator
             $options = array(
                 '_limit_' => $stepSize,
                 '_offset_' => $offset,
-                'store_code' => $this->config['storeCode'],
-                'grouped' => $this->_getBoolean($this->config['grouped']),
-                'display_price' => $this->_getBoolean($this->config['display_price']),
+                'store_code' => $this->_config['storeCode'],
+                'grouped' => $this->_getBoolean($this->_config['grouped']),
+                'display_price' => $this->_getBoolean($this->_config['display_price']),
                 'minimal_price' => $this->_getBoolean('minimal_price', false),
-                'image_size' => $this->config['image_size'],
+                'image_size' => $this->_config['image_size'],
                 'customer_group_id' => 0,
             );
 
@@ -268,7 +329,13 @@ class Doofinder_Feed_Model_Observers_Feed
             try {
                 $xmlData = $generator->run();
             } catch (Exception $e) {
-                $this->_log->_debugEnabled && $this->_log->debug(sprintf('Generator run failed with exception "%s" and following errors: %s', $e->getMessage(), json_encode($generator->getErrors())));
+                $this->_log->debugEnabled && $this->_log->debug(
+                    sprintf(
+                        'Generator run failed with exception "%s" and following errors: %s',
+                        $e->getMessage(),
+                        json_encode($generator->getErrors())
+                    )
+                );
                 throw $e;
             }
 
@@ -281,24 +348,29 @@ class Doofinder_Feed_Model_Observers_Feed
                 }
             }
 
-            $message = $helper->__('Processed products with ids in range %d - %d', $offset + 1, $generator->getLastProcessedProductId());
+            $message = $helper->__(
+                'Processed products with ids in range %d - %d',
+                $offset + 1,
+                $generator->getLastProcessedProductId()
+            );
             $this->_log->log($process, Doofinder_Feed_Helper_Log::STATUS, $message);
 
             // If there is new data append to xml.tmp else convert into xml
             if ($xmlData) {
                 $dir = Mage::getBaseDir('media').DS.'doofinder';
+                $fileIo = new Varien_Io_File();
 
                 // If directory doesn't exist create one
-                if (!file_exists($dir)) {
+                if (!$fileIo->fileExists($dir)) {
                     $helper->createFeedDirectory($dir);
                 }
 
                 // If file can not be save throw an error
-                if (!$success = file_put_contents($tmpPath, $xmlData, FILE_APPEND | LOCK_EX)) {
+                if (!$fileIo->filePutContent($tmpPath, $xmlData)) {
                     Mage::throwException($helper->__("File can not be saved: {$tmpPath}"));
                 }
 
-                $this->productCount = $generator->getProductCount();
+                $this->_productCount = $generator->getProductCount();
             } else {
                 $this->_log->log($process, Doofinder_Feed_Helper_Log::WARNING, $helper->__('No data added to feed'));
             }
@@ -312,14 +384,13 @@ class Doofinder_Feed_Model_Observers_Feed
             } else {
                 $this->_log->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Feed generation completed'));
 
-                if (!rename($tmpPath, $path)) {
+                if (!(new Varien_Io_File())->mv($tmpPath, $path)) {
                     Mage::throwException($helper->__("Cannot rename {$tmpPath} to {$path}"));
                 }
 
                 $process->setMessage($helper->__('Last process successfully completed. Now waiting for new schedule.'));
                 $this->_endProcess($process);
             }
-
         } catch (Exception $e) {
             $this->_log->log($process, Doofinder_Feed_Helper_Log::ERROR, $e->getMessage());
             $process->setErrorStack($process->getErrorStack() + 1);
@@ -333,6 +404,8 @@ class Doofinder_Feed_Model_Observers_Feed
 
     /**
      * Cast any value to bool
+     *
+     * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      * @param mixed $value
      * @param bool $defaultValue
      * @return bool
@@ -346,13 +419,13 @@ class Doofinder_Feed_Model_Observers_Feed
                 return false;
         }
 
-        $yes = array('true', 'on', 'yes');
-        $no  = array('false', 'off', 'no');
+        $true = array('true', 'on', 'yes');
+        $false  = array('false', 'off', 'no');
 
-        if ( in_array($value, $yes) )
+        if (in_array($value, $true))
             return true;
 
-        if ( in_array($value, $no) )
+        if (in_array($value, $false))
             return false;
 
         return $defaultValue;
@@ -364,11 +437,12 @@ class Doofinder_Feed_Model_Observers_Feed
      * @param string $time
      * @return array
      */
-    protected function timeToArray($time = null) {
+    protected function timeToArray($time = null)
+    {
         // Declare new time
         $newTime;
         // Validate $time variable
-        if(!$time || !is_string($time) || substr_count($time, ',') < 2) {
+        if (!$time || !is_string($time) || substr_count($time, ',') < 2) {
             Mage::throwException('Incorrect time string.');
             return false;
         }
@@ -387,14 +461,15 @@ class Doofinder_Feed_Model_Observers_Feed
      * Concludes process.
      * @param Doofinder_Feed_Model_Cron $process
      */
-    private function _endProcess(Doofinder_Feed_Model_Cron $process) {
+    protected function _endProcess(Doofinder_Feed_Model_Cron $process)
+    {
         $helper = Mage::helper('doofinder_feed');
         // Prepare data
         $data = array(
             'status'    =>  $helper::STATUS_WAITING,
             'next_run' => '-',
             'next_iteration' => '-',
-            'last_feed_name' => $this->config['xmlName'],
+            'last_feed_name' => $this->_config['xmlName'],
             'schedule_id' => null,
         );
 
@@ -402,15 +477,19 @@ class Doofinder_Feed_Model_Observers_Feed
     }
 
 
-    public function addButtons($observer) {
+    public function addButtons($observer)
+    {
         $block = $observer->getBlock();
 
-        if ($block instanceof Mage_Adminhtml_Block_System_Config_Edit && $block->getRequest()->getParam('section') == 'doofinder_cron') {
+        if ($block instanceof Mage_Adminhtml_Block_System_Config_Edit
+            && $block->getRequest()->getParam('section') == 'doofinder_cron'
+        ) {
             $html = $block->getChild('save_button')->toHtml();
 
             $html .= $block->getLayout()->createBlock('doofinder_feed/adminhtml_widget_button_reschedule')->toHtml();
 
-            $block->setChild('save_button',
+            $block->setChild(
+                'save_button',
                 $block->getLayout()->createBlock('core/text')->setText($html)
             );
         }

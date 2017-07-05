@@ -19,6 +19,7 @@ class Doofinder_Feed_Helper_Tax extends Mage_Tax_Helper_Data
         if ($needPriceConversion !== false) {
             return $needPriceConversion;
         }
+
         $taxMode = Mage::getStoreConfig('doofinder_cron/feed_settings/price_tax_mode', $store);
         // Force price conversion only in case of 'with tax' price export mode
         return $taxMode == Doofinder_Feed_Model_System_Config_Source_Feed_Pricetaxmode::MODE_WITH_TAX;

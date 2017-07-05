@@ -15,6 +15,9 @@
  * @version    1.8.10
  * @package    Doofinder_Feed
  */
+// @codingStandardsIgnoreStart
 class Doofinder_Feed_Model_Map_Product_Downloadable
     extends Doofinder_Feed_Model_Map_Product_Abstract
-{}
+{
+// @codingStandardsIgnoreEnd
+}

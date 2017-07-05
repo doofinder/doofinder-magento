@@ -18,6 +18,9 @@
 if (!defined('DS'))
     define('DS', DIRECTORY_SEPARATOR);
 
+/**
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ */
 class Doofinder_Feed_Model_Generator extends Varien_Object
 {
     const DEFAULT_BATCH_SIZE = 100;
@@ -48,7 +51,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     protected $_errors = array();
 
-    protected $_lastProcessedProductId;
+    protected $_lastProductId;
 
     /**
      * @var Doofinder_Feed_Helper_Log
@@ -87,10 +90,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             $this->logError($message);
         }
     }
-
-    //
-    // public::Export
-    //
 
     public function run()
     {
@@ -147,7 +146,9 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     public function getMaxProductId()
     {
         $collection = $this->_getProductCollection();
+        // @codingStandardsIgnoreStart
         $collection->getSelect()->limit(1);
+        // @codingStandardsIgnoreEnd
         $collection->getSelect()->order('e.entity_id DESC');
         $item = $collection->fetchItem();
 
@@ -162,7 +163,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
      */
     public function isFeedDone()
     {
-        return $this->_lastProcessedProductId >= $this->_maxProductId;
+        return $this->_lastProductId >= $this->_maxProductId;
     }
 
     /**
@@ -172,7 +173,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
      */
     public function getLastProcessedProductId()
     {
-        return $this->_lastProcessedProductId;
+        return $this->_lastProductId;
     }
 
     /**
@@ -188,7 +189,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $all = $collection->getSize();
 
         $collection = $this->_getProductCollection();
-        $collection->addAttributeToFilter('entity_id', array('lteq' => $this->_lastProcessedProductId));
+        $collection->addAttributeToFilter('entity_id', array('lteq' => $this->_lastProductId));
         $now = $collection->getSize();
 
         return $now / $all;
@@ -199,15 +200,13 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         try
         {
             $row = $args['row'];
-            $this->_log->_debugEnabled && $this->_log->debug(sprintf('Adding product %d to feed', $row['entity_id']));
+            $this->_log->debugEnabled && $this->_log->debug(sprintf('Adding product %d to feed', $row['entity_id']));
 
-            $this->_lastProcessedProductId = $row['entity_id'];
-
-            $parentEntityId = null;
+            $this->_lastProductId = $row['entity_id'];
 
             $map = $this->_getProductMapModel($row['type_id'], array());
 
-            if (is_null($map)) {
+            if ($map === null) {
                 Mage::throwException("There is no map definition for product with type {$row['type_id']}");
             }
 
@@ -231,24 +230,22 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
             $map->unsetData();
 
-            $this->_log->_debugEnabled && $this->_log->debug(sprintf('Product %d added to feed', $row['entity_id']));
+            $this->_log->debugEnabled && $this->_log->debug(sprintf('Product %d added to feed', $row['entity_id']));
         }
         catch (Exception $e)
         {
-            $this->logError('Error processing product (ID: ' . $row['entity_id'] . '): ' . $e->getMessage(), Zend_Log::ERR);
+            $this->logError(
+                'Error processing product (ID: ' . $row['entity_id'] . '): ' . $e->getMessage(),
+                Zend_Log::ERR
+            );
         }
     }
-
-
-    //
-    // protected::Export
-    //
 
     protected function _batchProcessProducts($offset, $limit)
     {
         // Make sure we have this initialized
         // in case of an empty collection
-        $this->_lastProcessedProductId = $offset;
+        $this->_lastProductId = $offset;
 
         $collection = $this->_getProductCollection($offset, $limit);
 
@@ -260,19 +257,29 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
+    // @codingStandardsIgnoreStart
     protected function _addProductToXml(
-        Doofinder_Feed_Model_Map_Product_Abstract $productMap)
-    {
-        $this->_log->_debugEnabled && $this->_log->debug(sprintf('Adding product %d to xml', $productMap->getProduct()->getId()));
+        Doofinder_Feed_Model_Map_Product_Abstract $productMap
+    ) {
+    // @codingStandardsIgnoreEnd
+        $this->_log->debugEnabled && $this->_log->debug(
+            sprintf('Adding product %d to xml', $productMap->getProduct()->getId())
+        );
 
         $iDumped = 0;
         $displayPrice = $this->getDisplayPrice();
 
         try
         {
-            if ($productMap->isSkip())
-            {
-                $this->_log->_debugEnabled && $this->_log->debug(sprintf('Product %d skipped', $productMap->getProduct()->getId()));
+            if ($productMap->isSkip()) {
+                $this->_log->debugEnabled && $this->_log->debug(
+                    sprintf('Product %d skipped', $productMap->getProduct()->getId())
+                );
                 $this->_iSkipped++;
                 return $this;
             }
@@ -281,34 +288,28 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
             if ($productMap->getProduct()->getTypeId() == Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE
                 && $productMap->hasAssocMaps()
-                && $productMap->getIsVariants())
-            {
+                && $productMap->getIsVariants()
+            ) {
                 foreach ($productMap->getAssocMaps() as $assocMap)
                     if ($assocMap->isSkip())
                         $this->_iSkipped++;
             }
 
-            if (($iProducts = count($productData)) > 1)
-            {
+            if (($iProducts = !empty($productData))) {
                 $productData[0] = array_filter($productData[0]);
-                // $productData[0]['assoc_id'] = $productData[0]['id'];
 
-                for ($i = 1; $i < $iProducts; $i++)
-                {
+                for ($i = 1; $i < $iProducts; $i++) {
                     $productData[$i] = array_merge(
                         $productData[0],
                         array_filter($productData[$i])
                     );
-                    // $productData[$i]['assoc_id'] = $productData[0]['id'];
                 }
             }
 
-            foreach ($productData as $data)
-            {
+            foreach ($productData as $data) {
                 $this->_oXmlWriter->startElement(self::PRODUCT_ELEMENT);
 
-                if (!isset($data['description']))
-                {
+                if (!isset($data['description'])) {
                     if (isset($data['long_description'])) {
                         $data['description'] = $data['long_description'];
                         unset($data['long_description']);
@@ -319,45 +320,44 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
                 krsort($data);
 
-                foreach ($data as $field => $value)
-                {
-
-                    if (!is_array($value))
-                    {
+                foreach ($data as $field => $value) {
+                    if (!is_array($value)) {
                         $value = trim($value);
                     }
 
-                    if ($field != 'description' && empty($value))
-                    {
+                    if ($field != 'description' && empty($value)) {
                         continue;
                     }
 
-                    if (!$displayPrice && ($field === 'price' || $field === 'sale_price'))
-                    {
+                    if (!$displayPrice && ($field === 'price' || $field === 'sale_price')) {
                         continue;
                     }
 
                     $this->_oXmlWriter->startElement($field);
 
                     // Make sure $value is a flat array
-                    if (!is_array($value))
-                    {
+                    if (!is_array($value)) {
                         $value = array($value);
-                    }
-                    else if (!$this->_isArrayFlat($value))
-                    {
-                        $this->logErrorOnce("Value of $field field is a multidimensional array, encoded value: " . json_encode($value));
+                    } else if (!$this->_isArrayFlat($value)) {
+                        $this->logErrorOnce(
+                            "Value of $field field is a multidimensional array, encoded value: " .
+                            json_encode($value)
+                        );
                         $value = $this->_flattenArray($value);
                     }
 
                     $value = implode(self::VALUE_SEPARATOR, array_filter($value));
 
+                    // @codingStandardsIgnoreStart
                     $written = @$this->_oXmlWriter->writeCData($value);
-                    if ( ! $written )
-                    {
+                    // @codingStandardsIgnoreEnd
+                    if (!$written) {
                         $this->_oXmlWriter->writeComment("Cannot write the value for the $field field.");
 
-                        $this->logErrorOnce("Cannot write the value for the $field field, encoded value: " . json_encode($value));
+                        $this->logErrorOnce(
+                            "Cannot write the value for the $field field, encoded value: " .
+                            json_encode($value)
+                        );
                     }
 
                     $this->_oXmlWriter->endElement();
@@ -369,7 +369,9 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                 $iDumped++;
             }
 
-            $this->_log->_debugEnabled && $this->_log->debug(sprintf('Product %d added to xml', $productMap->getProduct()->getId()));
+            $this->_log->debugEnabled && $this->_log->debug(
+                sprintf('Product %d added to xml', $productMap->getProduct()->getId())
+            );
         }
         catch (Exception $e)
         {
@@ -378,11 +380,6 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
         return $iDumped > 0;
     }
-
-
-    //
-    // public::Configuration
-    //
 
     public function getContentType()
     {
@@ -394,20 +391,14 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         return Mage::getSingleton('doofinder_feed/config');
     }
 
-    public function getConfigVar($key, $storeId = null,
-        $section = Doofinder_Feed_Model_Config::DEFAULT_SECTION)
+    public function getConfigVar($key, $storeId = null, $section = Doofinder_Feed_Model_Config::DEFAULT_SECTION)
     {
         return $this->getConfig()->getConfigVar($key, $storeId, $section);
     }
 
-
-    //
-    // public::Tools
-    //
-
     public function getStore()
     {
-        if (is_null($this->_store))
+        if ($this->_store === null)
             $this->_loadStore();
 
         return $this->_store;
@@ -435,8 +426,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     public function getRootCategory()
     {
-        if (is_null($this->_oRootCategory))
-        {
+        if ($this->_oRootCategory === null) {
             $this->_oRootCategory = Mage::getModel('catalog/category')->load(
                 $this->getStore()->getRootCategoryId()
             );
@@ -454,12 +444,12 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             ->addFieldToFilter('path', array('like' => $this->_oRootCategory->getPath() . '/%'))
             ->addFieldToFilter('is_active', array('eq'=>'1'));
 
-        $include_in_menu = Mage::getStoreConfig(
+        $includeInMenu = Mage::getStoreConfig(
             'doofinder_cron/feed_settings/categories_in_navigation',
             $this->getStoreId()
         );
 
-        if($include_in_menu == 1) {
+        if ($includeInMenu == 1) {
             $prodCategories->addFieldToFilter('include_in_menu', array('eq'=> '1'));
         }
 
@@ -467,14 +457,13 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
         $prodCategories = array_keys($prodCategories);
 
-        foreach ($prodCategories as $id)
-        {
+        foreach ($prodCategories as $id) {
             if (isset($this->_categories[$id]))
                 $tree = $this->_categories[$id];
             else
                 $tree = $this->_getCategoryTree($id);
 
-            if (strlen($tree))
+            if ($tree)
                 $categories[] = $tree;
         }
 
@@ -483,8 +472,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $nbcategories = count($categories);
         $result = array();
 
-        for ($i = 1; $i < $nbcategories; $i++)
-        {
+        for ($i = 1; $i < $nbcategories; $i++) {
           if (strpos($categories[$i], $categories[$i - 1]) === 0)
             continue;
           $result[] = $this->_cleanFieldValue($categories[$i - 1]);
@@ -518,12 +506,9 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             ->addAttributeToSort('path', 'asc')
             ->addAttributeToSelect('*');
 
-        foreach ($categories as $category)
-        {
-            if ($category->getId() != $this->_oRootCategory->getId())
-            {
-                if (strlen($category->getName()))
-                {
+        foreach ($categories as $category) {
+            if ($category->getId() != $this->_oRootCategory->getId()) {
+                if ($category->getName()) {
                     $tree[] = strip_tags($category->getName());
                 }
             }
@@ -549,17 +534,11 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         return Mage::getSingleton('doofinder_feed/tools');
     }
 
-
-    //
-    // protected::Output
-    //
-
     protected function _initFeed()
     {
         $this->_oXmlWriter = new XMLWriter();
         $this->_oXmlWriter->openMemory();
-        if (!$this->getData('_offset_'))
-        {
+        if (!$this->getData('_offset_')) {
             $this->_log->debug('Opening feed');
 
             $this->_oXmlWriter->startDocument('1.0', 'UTF-8');
@@ -573,8 +552,13 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             $this->_oXmlWriter->startElement('link');
             $this->_oXmlWriter->writeCData(Mage::getBaseUrl().'doofinder/feed');
             $this->_oXmlWriter->endElement();
+            // @codingStandardsIgnoreStart
             $this->_oXmlWriter->writeElement('pubDate', strftime('%a, %d %b %Y %H:%M:%S %Z'));
-            $this->_oXmlWriter->writeElement('generator', 'Doofinder/'.Mage::getConfig()->getModuleConfig("Doofinder_Feed")->version);
+            // @codingStandardsIgnoreEnd
+            $this->_oXmlWriter->writeElement(
+                'generator',
+                'Doofinder/' . Mage::getConfig()->getModuleConfig("Doofinder_Feed")->version
+            );
             $this->_oXmlWriter->writeElement('description', 'Magento Product feed for Doofinder');
 
             $this->_flushFeed();
@@ -585,25 +569,21 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     {
         $this->_response .= $this->_oXmlWriter->flush(true);
 
-        if ($break)
-        {
+        if ($break) {
           $this->_response .= PHP_EOL;
         }
     }
 
     protected function _closeFeed()
     {
-        if ($this->isFeedDone())
-        {
-            if (!$this->getData('_offset_'))
-            {
+        if ($this->isFeedDone()) {
+            if (!$this->getData('_offset_')) {
                 $this->_oXmlWriter->endElement(); // Channel
                 $this->_oXmlWriter->endElement(); // RSS
                 $this->_oXmlWriter->endDocument();
 
                 $this->_flushFeed();
-            } else
-            {
+            } else {
                 $this->_response .= '</channel></rss>';
             }
         }
@@ -614,9 +594,11 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $sanitized = array();
 
         foreach ($data as $key => $value)
-            $sanitized[$key] = str_replace($this->_badChars,
-                                           $this->_repChars,
-                                           $value);
+            $sanitized[$key] = str_replace(
+                $this->_badChars,
+                $this->_repChars,
+                $value
+            );
 
         return $sanitized;
     }
@@ -636,17 +618,11 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         );
 
         // Check if we should disable specific types
-        if (count($disabled) > 0)
-            $collection->addAttributeToFilter('type_id',
-                                              array('nin' => $disabled));
+        if (!empty($disabled))
+            $collection->addAttributeToFilter('type_id', array('nin' => $disabled));
 
         return $collection;
     }
-
-
-    //
-    // protected::Tools
-    //
 
     protected function _loadStore()
     {
@@ -671,8 +647,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             ->getMultipleSelectVar('additional_attributes', $storeId);
         $model = Mage::getModel('catalog/product')->setStoreId($storeId);
 
-        foreach ($attributeCodes as $attrCode)
-        {
+        foreach ($attributeCodes as $attrCode) {
             $attribute = $model->getResource()->getAttribute($attrCode);
             $this->_attributes[$attribute->getAttributeCode()] = $attribute;
         }
@@ -681,12 +656,16 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     protected function _getProductCollection($offset = 0, $limit = 0)
     {
         $collection = $this->getProductCollection($offset, $limit);
+        $products = $this->getProducts();
 
-        if (count($this->getProducts()))
-            $collection->addAttributeToFilter('entity_id', array('in' => $this->getProducts()));
+        if (!empty($products))
+            $collection->addAttributeToFilter('entity_id', array('in' => $products));
 
-        if ($limit && $limit > 0)
+        if ($limit && $limit > 0) {
+            // @codingStandardsIgnoreStart
             $collection->getSelect()->limit($limit, 0);
+            // @codingStandardsIgnoreEnd
+        }
 
         if ($offset)
             $collection->addAttributeToFilter('entity_id', array('gt' => $offset));
@@ -704,15 +683,21 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $this->_addProductTypeToFilter($collection);
 
         $collection->addAttributeToFilter('status', 1);
-        $collection->addAttributeToFilter('visibility', array(
-            Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH,
-            Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_SEARCH
-        ));
+        $collection->addAttributeToFilter(
+            'visibility',
+            array(
+                Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH,
+                Mage_Catalog_Model_Product_Visibility::VISIBILITY_IN_SEARCH
+            )
+        );
         $collection->addAttributeToSelect('*');
 
         return $collection;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
     protected function _getProductMapModel($typeId, $args = array())
     {
         $isAssoc = isset($args['is_assoc']) && $args['is_assoc'] ? true : false;
@@ -739,16 +724,22 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                 return null;
         }
 
-        return Mage::getModel($model, array(
-            'store_code' => $this->getStoreCode(),
-            'store_id' => $this->getStoreId(),
-            'website_id' => $this->getWebsiteId(),
-        ));
+        return Mage::getModel(
+            $model,
+            array(
+                'store_code' => $this->getStoreCode(),
+                'store_id' => $this->getStoreId(),
+                'website_id' => $this->getWebsiteId(),
+            )
+        );
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
     protected function _getFieldsMap()
     {
-        if (!is_null($this->_fieldMap))
+        if ($this->_fieldMap !== null)
             return $this->_fieldMap;
 
         $product = Mage::getModel('catalog/product')
@@ -762,15 +753,15 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $map = Mage::getStoreConfig('doofinder_cron/attributes_mapping', $this->getStore());
         $additional = array();
         if (isset($map['additional'])) {
+            // @codingStandardsIgnoreStart
             $additional = unserialize($map['additional']);
+            // @codingStandardsIgnoreEnd
         }
 
         unset($map['additional']);
 
-        if (!empty($additional['additional_mapping']))
-        {
-            foreach ($additional['additional_mapping'] as $data)
-            {
+        if (!empty($additional['additional_mapping'])) {
+            foreach ($additional['additional_mapping'] as $data) {
                 if (isset($map[$data['field']])) continue;
 
                 $fields[$data['field']] = array('label' => $data['label']);
@@ -778,17 +769,13 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             }
         }
 
-        foreach ($map as $key => $attName)
-        {
+        foreach ($map as $key => $attName) {
             if (!isset($fields[$key])) continue;
 
-            if (!$this->getConfig()->isDirective($attName,
-                                                 $this->getStoreId()))
-            {
+            if (!$this->getConfig()->isDirective($attName, $this->getStoreId())) {
                 $att = $product->getResource()->getAttribute($attName);
 
-                if ($att === false)
-                {
+                if ($att === false) {
                     continue;
                 }
 
@@ -802,13 +789,17 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
                 'field' => $key,
             );
         }
+
         return $this->_fieldMap;
     }
 
     protected function _cleanFieldValue($field)
     {
         // http://stackoverflow.com/questions/4224141/php-removing-invalid-utf-8-characters-in-xml-using-filter
-        $valid_utf8 = '/([\x09\x0A\x0D\x20-\x7E]|[\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|\xED[\x80-\x9F][\x80-\xBF]|\xF0[\x90-\xBF][\x80-\xBF]{2}|[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})|./x';
+        $validUtf = '/([\x09\x0A\x0D\x20-\x7E]|[\xC2-\xDF][\x80-\xBF]|' .
+                    '\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2}|' .
+                    '\xED[\x80-\x9F][\x80-\xBF]|\xF0[\x90-\xBF][\x80-\xBF]{2}|' .
+                    '[\xF1-\xF3][\x80-\xBF]{3}|\xF4[\x80-\x8F][\x80-\xBF]{2})|./x';
 
         $field = preg_replace('#<br(\s?/)?>#i', ' ', $field);
         $field = strip_tags($field);
@@ -817,11 +808,14 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         $exField = explode(self::CATEGORY_TREE_SEPARATOR, $field);
         $newField = array();
         foreach ($exField as $el) {
+            // @codingStandardsIgnoreStart
             $newField[] = html_entity_decode($el, null, 'UTF-8');
+            // @codingStandardsIgnoreEnd
         }
-        $field = implode(self::CATEGORY_TREE_SEPARATOR, $newField );
 
-        return preg_replace($valid_utf8, '$1', $field);
+        $field = implode(self::CATEGORY_TREE_SEPARATOR, $newField);
+
+        return preg_replace($validUtf, '$1', $field);
     }
 
     /**
@@ -834,10 +828,8 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     {
         $isFlat = true;
 
-        foreach ($arr as $item)
-        {
-            if (is_array($item))
-            {
+        foreach ($arr as $item) {
+            if (is_array($item)) {
                 $isFlat = false;
                 break;
             }
@@ -854,9 +846,16 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
      * @param array @arr
      * @return array
      */
-    protected function _flattenArray(array $arr) {
+    protected function _flattenArray(array $arr)
+    {
         $flattenedArray = array();
-        array_walk_recursive($arr, function($item) use (&$flattenedArray) { $flattenedArray[] = $item; });
+        array_walk_recursive(
+            $arr,
+            function ($item) use (&$flattenedArray) {
+                $flattenedArray[] = $item;
+            }
+        );
+
         return $flattenedArray;
     }
 }

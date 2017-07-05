@@ -22,12 +22,9 @@ class Doofinder_Feed_Model_Map_Product_Bundle
     {
         $price = 0.0;
 
-        if (!$this->hasSpecialPrice())
-        {
+        if (!$this->hasSpecialPrice()) {
             $price = $this->calcMinimalPrice($this->getProduct());
-        }
-        else
-        {
+        } else {
             $price = $this->calcMinimalPrice($this->getProduct());
         }
 
@@ -37,11 +34,13 @@ class Doofinder_Feed_Model_Map_Product_Bundle
         return $price;
     }
 
-    public function calcMinimalPrice($product) {
+    public function calcMinimalPrice($product)
+    {
         $price = 0.0;
 
         if ($this->getConfig()->compareMagentoVersion(
-                array('major' => 1, 'minor' => 6, 'revision' => 0, 'patch' => 0)))
+            array('major' => 1, 'minor' => 6, 'revision' => 0, 'patch' => 0)
+        ))
             $_prices = $product->getPriceModel()->getPrices($product);
         else
             $_prices = $product->getPriceModel()->getTotalPrices($product);
@@ -58,16 +57,19 @@ class Doofinder_Feed_Model_Map_Product_Bundle
     {
         $price = $this->calcMinimalPrice($this->getProduct());
 
-        $special_price_percent = $this->getProduct()->getSpecialPrice();
+        $specialPrice = $this->getProduct()->getSpecialPrice();
 
-        if ($special_price_percent <= 0 || $special_price_percent > 100)
+        if ($specialPrice <= 0 || $specialPrice > 100)
             return 0;
 
-        $special_price = (($special_price = (100 - $special_price_percent) * $price / 100) > 0 ? $special_price : 0);
+        $specialPrice = (($specialPrice = (100 - $specialPrice) * $price / 100) > 0 ? $specialPrice : 0);
 
-        return $special_price;
+        return $specialPrice;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     protected function mapDirectiveSalePrice($params = array())
     {
         return null;
