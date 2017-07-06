@@ -15,8 +15,10 @@ class Doofinder_Feed_Block_Settings_Panel_Description extends Mage_Adminhtml_Blo
     const WARNING = 'warning';
 
     protected $_level = self::INFO;
-    protected $_description = 'You can set the rest of the options for each store ' .
-                              'separately by modifying the Current Configuration Scope.';
+    protected $_description = <<<EOT
+You can set the rest of the options for each store
+separately by modifying the Current Configuration Scope.
+EOT;
 
     protected function _getElementHtml(Varien_Data_Form_Element_Abstract $element)
     {
