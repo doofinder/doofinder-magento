@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.11
+ * @version    1.8.12
  */
 
 /**
  * Abstract Product Map Model for Doofinder Feed
  *
- * @version    1.8.11
+ * @version    1.8.12
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
