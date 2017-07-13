@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.12
+ * @version    1.8.13
  */
 
 /**
  * Tools model for Doofinder Feed
  *
- * @version    1.8.12
+ * @version    1.8.13
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Model_Tools extends Varien_Object
