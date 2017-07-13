@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.12
+ * @version    1.8.13
  */
 
 /**
  * Downloadable Product Map Model for Doofinder Feed
  *
- * @version    1.8.12
+ * @version    1.8.13
  * @package    Doofinder_Feed
  */
 // @codingStandardsIgnoreStart
