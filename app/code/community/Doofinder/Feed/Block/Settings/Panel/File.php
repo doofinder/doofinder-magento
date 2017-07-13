@@ -27,7 +27,7 @@ class Doofinder_Feed_Block_Settings_Panel_File extends Mage_Adminhtml_Block_Syst
             ->setPageSize(1)
             ->getItems();
 
-        $lastSchedule = $lastSchedule ? current($lastSchedule) : null;
+        $lastSchedule = $lastSchedule ? reset($lastSchedule) : null;
         $lastScheduleData = $lastSchedule ? $lastSchedule->getData() : array();
 
         $message = '';
