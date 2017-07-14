@@ -57,7 +57,7 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
             case 'sale_price':
                 $salePrice = $product->getPriceModel()->getFinalPrice(null, $product);
-                $price = $product->getData('price') == $salePrice ? null : $salePrice;
+                $price = $product->getData('price') <= $salePrice ? null : $salePrice;
                 break;
 
             default:
