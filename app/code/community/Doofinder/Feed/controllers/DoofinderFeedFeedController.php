@@ -6,7 +6,7 @@
 /**
  * @category   controllers
  * @package    Doofinder_Feed
- * @version    1.8.13
+ * @version    1.8.14
  */
 
 class Doofinder_Feed_DoofinderFeedFeedController extends Mage_Adminhtml_Controller_Action

@@ -6,13 +6,13 @@
 /**
  * @category   Helpers
  * @package    Doofinder_Feed
- * @version    1.8.13
+ * @version    1.8.14
  */
 
 /**
  * Data helper for Doofinder Feed
  *
- * @version    1.8.13
+ * @version    1.8.14
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
@@ -57,7 +57,7 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
 
             case 'sale_price':
                 $salePrice = $product->getPriceModel()->getFinalPrice(null, $product);
-                $price = $product->getData('price') == $salePrice ? null : $salePrice;
+                $price = $product->getData('price') <= $salePrice ? null : $salePrice;
                 break;
 
             default:
