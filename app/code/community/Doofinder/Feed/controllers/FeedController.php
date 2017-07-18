@@ -167,11 +167,7 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
      */
     protected function _feedExists($filepath = null)
     {
-        if ((new Varien_Io_File)->fileExists($filepath)) {
-            return true;
-        }
-
-        return false;
+        return Mage::helper('doofinder_feed')->fileExists($filepath);
     }
 
     protected function _dumpMessage($level, $message, $extra = array())
@@ -255,8 +251,6 @@ class Doofinder_Feed_FeedController extends Mage_Core_Controller_Front_Action
      */
     protected function _createDirectory($dir = null)
     {
-        (new Varien_Io_File())->checkAndCreateFolder($dir, 0777);
-
-        return true;
+        return Mage::helper('doofinder_feed')->mkdir($dir);
     }
 }

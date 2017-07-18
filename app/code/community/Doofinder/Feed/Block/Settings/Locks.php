@@ -41,7 +41,7 @@ class Doofinder_Feed_Block_Settings_Locks extends Mage_Adminhtml_Block_System_Co
         $locks = array();
 
         foreach ($stores as $store) {
-            if ((new Varien_Io_File())->fileExists($helper->getFeedLockPath($store->getCode()))) {
+            if ($helper->fileExists($helper->getFeedLockPath($store->getCode()))) {
                 $msg = $this->getLayout()->createBlock('adminhtml/widget_button')
                     ->setType('button')
                     ->setClass('remove-lock')
