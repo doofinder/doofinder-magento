@@ -96,7 +96,7 @@ class Doofinder_Feed_Model_CatalogSearch_Resource_Fulltext extends Mage_CatalogS
                 && $this->calculateChecksum($results) == $this->calculateChecksum($storedResults)
             ) {
                 // Set search results
-                $this->setResults($storedResults);
+                $this->setResults($this->_getStoredResults($query->getId()));
                 return $this;
             }
 
