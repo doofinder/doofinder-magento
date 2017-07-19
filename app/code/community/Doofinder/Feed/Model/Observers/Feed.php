@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.14
+ * @version    1.8.15
  */
 
 class Doofinder_Feed_Model_Observers_Feed
@@ -205,7 +205,7 @@ class Doofinder_Feed_Model_Observers_Feed
                 sprintf('Locking cron process for store %s', $process->getStoreCode())
             );
 
-            if ((new Varien_Io_File())->fileExists($lockFilepath)) {
+            if ($helper->fileExists($lockFilepath)) {
                 Mage::throwException($helper->__('Process for store %s is already locked', $process->getStoreCode()));
             }
 
@@ -217,7 +217,7 @@ class Doofinder_Feed_Model_Observers_Feed
                 sprintf('Unlocking cron process for store %s locked', $process->getStoreCode())
             );
 
-            (new Varien_Io_File())->rm($lockFilepath);
+            $helper->fileRemove($lockFilepath);
         }
     }
 
@@ -358,15 +358,14 @@ class Doofinder_Feed_Model_Observers_Feed
             // If there is new data append to xml.tmp else convert into xml
             if ($xmlData) {
                 $dir = Mage::getBaseDir('media').DS.'doofinder';
-                $fileIo = new Varien_Io_File();
 
                 // If directory doesn't exist create one
-                if (!$fileIo->fileExists($dir)) {
+                if (!$helper->fileExists($dir)) {
                     $helper->createFeedDirectory($dir);
                 }
 
                 // If file can not be save throw an error
-                if (!$fileIo->filePutContent($tmpPath, $xmlData)) {
+                if (!$helper->fileAppend($tmpPath, $xmlData)) {
                     Mage::throwException($helper->__("File can not be saved: {$tmpPath}"));
                 }
 
@@ -384,7 +383,7 @@ class Doofinder_Feed_Model_Observers_Feed
             } else {
                 $this->_log->log($process, Doofinder_Feed_Helper_Log::STATUS, $helper->__('Feed generation completed'));
 
-                if (!(new Varien_Io_File())->mv($tmpPath, $path)) {
+                if (!$helper->fileMove($tmpPath, $path)) {
                     Mage::throwException($helper->__("Cannot rename {$tmpPath} to {$path}"));
                 }
 

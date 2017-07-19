@@ -6,7 +6,7 @@
 /**
  * @category   blocks
  * @package    Doofinder_Feed
- * @version    1.8.14
+ * @version    1.8.15
  */
 
 class Doofinder_Feed_Block_Settings_Panel_File extends Mage_Adminhtml_Block_System_Config_Form_Field
@@ -98,7 +98,7 @@ class Doofinder_Feed_Block_Settings_Panel_File extends Mage_Adminhtml_Block_Syst
                 $fileUrl = Mage::getBaseUrl('media').'doofinder'.DS.$lastGeneratedName;
                 $fileDir = Mage::getBaseDir('media').DS.'doofinder'.DS.$lastGeneratedName;
 
-                if ($lastGeneratedName && (new Varien_Io_File())->fileExists($fileDir)) {
+                if ($lastGeneratedName && $helper->fileExists($fileDir)) {
                     $message = '<p><a href=' . $fileUrl . ' target="_blank">';
                     $message .= !empty($stores) ? $fileUrl : $helper->__('Get %s', $lastGeneratedName);
                     $message .= '</a></p>';
