@@ -54,6 +54,8 @@ class Doofinder_Feed_DoofinderFeedFeedController extends Mage_Adminhtml_Controll
      */
     public function removeLockAction()
     {
+        $helper = Mage::helper('doofinder_feed');
+
         $response = $this->getResponse();
         $storeCode = $this->getRequest()->getParam('store', false);
 
@@ -62,11 +64,10 @@ class Doofinder_Feed_DoofinderFeedFeedController extends Mage_Adminhtml_Controll
             return;
         }
 
-        $lockPath = Mage::helper('doofinder_feed')->getFeedLockPath($storeCode);
+        $lockPath = $helper->getFeedLockPath($storeCode);
 
-        $fileIo = new Varien_Io_File();
-        if ($fileIo->fileExists($lockPath)) {
-            $fileIo->rm($lockPath);
+        if ($helper->fileExists($lockPath)) {
+            $helper->fileRemove($lockPath);
         } else {
             $response->setBody('Lock file not exists.');
             return;

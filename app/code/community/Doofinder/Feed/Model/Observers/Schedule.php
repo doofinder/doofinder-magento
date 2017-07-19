@@ -233,9 +233,8 @@ class Doofinder_Feed_Model_Observers_Schedule
         $helper = Mage::helper('doofinder_feed');
         $config = $helper->getStoreConfig($storeCode);
         $filePath = Mage::getBaseDir('media').DS.'doofinder'.DS.$config['xmlName'].'.tmp';
-        $fileIo = new Varien_Io_File();
-        if ($fileIo->fileExists($filePath)) {
-            $success = $fileIo->rm($filePath);
+        if ($helper->fileExists($filePath)) {
+            $success = $helper->fileRemove($filePath);
             if ($success) {
                 Mage::getSingleton('core/session')->addSuccess("Temporary xml file: {$filePath} has beed removed.");
                 return true;

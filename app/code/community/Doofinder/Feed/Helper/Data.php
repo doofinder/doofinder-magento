@@ -39,6 +39,19 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
     const MSG_WAITING = "Waiting for registering the new process of generating the feed.";
 
     /**
+     * @var Varien_Io_File
+     */
+    private $ioFile = null;
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->ioFile = new Varien_Io_File();
+    }
+
+    /**
      * Get product price
      *
      * @param Magento_Catalog_Model_Product $product
@@ -137,9 +150,8 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
         $newFilename = $this->_processXmlName($xmlName, $storeCode, $newPassword);
         $newFilepath = $dir . DS . $newFilename;
 
-        $fileIo = new Varien_Io_File();
-        if ($fileIo->fileExists($oldFilepath)) {
-            if (!$fileIo->fileExists($newFilepath) && !$fileIo->mv($oldFilepath, $newFilepath)) {
+        if ($this->fileExists($oldFilepath)) {
+            if (!$this->fileExists($newFilepath) && !$this->fileMove($oldFilepath, $newFilepath)) {
                 $msg = __(
                     'Feed file could not be renamed accordingly to new %s ' .
                     'value because file permission issues or file with name %s already exists.',
@@ -300,8 +312,65 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
     public function createFeedDirectory()
     {
         $dir = $this->getFeedDirectory();
-        (new Varien_Io_File())->checkAndCreateFolder($dir, 0777);
+        $this->mkdir($dir);
 
         return true;
+    }
+
+    /**
+     * Check if file exists
+     *
+     * @param string $filepath
+     * @return boolean
+     */
+    public function fileExists($filepath)
+    {
+        return $this->ioFile->fileExists($filepath);
+    }
+
+    /**
+     * Move file
+     *
+     * @param string $src
+     * @param string $dest
+     * @return boolean
+     */
+    public function fileMove($src, $dest)
+    {
+        return $this->ioFile->mv($src, $dest);
+    }
+
+    /**
+     * Remove file
+     *
+     * @param string $filepath
+     * @return boolean
+     */
+    public function fileRemove($filepath)
+    {
+        return $this->ioFile->rm($filepath);
+    }
+
+    /**
+     * Append content to file
+     *
+     * @param string $filepath
+     * @param string $content
+     * @return boolean
+     */
+    public function fileAppend($filepath, $content)
+    {
+        return file_put_contents($filepath, $content, FILE_APPEND | LOCK_EX);
+    }
+
+    /**
+     * Create directory
+     *
+     * @param string $dir
+     * @return boolean
+     */
+    public function mkdir($dir)
+    {
+        return $this->ioFile->checkAndCreateFolder($dir, 0777);
     }
 }

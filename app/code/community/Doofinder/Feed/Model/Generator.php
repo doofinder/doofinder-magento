@@ -195,11 +195,10 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         return $now / $all;
     }
 
-    public function addProductToFeed($args)
+    public function addProductToFeed($row)
     {
         try
         {
-            $row = $args['row'];
             $this->_log->debugEnabled && $this->_log->debug(sprintf('Adding product %d to feed', $row['entity_id']));
 
             $this->_lastProductId = $row['entity_id'];
@@ -249,10 +248,9 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
         $collection = $this->_getProductCollection($offset, $limit);
 
-        Mage::getSingleton('core/resource_iterator')->walk(
-            $collection->getSelect(),
-            array(array($this, 'addProductToFeed'))
-        );
+        foreach ($collection->getItems() as $item) {
+            $this->addProductToFeed($item->getData());
+        }
         $this->_flushFeed();
 
     }
