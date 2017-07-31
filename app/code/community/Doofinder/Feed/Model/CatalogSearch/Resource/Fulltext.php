@@ -27,16 +27,19 @@ class Doofinder_Feed_Model_CatalogSearch_Resource_Fulltext extends Mage_CatalogS
      * Get stored results in CatalogSearch cache
      *
      * @param int $queryId
-     * @param int $limit
+     * @param int $limit = null
      * @return array
      */
-    protected function _getStoredResults($queryId, $limit)
+    protected function _getStoredResults($queryId, $limit = null)
     {
         $adapter = $this->_getReadAdapter();
         $select = $this->_getStoredResultsSelect($queryId);
-        // @codingStandardsIgnoreStart
-        $select->limit($limit);
-        // @codingStandardsIgnoreEnd
+
+        if ($limit) {
+            // @codingStandardsIgnoreStart
+            $select->limit($limit);
+            // @codingStandardsIgnoreEnd
+        }
 
         $results = array();
         // @codingStandardsIgnoreStart
