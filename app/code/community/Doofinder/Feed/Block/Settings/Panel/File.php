@@ -23,7 +23,8 @@ class Doofinder_Feed_Block_Settings_Panel_File extends Mage_Adminhtml_Block_Syst
     protected function getCronMessage()
     {
         $lastSchedule = Mage::getModel('cron/schedule')->getCollection()
-            ->setOrder('finished_at', 'desc')
+            ->addFieldToFilter('job_code', 'doofinder_feed_generate')
+            ->setOrder('executed_at', 'desc')
             ->setPageSize(1)
             ->getItems();
 
@@ -32,7 +33,7 @@ class Doofinder_Feed_Block_Settings_Panel_File extends Mage_Adminhtml_Block_Syst
 
         $message = '';
         if ($lastSchedule && !empty($lastScheduleData)) {
-            $scheduleTime = strtotime($lastSchedule->getFinishedAt());
+            $scheduleTime = strtotime($lastSchedule->getExecutedAt());
             $currentTime = Mage::getSingleton('core/date')->timestamp();
 
             // Difference in seconds
@@ -44,7 +45,14 @@ class Doofinder_Feed_Block_Settings_Panel_File extends Mage_Adminhtml_Block_Syst
                     'Cron was run for the last time at %s. ' .
                     'Taking into account the settings of the step delay option, ' .
                     'there might be problems with the cron\'s configuration.',
-                    $lastSchedule->getFinishedAt()
+                    $lastSchedule->getExecutedAt()
+                );
+                Mage::helper('doofinder_feed')->__($message);
+            } else if ($lastSchedule->getStatus() != Mage_Cron_Model_Schedule::STATUS_SUCCESS) {
+                $message = sprintf(
+                    'Cron task registered but has not completed yet. ' .
+                    'There is a chance that something is wrong with ' .
+                    'the execution of the cron. Please check the cron errors.'
                 );
                 Mage::helper('doofinder_feed')->__($message);
             }
