@@ -1,5 +1,5 @@
 <_>
-   <form_key>itmjMxs8H8YWEaJ7</form_key>
+   <form_key>bw36aPNFxncL9QmW</form_key>
    <name>Doofinder_Feed</name>
    <channel>community</channel>
    <version_ids>
@@ -49,9 +49,9 @@ You can get more info and create your account visiting the Doofinder site:
 http://www.doofinder.com</description>
    <license>Open Software License (OSL 3.0)</license>
    <license_uri>http://opensource.org/licenses/osl-3.0.php</license_uri>
-   <version>1.8.16</version>
+   <version>1.8.17</version>
    <stability>stable</stability>
-   <notes>Hotfix: Fixed missing parameter in fulltext search resource.</notes>
+   <notes>Better information about cron status.</notes>
    <authors>
       <name>
          <name>Carlos Escribano Rey</name>
@@ -80,7 +80,7 @@ http://www.doofinder.com</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                                                       </files>
+            <files>                                                                                                                        </files>
          </files>
       </package>
       <extension>
