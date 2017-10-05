@@ -6,13 +6,13 @@
 /**
  * @category   Helpers
  * @package    Doofinder_Feed
- * @version    1.8.17
+ * @version    1.8.18
  */
 
 /**
  * Data helper for Doofinder Feed
  *
- * @version    1.8.17
+ * @version    1.8.18
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
