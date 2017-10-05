@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.17
+ * @version    1.8.18
  */
 
 class Doofinder_Feed_Model_Log extends Mage_Core_Model_Abstract
