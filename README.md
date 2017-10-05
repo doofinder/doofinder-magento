@@ -8,6 +8,8 @@ This extension:
 - Allows you to integrate the Doofinder Layer easily into your site
 - Allows you to integrate the Doofinder Search with Magento's default internal search.
 
-More info about how to install and configure here:
+More information:
 
-<http://www.doofinder.com/support/plugins/magento>
+- [Installation and configuration](https://www.doofinder.com/support/plugins/magento)
+- [The module in Magento's Marketplace](https://marketplace.magento.com/doofinder-doofinder-feed.html)
+- [The module in Magento Connect](https://www.magentocommerce.com/magento-connect/catalog/product/view/id/19116/)
