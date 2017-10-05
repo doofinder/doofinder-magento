@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.17
+ * @version    1.8.18
  */
 
 class Doofinder_Feed_Model_System_Config_Source_Feed_Pricetaxmode
@@ -22,10 +22,12 @@ class Doofinder_Feed_Model_System_Config_Source_Feed_Pricetaxmode
      */
     public function toOptionArray()
     {
+        $helper = Mage::helper('doofinder_feed');
+
         return array(
-            array('value' => 0, 'label' => __('Auto')),
-            array('value' => 1, 'label' => __('With Tax')),
-            array('value' => -1, 'label' => __('Without Tax')),
+            array('value' => 0, 'label' => $helper->__('Auto')),
+            array('value' => 1, 'label' => $helper->__('With Tax')),
+            array('value' => -1, 'label' => $helper->__('Without Tax')),
         );
     }
 }
