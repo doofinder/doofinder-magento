@@ -499,6 +499,13 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
 
     public function checkSkipSubmission()
     {
+        // Check title and description
+        if (!$this->_skip) {
+            $title = $this->mapField('title');
+            $description = $this->mapField('description');
+            $this->_skip = !strlen($title) && !strlen($description);
+        }
+
         return $this;
     }
 
