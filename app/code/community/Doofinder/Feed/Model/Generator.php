@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.18
+ * @version    1.8.19
  */
 
 /**
  * Generator model for Doofinder Feed
  *
- * @version    1.8.18
+ * @version    1.8.19
  * @package    Doofinder_Feed
  */
 if (!defined('DS'))
@@ -484,6 +484,9 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
     /**
      *  Get all parent category names (including itself) for selected category ID
+     *
+     *  An empty array will be returned if one of parents is inactive.
+     *
      *  @param int $catId Category ID
      *  @return string Category names concat'd by CATEGORY_TREE_SEPARATOR
      */
@@ -505,6 +508,12 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             ->addAttributeToSelect('*');
 
         foreach ($categories as $category) {
+            // Terminate tree if one of parents is inactive
+            if (!$category->getIsActive()) {
+                $tree = array();
+                break;
+            }
+
             if ($category->getId() != $this->_oRootCategory->getId()) {
                 if ($category->getName()) {
                     $tree[] = strip_tags($category->getName());

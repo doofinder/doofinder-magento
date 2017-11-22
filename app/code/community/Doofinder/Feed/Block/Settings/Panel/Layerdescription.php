@@ -6,7 +6,7 @@
 /**
  * @category   blocks
  * @package    Doofinder_Feed
- * @version    1.8.18
+ * @version    1.8.19
  */
 
 class Doofinder_Feed_Block_Settings_Panel_LayerDescription extends Doofinder_Feed_Block_Settings_Panel_Description

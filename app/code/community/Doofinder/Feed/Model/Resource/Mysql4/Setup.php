@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.18
+ * @version    1.8.19
  */
 // @codingStandardsIgnoreStart
 class Doofinder_Feed_Model_Resource_Mysql4_Setup extends Mage_Core_Model_Resource_Setup

@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.18
+ * @version    1.8.19
  */
 
 /**
  * Abstract Product Map Model for Doofinder Feed
  *
- * @version    1.8.18
+ * @version    1.8.19
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
@@ -499,6 +499,13 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
 
     public function checkSkipSubmission()
     {
+        // Check title and description
+        if (!$this->_skip) {
+            $title = $this->mapField('title');
+            $description = $this->mapField('description');
+            $this->_skip = !strlen($title) && !strlen($description);
+        }
+
         return $this;
     }
 
