@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.19
+ * @version    1.8.20
  */
 
 /**
  * Config model for Doofinder Feed
  *
- * @version    1.8.19
+ * @version    1.8.20
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Model_Config extends Mage_Core_Model_Config_Data
