@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.19
+ * @version    1.8.20
  */
 
 /**
  * Generator model for Doofinder Feed
  *
- * @version    1.8.19
+ * @version    1.8.20
  * @package    Doofinder_Feed
  */
 if (!defined('DS'))
@@ -20,6 +20,7 @@ if (!defined('DS'))
 
 /**
  * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings(PHPMD.TooManyFields)
  */
 class Doofinder_Feed_Model_Generator extends Varien_Object
 {
@@ -52,6 +53,12 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     protected $_errors = array();
 
     protected $_lastProductId;
+
+    /**
+     * Flag for option 'categories_in_navigation'
+     * @var boolean
+     */
+    protected $_includeInMenu;
 
     /**
      * @var Doofinder_Feed_Helper_Log
@@ -101,6 +108,12 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
         Doofinder_Feed_Model_Map_Product_Configurable::setGrouped($this->getData('grouped'));
         // Some config
         $this->_oRootCategory = $this->getRootCategory();
+
+        // Get 'categories_in_navigation' config
+        $this->_includeInMenu = (bool) Mage::getStoreConfig(
+            'doofinder_cron/feed_settings/categories_in_navigation',
+            $this->getStoreId()
+        );
 
         // Generate Feed
         $this->_loadAdditionalAttributes();
@@ -442,12 +455,7 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
             ->addFieldToFilter('path', array('like' => $this->_oRootCategory->getPath() . '/%'))
             ->addFieldToFilter('is_active', array('eq'=>'1'));
 
-        $includeInMenu = Mage::getStoreConfig(
-            'doofinder_cron/feed_settings/categories_in_navigation',
-            $this->getStoreId()
-        );
-
-        if ($includeInMenu == 1) {
+        if ($this->_includeInMenu) {
             $prodCategories->addFieldToFilter('include_in_menu', array('eq'=> '1'));
         }
 
@@ -509,7 +517,10 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
 
         foreach ($categories as $category) {
             // Terminate tree if one of parents is inactive
-            if (!$category->getIsActive()) {
+            // or not included in menu (if it is enabled)
+            if (!$category->getIsActive()
+                || ($this->_includeInMenu && !$category->getIncludeInMenu())
+            ) {
                 $tree = array();
                 break;
             }
