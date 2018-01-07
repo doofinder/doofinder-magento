@@ -1,0 +1,14 @@
+{
+  "name": "doofinder/feed",
+  "license":"proprietary",
+  "type": "magento-module",
+  "description": "Doofinder Feed Module",
+  "require": {
+    "magento-hackathon/magento-composer-installer": "*"
+  },
+  "authors":[
+    {
+      "name":"http://www.doofinder.com/"
+    }
+  ]
+}
