@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.20
+ * @version    1.8.21
  */
 
 /**
  * Generator model for Doofinder Feed
  *
- * @version    1.8.20
+ * @version    1.8.21
  * @package    Doofinder_Feed
  */
 if (!defined('DS'))
@@ -696,11 +696,15 @@ class Doofinder_Feed_Model_Generator extends Varien_Object
     {
         $collection = Mage::getModel('catalog/product')
             ->getCollection()
-            ->addStoreFilter($this->getStoreId());
+            ->addStoreFilter($this->getStoreId())
+            ->setStoreId($this->getStoreId());
 
         $this->_addProductTypeToFilter($collection);
 
-        $collection->addAttributeToFilter('status', 1);
+        $collection->addAttributeToFilter(
+            'status',
+            Mage_Catalog_Model_Product_Status::STATUS_ENABLED
+        );
         $collection->addAttributeToFilter(
             'visibility',
             array(
