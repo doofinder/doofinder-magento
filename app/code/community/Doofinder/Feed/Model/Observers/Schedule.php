@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.20
+ * @version    1.8.21
  */
 
 class Doofinder_Feed_Model_Observers_Schedule
