@@ -283,6 +283,11 @@
                 <request_limit>100</request_limit>
                 <total_limit>500</total_limit>
             </internal_settings>
+
+            <banner_settings>
+                <enabled>0</enabled>
+                <placement>.page-title</placement>
+            </banner_settings>
         </doofinder_search>
     </default>
 
