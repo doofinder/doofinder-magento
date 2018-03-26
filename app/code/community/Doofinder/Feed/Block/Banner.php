@@ -35,7 +35,7 @@ class Doofinder_Feed_Block_Banner extends Mage_Core_Block_Template
     {
         $banner = $this->helper->getBanner();
         if ($banner !== null) {
-            $this->registerBannerDisplay($banner['id']);
+            $this->helper->registerBannerDisplay($banner['id']);
         }
         return $banner;
     }
