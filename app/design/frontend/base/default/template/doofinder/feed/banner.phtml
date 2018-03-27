@@ -4,7 +4,7 @@ $banner = $this->getBanner();
 ?>
 
 <?php if($banner !== null): ?>
-    <div id="doofinder-banner" class="doofinder-banner">
+    <div id="doofinder-banner" class="search-result-banner">
         <a href="<?php /* @escapeNotVerified */ echo $banner['link']; ?>"
             <?php /* @escapeNotVerified */ echo $banner['blank'] ? 'target="_blank"' : ''; ?>>
             <img alt="Doofinder Banner" src="<?php /* @escapeNotVerified */ echo $banner['image']; ?>" />
@@ -15,7 +15,8 @@ $banner = $this->getBanner();
             '<?php echo $this->getAjaxUrl() ?>',
             '<?php echo $banner['id'] ?>',
             'doofinder-banner',
-            '<?php echo $this->getBannerPlacement() ?>'
+            '<?php echo $this->getBannerInsertionPoint() ?>',
+            '<?php echo $this->getBannerInsertionMethod(); ?>'
         );
     </script>
 <?php endif; ?>

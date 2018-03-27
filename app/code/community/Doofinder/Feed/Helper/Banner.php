@@ -83,9 +83,19 @@ class Doofinder_Feed_Helper_Banner extends Mage_Core_Helper_Abstract
      *
      * @return string|null
      */
-    public function getBannerPlacement()
+    public function getInsertionPoint()
     {
-        return Mage::getStoreConfig(self::XML_BANNER_SETTINGS . '/placement', Mage::app()->getStore());
+        return Mage::getStoreConfig(self::XML_BANNER_SETTINGS . '/insertion_point', Mage::app()->getStore());
+    }
+
+    /**
+     * Get banner placement from store config.
+     *
+     * @return string|null
+     */
+    public function getInsertionMethod()
+    {
+        return Mage::getStoreConfig(self::XML_BANNER_SETTINGS . '/insertion_method', Mage::app()->getStore());
     }
 
 }

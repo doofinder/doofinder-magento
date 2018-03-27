@@ -51,12 +51,22 @@ class Doofinder_Feed_Block_Banner extends Mage_Core_Block_Template
     }
 
     /**
-     * Get banner placement.
+     * Get banner insertion point.
      *
      * @return null|string
      */
-    public function getBannerPlacement()
+    public function getBannerInsertionPoint()
     {
-        return $this->helper->getBannerPlacement();
+        return $this->helper->getInsertionPoint();
+    }
+
+    /**
+     * Get banner insertion method.
+     *
+     * @return null|string
+     */
+    public function getBannerInsertionMethod()
+    {
+        return $this->helper->getInsertionMethod();
     }
 }

@@ -286,7 +286,8 @@
 
             <banner_settings>
                 <enabled>0</enabled>
-                <placement>.page-title</placement>
+                <insertion_point>.page-title</insertion_point>
+                <insertion_method>after</insertion_method>
             </banner_settings>
         </doofinder_search>
     </default>
