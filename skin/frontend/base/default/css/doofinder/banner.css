@@ -2,3 +2,7 @@
     text-align: center;
     margin-bottom: 4em;
 }
+
+.search-result-banner img {
+  margin: auto;
+}
