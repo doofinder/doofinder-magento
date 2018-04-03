@@ -590,6 +590,9 @@
                         <insertion_point translate="label">
                             <label>Insertion point</label>
                             <frontend_type>text</frontend_type>
+                            <comment>
+                                CSS selector matching an element of the site. For instance: .page-title
+                            </comment>
                             <sort_order>2</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -599,6 +602,9 @@
                             <label>Insertion method</label>
                             <frontend_type>select</frontend_type>
                             <source_model>doofinder_feed/system_config_source_banner_insertion</source_model>
+                            <comment>
+                                Banner will be inserted relative to the insertion point.
+                            </comment>
                             <sort_order>3</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
