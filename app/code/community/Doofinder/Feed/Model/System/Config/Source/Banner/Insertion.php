@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.20
+ * @version    1.8.22
  */
 
 class Doofinder_Feed_Model_System_Config_Source_Banner_Insertion

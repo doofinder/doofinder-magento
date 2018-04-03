@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.21
+ * @version    1.8.22
  */
 // @codingStandardsIgnoreStart
 class Doofinder_Feed_Model_Mysql4_Log extends Mage_Core_Model_Mysql4_Abstract

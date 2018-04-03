@@ -47,11 +47,13 @@ module.exports = function(grunt) {
             var content_paths = [
                 'app/code/community/Doofinder/**',
                 'app/design/**/doofinder.xml',
+                'app/design/**/doofinder/feed/banner.phtml',
                 'app/etc/modules/Doofinder_Feed.xml',
                 'js/doofinder/**',
                 'lib/Doofinder/**', // TODO: Remove this entry
                 'lib/php-doofinder/**',
                 'skin/adminhtml/default/default/doofinder/**',
+                'skin/frontend/base/default/css/doofinder/**',
                 'var/connect/Doofinder_Feed.xml',
                 'var/connect/package.xml'
             ];

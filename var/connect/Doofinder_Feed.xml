@@ -1,5 +1,5 @@
 <_>
-   <form_key>uEA8K1ATy3bZzVzq</form_key>
+   <form_key>W5eS2gkOznUCTTYK</form_key>
    <name>Doofinder_Feed</name>
    <channel>community</channel>
    <version_ids>
@@ -49,9 +49,9 @@ You can get more info and create your account visiting the Doofinder site:
 http://www.doofinder.com</description>
    <license>Open Software License (OSL 3.0)</license>
    <license_uri>http://opensource.org/licenses/osl-3.0.php</license_uri>
-   <version>1.8.21</version>
+   <version>1.8.22</version>
    <stability>stable</stability>
-   <notes>Fixed problem with multiple catalogs and the data feed.</notes>
+   <notes>Updated Doofinder Library. Add support for Doofinder Banners.</notes>
    <authors>
       <name>
          <name>Carlos Escribano Rey</name>
@@ -80,7 +80,7 @@ http://www.doofinder.com</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                                                             </files>
+            <files>                                                                                                                                 </files>
          </files>
       </package>
       <extension>
@@ -105,6 +105,8 @@ http://www.doofinder.com</description>
          <target>mage</target>
          <target>mageskin</target>
          <target>magelib</target>
+         <target>magedesign</target>
+         <target>mageskin</target>
       </target>
       <path>
          <path/>
@@ -115,6 +117,8 @@ http://www.doofinder.com</description>
          <path>js/doofinder</path>
          <path>adminhtml/default/default/doofinder</path>
          <path>php-doofinder</path>
+         <path>frontend/base/default/template/doofinder/feed/banner.phtml</path>
+         <path>frontend/base/default/css/doofinder/banner.css</path>
       </path>
       <type>
          <type>file</type>
@@ -125,6 +129,8 @@ http://www.doofinder.com</description>
          <type>dir</type>
          <type>dir</type>
          <type>dir</type>
+         <type>file</type>
+         <type>file</type>
       </type>
       <include>
          <include/>
@@ -135,8 +141,12 @@ http://www.doofinder.com</description>
          <include/>
          <include/>
          <include/>
+         <include/>
+         <include/>
       </include>
       <ignore>
+         <ignore/>
+         <ignore/>
          <ignore/>
          <ignore/>
          <ignore/>
