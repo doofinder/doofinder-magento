@@ -4,4 +4,18 @@
             <block type="doofinder_feed/integration" name="doofinder.integration"></block>
         </reference>
     </default>
+
+    <catalogsearch_result_index>
+        <reference name="head">
+            <action method="addJs" ifconfig="doofinder_search/banner_settings/enabled">
+                <script>doofinder/banner.js</script>
+            </action>
+            <action method="addCss">
+                <stylesheet>css/doofinder/banner.css</stylesheet>
+            </action>
+        </reference>
+        <reference name="before_body_end">
+            <block type="doofinder_feed/banner" name="doofinder.banner" template="doofinder/feed/banner.phtml" />
+        </reference>
+    </catalogsearch_result_index>
 </layout>

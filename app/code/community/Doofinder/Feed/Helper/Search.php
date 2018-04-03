@@ -157,6 +157,34 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * Get search results banner data
+     *
+     * @return array|null
+     */
+    public function getDoofinderBannerData()
+    {
+        if ($this->_lastResults) {
+            return $this->_lastResults->getProperty('banner');
+        }
+        return null;
+    }
+
+    /**
+     * Get Doofinder Api Search Client instance
+     *
+     * @return \Doofinder\Api\Search\Client
+     */
+    public function getSearchClient()
+    {
+        $hashId = $this->getHashId();
+        $apiKey = $this->getApiKey();
+
+        $this->loadDoofinderLibrary();
+        $client = new \Doofinder\Api\Search\Client($hashId, $apiKey);
+        return $client;
+    }
+
+    /**
      * Autoloader for 'php-doofinder' library
      */
     protected function autoload($className)

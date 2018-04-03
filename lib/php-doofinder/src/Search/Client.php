@@ -32,18 +32,17 @@ use Doofinder\Api\Search\Error;
  * Basic client to perform requests to Doofinder search servers.
  */
 class Client {
-  const URL_SUFFIX = '-search.doofinder.com';
   const DEFAULT_TIMEOUT = 10000;
   const DEFAULT_RPP = 10;
   const DEFAULT_PARAMS_PREFIX = 'dfParam_';
   const DEFAULT_API_VERSION = '5';
-  const VERSION = '5.4.3';
 
   private $api_key = null; // Authentication
   private $hashid = null;  // ID of the Search Engine
 
   private $apiVersion = null;
-  private $url = null;
+  private $baseAddress = null; // to override default api address
+  private $extraHeaders = array(); // to add custom headers
   private $results = null;
   private $query = null;
   private $search_options = array(); // Assoc. array of request parameters
@@ -58,7 +57,8 @@ class Client {
   private $queryParameter = 'query';
   private $allowedParameters = array('page', 'rpp', 'timeout', 'types',
                                      'filter', 'query_name', 'transformer',
-                                     'sort'); // Valid parameters
+                                     'sort', 'exclude'); // Valid parameters
+  private $sessionId = null; // for stats stuff
 
   /**
    * Constructor.
@@ -84,7 +84,6 @@ class Client {
     if (2 === count($zone_key_array)) {
       $this->api_key = $zone_key_array[1];
       $this->zone = $zone_key_array[0];
-      $this->url = "https://" . $this->zone . self::URL_SUFFIX;
     } else {
       throw new Error("API Key is no properly set.");
     }
@@ -133,6 +132,11 @@ class Client {
     }
   }
 
+  private function getSearchUrl($entryPoint = 'search', $params = array()) {
+    $baseAddress = $this->baseAddress ? $this->baseAddress : sprintf("https://%s-search.doofinder.com/%s", $this->zone, $this->apiVersion);
+    return sprintf("%s/%s?%s", $baseAddress, $entryPoint, http_build_query($this->sanitize($params), '', '&'));
+  }
+
   private function addPrefix($value) {
     return $this->paramsPrefix.$value;
   }
@@ -143,16 +147,16 @@ class Client {
     if ($this->authenticationHeader !== false) {
       $headers[] = sprintf("%s: %s", $this->authenticationHeader, $this->api_key);
     }
+    foreach($this->extraHeaders as $name => $value){
+      $headers[] = sprintf("%s: %s", $name, $value);
+    }
     return $headers;
   }
 
-  private function apiCall($entry_point = 'search', $params = array()){
+  private function apiCall($entryPoint = 'search', $params = array()){
     $params['hashid'] = $this->hashid;
 
-    $session = curl_init(sprintf("%s/%s/%s?%s", $this->url,
-                                                $this->apiVersion,
-                                                $entry_point,
-                                                http_build_query($this->sanitize($params))));
+    $session = curl_init($this->getSearchUrl($entryPoint, $params));
 
     // Configure cURL to return response but not headers
     curl_setopt($session, CURLOPT_CUSTOMREQUEST, 'GET');
@@ -188,6 +192,7 @@ class Client {
    *                       defaults to 10 seconds
    *        - 'types' => types of index to search at. default: all.
    *        - 'filter' => filter to apply. ['color'=>['red','blue'], 'price'=>['from'=>33]]
+   *        - 'exclude' => exclude ['color' => ['yellow']]
    *        - any other param will be sent as a request parameter
    * @return DoofinderResults results
    */
@@ -207,15 +212,23 @@ class Client {
     $params = $this->search_options;
 
     // translate filters
-    if(!empty($params['filter']))
+    if (!empty($params['filter']))
     {
       foreach($params['filter'] as $filterName => $filterValue){
         $params['filter'][$filterName] = $this->updateFilter($filterValue);
       }
     }
 
+    // translate excludes
+    if (!empty($params['exclude']))
+    {
+      foreach($params['exclude'] as $excludeName => $excludeValue){
+        $params['exclude'][$excludeName] = $this->updateFilter($excludeValue);
+      }
+    }
+
     // no query? then match all documents
-    if(!$this->optionExists('query') || !trim($this->search_options['query'])){
+    if (!$this->optionExists('query') || !trim($this->search_options['query'])){
       $params['query_name'] = 'match_all';
     }
 
@@ -228,6 +241,7 @@ class Client {
       $params['query_name'] = $dfResults->getProperty('query_name');
       $params['filter'] = $filter;
     }
+
     $dfResults = new Results($this->apiCall('search', $params));
     $this->page = $dfResults->getProperty('page');
     $this->total = $dfResults->getProperty('total');
@@ -266,6 +280,49 @@ class Client {
    */
   public function getPage(){
     return $this->page;
+  }
+
+  /**
+   * setExclude
+   *
+   * set a exclude for the query
+   * @param string excludeName the name of the exclude to set
+   * @param array exclude if simple array, terms exclude assumed
+   *                     if 'from', 'to' in keys, range exclude assumed
+   */
+  public function setExclude($excludeName, $exclude){
+    $this->search_options['exclude'][$excludeName] = (array) $exclude;
+  }
+
+  /**
+   * getExclude
+   *
+   * get conditions for certain exclude
+   * @param string excludeName
+   * @return array exclude conditions: - simple array if terms exclude
+   *                                  - 'from', 'to'  assoc array if range f.
+   * @return false if no exclude definition found
+   */
+  public function getExclude($excludeName){
+    if (isset($this->search_options['exclude'][$excludeName])) {
+      return $this->search_options['exclude'][$excludeName];
+    }
+
+    return false;
+  }
+
+  /**
+   * getExclude
+   *
+   * get all excludes and their configs
+   * @return array assoc array excludeName => excludeConditions
+   */
+  public function getExcludes() {
+    if (isset($this->search_options['exclude'])) {
+      return $this->search_options['exclude'];
+    }
+
+    return array();
   }
 
   /**
@@ -389,7 +446,7 @@ class Client {
       $toParams[$this->paramsPrefix.'page'] = $page;
     }
 
-    return http_build_query($toParams);
+    return http_build_query($toParams, '', '&');
   }
 
   /**
@@ -456,6 +513,8 @@ class Client {
       if (is_array($value)) {
         $result[$name] = $this->sanitize($value);
       } else if (trim($value)) {
+        $result[$name] = $value;
+      } else if($value === 0) {
         $result[$name] = $value;
       }
     }
@@ -578,4 +637,113 @@ class Client {
     }
     return false;
   }
+
+  /**
+   * generateHash
+   * generate pseudo random md5 hash
+   * @param boolean $refresh if true, regenerates hash
+   * @return string 32 char hash
+   */
+  private function getHash($refresh = false){
+    if(!$this->sessionId || $refresh){
+      $time = time();
+      $rand = rand();
+      $this->sessionId = md5("$time$rand");
+    }
+    return $this->sessionId;
+  }
+
+  /**
+   * cleanSession
+   */
+  public function cleanSession(){
+    $this->sessionId = null;
+  }
+
+  /**
+   * initSession
+   * Starts a session in doofinder search server
+   * @return boolean True if it was successfully registered.
+   */
+  public function initSession(){
+    return $this->apiCall('stats/init', array('session_id'=>$this->getHash())) == '"OK"';
+    return $response == '"OK"';
+  }
+
+  /**
+   * registerClick
+   * Register a click
+   * @param string id id of the product whose link is being clicked
+   * @param string datatype
+   * @param string query query used to get to those results
+   * @return boolean true if it was successfully registered.
+   */
+  public function registerClick($id, $datatype, $query){
+    $response = $this->apiCall('stats/click', array('id'=>$id, 'datatype'=>$datatype, 'query'=>$query));
+    return $response == '"OK"';
+  }
+
+  /**
+   * registerCheckout
+   * register a checkout
+   * @return boolean true if it was successfully registered.
+   */
+  public function registerCheckout(){
+    return $this->apiCall('stats/checkout', array('session_id'=>$this->getHash())) == '"OK"';
+  }
+
+  /**
+   * registerBannerDisplay
+   *
+   * @param string $bannerId the id of the banner
+   * @return boolean true if it was successfully registered.
+   */
+  public function registerBannerDisplay($bannerId){
+    return $this->apiCall('stats/banner_display', array('banner_id'=>$bannerId)) == '"OK"';
+  }
+
+  /**
+   * registerBannerClick
+   *
+   * @param string $bannerId the id of the banner
+   * @return boolean true if it was successfully registered.
+   */
+  public function registerBannerClick($bannerId){
+    return $this->apiCall('stats/banner_click', array('banner_id'=>$bannerId)) == '"OK"';
+  }
+
+  /**
+   * registerRedirection
+   *
+   * @param string $redirectionId the id of the redirection
+   * @param string $query the query that led to this redirection
+   * @param string $link  the url the redirection points to.
+   * @return boolean true if it was successfully registered.
+   */
+  public function registerRedirection($redirectionId, $query, $link){
+    return $this->apiCall('stats/redirect', array('redirection_id'=>$redirectionId, 'query'=>$query, 'link'=>$link)) == '"OK"';
+  }
+
+  /**
+   * setBaseAddress
+   *
+   * overrides default search api address for debug purposes
+   * @param string $baseAddress
+   * @return void
+   */
+  public function setBaseAddress($baseAddress){
+    $this->baseAddress = $baseAddress;
+  }
+
+  /**
+   * setExtraHeaders
+   *
+   * adds extra headers to be sent in every request
+   * @param array $extraHeaders
+   * @return void
+   */
+  public function setExtraHeaders($extraHeaders){
+    $this->extraHeaders = $extraHeaders;
+  }
+
 }
