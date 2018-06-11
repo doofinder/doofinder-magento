@@ -13,3 +13,8 @@ More information:
 - [Installation and configuration](https://www.doofinder.com/support/plugins/magento)
 - [The module in Magento's Marketplace](https://marketplace.magento.com/doofinder-doofinder-feed.html)
 - [The module in Magento Connect](https://www.magentocommerce.com/magento-connect/catalog/product/view/id/19116/)
+
+Thanks to:
+
+- @magently for almost all the development
+- @KarlDeux for #114
