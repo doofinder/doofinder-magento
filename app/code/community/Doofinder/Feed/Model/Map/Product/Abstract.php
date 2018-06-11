@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.23
+ * @version    1.8.24
  */
 
 /**
  * Abstract Product Map Model for Doofinder Feed
  *
- * @version    1.8.23
+ * @version    1.8.24
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
@@ -465,6 +465,8 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
         $field = strip_tags($field);
         $field = preg_replace('/[ ]{2,}/', ' ', $field);
         $field = trim($field);
+        // Use a double slash to prevent the doofinder from treating it as a separator
+        $field = str_replace('/', '//', $field);
         // @codingStandardsIgnoreStart
         $field = html_entity_decode($field, null, 'UTF-8');
         // @codingStandardsIgnoreEnd
