@@ -131,6 +131,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>1</show_in_store>
+                            <comment>Field names must be in lowercase and contain no whitespaces.</comment>
                         </additional>
                         <!--long_description translate="label">
                             <label>Long Description</label>
