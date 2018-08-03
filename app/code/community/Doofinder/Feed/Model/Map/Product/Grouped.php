@@ -23,7 +23,7 @@ class Doofinder_Feed_Model_Map_Product_Grouped
      *
      * @return float
      */
-    public function getPrice()
+    public function getProductPrice($field)
     {
         $price = $this->getMinPrice($this->getProduct());
 
