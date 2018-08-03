@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.25
+ * @version    1.8.26
  */
 
 /**
  * Grouped Product Map Model for Doofinder Feed
  *
- * @version    1.8.25
+ * @version    1.8.26
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Model_Map_Product_Grouped
@@ -23,7 +23,7 @@ class Doofinder_Feed_Model_Map_Product_Grouped
      *
      * @return float
      */
-    public function getPrice()
+    public function getProductPrice($field)
     {
         $price = $this->getMinPrice($this->getProduct());
 
