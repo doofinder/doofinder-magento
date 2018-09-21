@@ -79,7 +79,8 @@ class Doofinder_Feed_Model_Map_Product_Configurable
             'description',
             'price',
             'normal_price',
-            'sale_price'
+            'sale_price',
+            'image_link'
             );
 
         // Check if this product should be in the feed
