@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.26
+ * @version    1.8.27
  */
 
 /**
  * Associated Product Map Model for Doofinder Feed
  *
- * @version    1.8.26
+ * @version    1.8.27
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Model_Map_Product_Associated
@@ -91,7 +91,7 @@ class Doofinder_Feed_Model_Map_Product_Associated
 
     public function mapFieldImageLink($params = array())
     {
-        $value = $this->getCellValue(array('map' => $params['map']));
+        $value = $this->getFieldValue($params);
 
         if ($value == '')
             $value = $this->getParentMap()->mapField('image_link');
