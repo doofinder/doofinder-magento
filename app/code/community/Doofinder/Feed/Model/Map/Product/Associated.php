@@ -91,7 +91,7 @@ class Doofinder_Feed_Model_Map_Product_Associated
 
     public function mapFieldImageLink($params = array())
     {
-        $value = $this->getCellValue(array('map' => $params['map']));
+        $value = $this->getFieldValue($params);
 
         if ($value == '')
             $value = $this->getParentMap()->mapField('image_link');
