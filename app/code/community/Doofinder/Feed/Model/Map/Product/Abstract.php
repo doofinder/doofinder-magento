@@ -209,6 +209,11 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
         return $this->mapDirectiveImageLink($args, 'small_image');
     }
 
+    protected function mapDirectiveMinimalTierPrice()
+    {
+        return $this->getProductPrice('tier_price');
+    }
+
     /**
      * Get product price
      *

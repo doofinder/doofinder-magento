@@ -184,6 +184,9 @@
                     <df_directive_condition>
                         <label><![CDATA[Product Condition]]></label>
                     </df_directive_condition>
+                    <df_directive_minimal_tier_price>
+                        <label><![CDATA[Minimal Tier Price]]></label>
+                    </df_directive_minimal_tier_price>
                 </directives>
 
                 <fields>
