@@ -6,13 +6,13 @@
 /**
  * @category   Helpers
  * @package    Doofinder_Feed
- * @version    1.8.27
+ * @version    1.8.28
  */
 
 /**
  * Data helper for Doofinder Feed
  *
- * @version    1.8.27
+ * @version    1.8.28
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
@@ -71,6 +71,20 @@ class Doofinder_Feed_Helper_Data extends Mage_Core_Helper_Abstract
             case 'sale_price':
                 $salePrice = $product->getPriceModel()->getFinalPrice(null, $product);
                 $price = $product->getData('price') <= $salePrice ? null : $salePrice;
+                break;
+            case 'tier_price':
+                $prices = $product->getTierPrice();
+                if (empty($prices)) {
+                    $price = null;
+                    break;
+                }
+                $price = min(
+                    array_filter(
+                        array_map(function($item) {
+                            return $item['all_groups'] == 1 ? $item['price'] : null;
+                        }, $prices)
+                    )
+                );
                 break;
 
             default:

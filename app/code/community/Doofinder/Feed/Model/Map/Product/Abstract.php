@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.27
+ * @version    1.8.28
  */
 
 /**
  * Abstract Product Map Model for Doofinder Feed
  *
- * @version    1.8.27
+ * @version    1.8.28
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
@@ -207,6 +207,11 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
     protected function mapDirectiveImageLinkSmall($args)
     {
         return $this->mapDirectiveImageLink($args, 'small_image');
+    }
+
+    protected function mapDirectiveMinimalTierPrice()
+    {
+        return $this->getProductPrice('tier_price');
     }
 
     /**
