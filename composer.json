@@ -12,5 +12,16 @@
             "name": "Doofinder",
             "email": "support@doofinder.com"
         }
-    ]
+    ],
+    "extra": {
+        "map" : [
+            ["app/code/community/Doofinder/Feed","app/code/community/Doofinder/Feed"],
+            ["app/design/adminhtml/default/default/layout/doofinder.xml","app/design/adminhtml/default/default/layout/doofinder.xml"],
+            ["app/design/frontend/base/default/layout/doofinder.xml","app/design/frontend/base/default/layout/doofinder.xml"],
+            ["app/design/frontend/base/default/template/doofinder/feed/banner.phtml","app/design/frontend/base/default/template/doofinder/feed/banner.phtml"],
+            ["app/etc/modules/Doofinder_Feed.xml","app/etc/modules/Doofinder_Feed.xml"],
+            ["js/doofinder","js/doofinder"],
+            ["lib/php-doofinder","lib/php-doofinder"],
+            ["var/connect/Doofinder_Feed.xml","var/connect/Doofinder_Feed.xml"]
+        ]
 }
