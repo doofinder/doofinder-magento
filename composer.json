@@ -1,0 +1,19 @@
+{
+    "name": "hevelop/doofinder-magento",
+    "type": "magento-module",
+    "license": "OSL-3.0",
+    "description": "Doofinder search for magento1",
+    "license": [
+        "Commercial"
+    ],
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Doofinder",
+            "email": "support@doofinder.com"
+        }
+    ],
+    "require": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}
