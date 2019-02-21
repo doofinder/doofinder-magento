@@ -12,8 +12,5 @@
             "name": "Doofinder",
             "email": "support@doofinder.com"
         }
-    ],
-    "require": {
-        "magento-hackathon/magento-composer-installer": "*"
-    }
+    ]
 }
