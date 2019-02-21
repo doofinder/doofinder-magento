@@ -24,4 +24,5 @@
             ["lib/php-doofinder","lib/php-doofinder"],
             ["var/connect/Doofinder_Feed.xml","var/connect/Doofinder_Feed.xml"]
         ]
+    }
 }
