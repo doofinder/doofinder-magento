@@ -26,6 +26,15 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
      */
     protected $_log;
 
+    // Default attributes which shouldn't be escaped from slash
+    private $defaultNonEscapedSlash = [
+        'name',
+        'description',
+        'short_description',
+        'sku',
+        'id',
+    ];
+
     /**
      * Initialize log
      */
@@ -471,10 +480,12 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
         $field = strip_tags($field);
         $field = preg_replace('/[ ]{2,}/', ' ', $field);
         $field = trim($field);
-        if ($code === 'sku') {
+
+        if (!in_array($code, $this->defaultNonEscapedSlash)) {
             // Use a double slash to prevent the doofinder from treating it as a separator
             $field = str_replace('/', '//', $field);
         }
+
         // @codingStandardsIgnoreStart
         $field = html_entity_decode($field, null, 'UTF-8');
         // @codingStandardsIgnoreEnd
