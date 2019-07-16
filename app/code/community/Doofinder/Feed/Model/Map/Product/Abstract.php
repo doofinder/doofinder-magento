@@ -6,13 +6,13 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.28
+ * @version    1.8.29
  */
 
 /**
  * Abstract Product Map Model for Doofinder Feed
  *
- * @version    1.8.28
+ * @version    1.8.29
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
@@ -25,6 +25,15 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
      * @var Doofinder_Feed_Helper_Log
      */
     protected $_log;
+
+    // Default attributes which shouldn't be escaped from slash
+    private $defaultNonEscapedSlash = [
+        'name',
+        'description',
+        'short_description',
+        'sku',
+        'id',
+    ];
 
     /**
      * Initialize log
@@ -144,7 +153,7 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
 
         $fieldData = $this->getAttributeValue($product, $attribute);
 
-        return $this->cleanField($fieldData);
+        return $this->cleanField($fieldData, $attribute->getAttributeCode());
     }
 
     protected function mapAttributeDescription($params = array())
@@ -160,7 +169,7 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
 
         $description = $this->getAttributeValue($product, $attribute);
 
-        return $this->cleanField($description);
+        return $this->cleanField($description, $attribute->getAttributeCode());
     }
 
     protected function mapDirectiveId()
@@ -425,15 +434,15 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
         return $assocIds;
     }
 
-    protected function cleanField($field)
+    protected function cleanField($field, $code = '')
     {
         if (is_array($field)) {
             foreach ($field as &$value) {
-                $value = $this->cleanFieldValue($value);
+                $value = $this->cleanFieldValue($value, $code);
                 unset($value);
             }
         } else {
-            $field = $this->cleanFieldValue($field);
+            $field = $this->cleanFieldValue($field, $code);
         }
 
         return $field;
@@ -443,22 +452,23 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
      * Cleans invalid utf8 characters, strips tags and trims
      *
      * @param string|array $field
+     * @param string $code
      */
-    protected function cleanFieldValue($field)
+    protected function cleanFieldValue($field, $code = '')
     {
         // Do nothing if field is empty
         if (!$field) return $field;
 
-        $cleaned = $this->cleanFieldValueArray((array) $field);
+        $cleaned = $this->cleanFieldValueArray((array) $field, (array) $code);
         return is_array($field) ? $cleaned : $cleaned[0];
     }
 
-    protected function cleanFieldValueArray($fields)
+    protected function cleanFieldValueArray($fields, $code)
     {
-        return array_map(array($this, '_cleanFieldValue'), $fields);
+        return array_map(array($this, '_cleanFieldValue'), $fields, $code);
     }
 
-    protected function _cleanFieldValue($field)
+    protected function _cleanFieldValue($field, $code)
     {
         // http://stackoverflow.com/questions/4224141/php-removing-invalid-utf-8-characters-in-xml-using-filter
         $validUtf = '/([\x09\x0A\x0D\x20-\x7E]|[\xC2-\xDF][\x80-\xBF]|' .
@@ -470,8 +480,12 @@ class Doofinder_Feed_Model_Map_Product_Abstract extends Varien_Object
         $field = strip_tags($field);
         $field = preg_replace('/[ ]{2,}/', ' ', $field);
         $field = trim($field);
-        // Use a double slash to prevent the doofinder from treating it as a separator
-        $field = str_replace('/', '//', $field);
+
+        if (!in_array($code, $this->defaultNonEscapedSlash)) {
+            // Use a double slash to prevent the doofinder from treating it as a separator
+            $field = str_replace('/', '//', $field);
+        }
+
         // @codingStandardsIgnoreStart
         $field = html_entity_decode($field, null, 'UTF-8');
         // @codingStandardsIgnoreEnd
