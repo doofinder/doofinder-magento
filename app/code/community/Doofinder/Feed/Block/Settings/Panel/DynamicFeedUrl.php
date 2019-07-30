@@ -6,7 +6,7 @@
 /**
  * @category   blocks
  * @package    Doofinder_Feed
- * @version    1.8.29
+ * @version    1.8.30
  */
 
 class Doofinder_Feed_Block_Settings_Panel_DynamicFeedUrl extends Mage_Adminhtml_Block_System_Config_Form_Field
