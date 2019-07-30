@@ -1,5 +1,5 @@
 <_>
-   <form_key>jCKfVLLcNyUjZqeW</form_key>
+   <form_key>vxkCdAJVKfvi8aX5</form_key>
    <name>Doofinder_Feed</name>
    <channel>community</channel>
    <version_ids>
@@ -49,9 +49,9 @@ You can get more info and create your account visiting the Doofinder site:
 http://www.doofinder.com</description>
    <license>Open Software License (OSL 3.0)</license>
    <license_uri>http://opensource.org/licenses/osl-3.0.php</license_uri>
-   <version>1.8.29</version>
+   <version>1.8.30</version>
    <stability>stable</stability>
-   <notes>Escape slashes that are not intended to serve as separators in Doofinder.</notes>
+   <notes>Update package requirements so it accepts PHP 7.2.0.</notes>
    <authors>
       <name>
          <name>Carlos Escribano Rey</name>
@@ -64,7 +64,7 @@ http://www.doofinder.com</description>
       </email>
    </authors>
    <depends_php_min>5.4.0</depends_php_min>
-   <depends_php_max>6.0.0</depends_php_max>
+   <depends_php_max>7.2.0</depends_php_max>
    <depends>
       <package>
          <name>
@@ -80,7 +80,7 @@ http://www.doofinder.com</description>
             <max/>
          </max>
          <files>
-            <files>                                                                                                                                        </files>
+            <files>                                                                                                                                         </files>
          </files>
       </package>
       <extension>
@@ -157,4 +157,8 @@ http://www.doofinder.com</description>
          <ignore/>
       </ignore>
    </contents>
+   <page>1</page>
+   <limit>200</limit>
+   <folder/>
+   <package/>
 </_>
