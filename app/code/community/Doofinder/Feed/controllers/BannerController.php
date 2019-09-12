@@ -6,13 +6,13 @@
 /**
  * @category   controllers
  * @package    Doofinder_Feed
- * @version    1.8.30
+ * @version    1.8.31
  */
 
 /**
  * Banner Controller
  *
- * @version    1.8.30
+ * @version    1.8.31
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_BannerController extends Mage_Core_Controller_Front_Action

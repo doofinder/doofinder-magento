@@ -6,7 +6,7 @@
 /**
  * @category   blocks
  * @package    Doofinder_Feed
- * @version    1.8.30
+ * @version    1.8.31
  */
 
 class Doofinder_Feed_Block_Settings_Panel_CronDescription extends Doofinder_Feed_Block_Settings_Panel_Description
