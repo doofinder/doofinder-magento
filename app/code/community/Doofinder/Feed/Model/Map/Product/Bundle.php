@@ -18,7 +18,7 @@
 class Doofinder_Feed_Model_Map_Product_Bundle
     extends Doofinder_Feed_Model_Map_Product_Abstract
 {
-    public function getPrice()
+    public function getProductPrice($field)
     {
         $price = 0.0;
 
