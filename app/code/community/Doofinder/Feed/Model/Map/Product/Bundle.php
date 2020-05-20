@@ -6,19 +6,19 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.31
+ * @version    1.8.32
  */
 
 /**
  * Bundle Product Map Model for Doofinder Feed
  *
- * @version    1.8.31
+ * @version    1.8.32
  * @package    Doofinder_Feed
  */
 class Doofinder_Feed_Model_Map_Product_Bundle
     extends Doofinder_Feed_Model_Map_Product_Abstract
 {
-    public function getPrice()
+    public function getProductPrice($field)
     {
         $price = 0.0;
 
