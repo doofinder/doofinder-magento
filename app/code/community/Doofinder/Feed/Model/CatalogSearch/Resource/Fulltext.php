@@ -84,6 +84,9 @@ class Doofinder_Feed_Model_CatalogSearch_Resource_Fulltext extends Mage_CatalogS
 
         // Fetch initial results
         $results = $helper->performDoofinderSearch($queryText);
+        if (empty($results)) {
+            return parent::prepareResult($object, $queryText, $query);
+        }
 
         $adapter = $this->_getWriteAdapter();
 
