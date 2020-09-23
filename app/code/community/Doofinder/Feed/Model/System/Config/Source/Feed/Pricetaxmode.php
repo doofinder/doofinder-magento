@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.32
+ * @version    1.8.33
  */
 
 class Doofinder_Feed_Model_System_Config_Source_Feed_Pricetaxmode
