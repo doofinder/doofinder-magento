@@ -6,7 +6,7 @@
 /**
  * @category   blocks
  * @package    Doofinder_Feed
- * @version    1.8.32
+ * @version    1.8.33
  */
 
 class Doofinder_Feed_Block_Banner extends Mage_Core_Block_Template
@@ -33,11 +33,7 @@ class Doofinder_Feed_Block_Banner extends Mage_Core_Block_Template
      */
     public function getBanner()
     {
-        $banner = $this->helper->getBanner();
-        if ($banner !== null) {
-            $this->helper->registerBannerDisplay($banner['id']);
-        }
-        return $banner;
+        return $this->helper->getBanner();
     }
 
     /**
