@@ -7,6 +7,7 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
 
     protected $_lastSearch = null;
     protected $_lastResults = null;
+    protected $_searchError = false;
 
     /**
      * @var \Doofinder\Api\Management\SearchEngine[]
@@ -70,6 +71,7 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
             // @codingStandardsIgnoreEnd
         } catch (\Doofinder\Api\Search\Error $e) {
             $results = null;
+            $this->_searchError = true;
             Mage::logException($e);
         }
 
@@ -78,6 +80,14 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
         $this->_lastResults = $results;
 
         return $results ? $this->retrieveIds($results) : array();
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getSearchError()
+    {
+        return $this->_searchError;
     }
 
     /**

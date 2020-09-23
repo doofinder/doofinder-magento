@@ -80,10 +80,14 @@ class Doofinder_Feed_Model_CatalogSearch_Resource_Fulltext extends Mage_CatalogS
             return parent::prepareResult($object, $queryText, $query);
         }
 
+        /** @var Doofinder_Feed_Helper_Search $helper */
         $helper = Mage::helper('doofinder_feed/search');
 
         // Fetch initial results
         $results = $helper->performDoofinderSearch($queryText);
+        if ($helper->getSearchError()) {
+            return parent::prepareResult($object, $queryText, $query);
+        }
 
         $adapter = $this->_getWriteAdapter();
 
