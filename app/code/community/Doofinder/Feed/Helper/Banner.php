@@ -47,17 +47,6 @@ class Doofinder_Feed_Helper_Banner extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Register Banner Display in Doofinder API.
-     *
-     * @param integer $bannerId
-     * @return void
-     */
-    public function registerBannerDisplay($bannerId)
-    {
-        $this->searchHelper->getSearchClient()->registerBannerDisplay($bannerId);
-    }
-
-    /**
      * Register Banner Click in Doofinder API.
      *
      * @param $bannerId
