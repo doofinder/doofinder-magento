@@ -23,30 +23,6 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Get api key
-     *
-     * @param string $storeCode
-     * @return string
-     */
-    protected function getApiKey($storeCode = null)
-    {
-        $storeCode = $storeCode === null ? Mage::app()->getStore() : $storeCode;
-        return Mage::getStoreConfig('doofinder_search/internal_settings/api_key', $storeCode);
-    }
-
-    /**
-     * Get hash id
-     *
-     * @param string $storeCode
-     * @return string
-     */
-    protected function getHashId($storeCode = null)
-    {
-        $storeCode = $storeCode === null ? Mage::app()->getStore() : $storeCode;
-        return Mage::getStoreConfig('doofinder_search/internal_settings/hash_id', $storeCode);
-    }
-
-    /**
      * Perform a doofinder search on given key.
      *
      * @param string $queryText
@@ -57,8 +33,9 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
      */
     public function performDoofinderSearch($queryText)
     {
-        $hashId = $this->getHashId();
-        $apiKey = $this->getApiKey();
+        $apiConfiguration = Mage::helper('doofinder_feed/apiConfiguration');
+        $hashId = $apiConfiguration->getHashId();
+        $apiKey = $apiConfiguration->getApiKey();
         $limit = Mage::getStoreConfig('doofinder_search/internal_settings/request_limit', Mage::app()->getStore());
 
         $this->loadDoofinderLibrary();
@@ -138,35 +115,6 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Get Doofinder Search Engine
-     *
-     * @param string $storeCode
-     * @return \Doofinder\Api\Management\SearchEngine
-     */
-    public function getDoofinderSearchEngine($storeCode)
-    {
-        if ($this->_searchEngines === null) {
-            $this->_searchEngines = array();
-
-            // Create DoofinderManagementApi instance
-            $this->loadDoofinderLibrary();
-            $api = new \Doofinder\Api\Management\Client($this->getApiKey($storeCode));
-
-            foreach ($api->getSearchEngines() as $searchEngine) {
-                $this->_searchEngines[$searchEngine->hashid] = $searchEngine;
-            }
-        }
-
-        // Prepare SearchEngine instance
-        $hashId = $this->getHashId($storeCode);
-        if (!empty($this->_searchEngines[$hashId])) {
-            return $this->_searchEngines[$hashId];
-        }
-
-        return false;
-    }
-
-    /**
      * Get search results banner data
      *
      * @return array|null
@@ -186,8 +134,9 @@ class Doofinder_Feed_Helper_Search extends Mage_Core_Helper_Abstract
      */
     public function getSearchClient()
     {
-        $hashId = $this->getHashId();
-        $apiKey = $this->getApiKey();
+        $apiConfiguration = Mage::helper('doofinder_feed/apiConfiguration');
+        $hashId = $apiConfiguration->getHashId();
+        $apiKey = $apiConfiguration->getApiKey();
 
         $this->loadDoofinderLibrary();
         $client = new \Doofinder\Api\Search\Client($hashId, $apiKey);

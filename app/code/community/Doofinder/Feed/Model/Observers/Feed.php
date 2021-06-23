@@ -86,7 +86,9 @@ class Doofinder_Feed_Model_Observers_Feed
                 return;
             }
 
-            $searchEngine = Mage::helper('doofinder_feed/search')->getDoofinderSearchEngine($this->_storeCode);
+            /** @var Doofinder_Feed_Model_Api_SearchEngines $searchEngines */
+            $searchEngines = Mage::getSingleton('doofinder_feed/api_searchEngines');
+            $searchEngine = $searchEngines->get($this->_storeCode);
 
             // Check if search engine exists and skip foreach iteration if not.
             if (!$searchEngine) {
@@ -112,7 +114,10 @@ class Doofinder_Feed_Model_Observers_Feed
             }
 
             if (!empty($products)) {
-                $searchEngine->updateItems('product', $products);
+                /** @var Doofinder_Feed_Model_Api_Items $items */
+                $items = Mage::getSingleton('doofinder_feed/api_items');
+                $items->bulkUpdate($this->_storeCode, $products);
+
                 $this->_log->debugEnabled && $this->_log->debug(
                     sprintf(
                         'Atomic update for product %d in store %s done with: %s',
