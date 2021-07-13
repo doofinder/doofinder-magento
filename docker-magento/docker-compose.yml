@@ -1,0 +1,30 @@
+version: '3.0'
+
+services:
+  web:
+    image: alexcheng/magento
+    ports:
+      - "80:80"
+    links:
+      - db
+    env_file:
+      - env
+    volumes:
+      - ..:/var/doofinder-magento
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+  db:
+    image: mysql:5.6.23
+    volumes:
+      - db-data:/var/lib/mysql/data
+    env_file:
+      - env
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8580:80"
+    links:
+      - db     
+volumes:
+  db-data:
