@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.33
+ * @version    1.9.0
  */
 
 class Doofinder_Feed_Model_System_Config_Backend_Map_Additional

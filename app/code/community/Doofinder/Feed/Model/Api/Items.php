@@ -6,7 +6,7 @@
 /**
  * @category   Models
  * @package    Doofinder_Feed
- * @version    1.8.33
+ * @version    1.9.0
 
  * Class Doofinder_Feed_Model_Api_Items
  * The class responsible for managing Items in Doofinder API

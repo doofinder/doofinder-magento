@@ -6,7 +6,7 @@
 /**
  * @category   Helpers
  * @package    Doofinder_Feed
- * @version    1.8.33
+ * @version    1.9.0
 
  * Class Doofinder_Feed_Helper_ApiConfiguration
  * The class responsible for providing API configuration values
