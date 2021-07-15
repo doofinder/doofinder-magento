@@ -6,7 +6,7 @@
 /**
  * @category   blocks
  * @package    Doofinder_Feed
- * @version    1.8.33
+ * @version    1.9.0
  */
 
 class Doofinder_Feed_Block_Banner extends Mage_Core_Block_Template

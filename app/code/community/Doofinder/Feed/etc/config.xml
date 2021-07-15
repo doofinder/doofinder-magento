@@ -3,7 +3,7 @@
 
     <modules>
         <Doofinder_Feed>
-            <version>1.8.33</version>
+            <version>1.9.0</version>
         </Doofinder_Feed>
     </modules>
     <global>
